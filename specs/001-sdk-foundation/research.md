@@ -236,6 +236,24 @@ by model calls and Postgres units of work. It implements data model §6:
 | reauth (refreshable credential only) | `AuthenticationError` | class `28` with a `token_provider` |
 | fail | `BadRequestError`, `PermissionDeniedError`, `NotFoundError`, others | everything else |
 
+**Libraries considered** (read in source on 2026-10-06, at the author's
+request to prefer a library where one fits):
+- **tenacity 9.1.4** (Apache-2.0, 2026-02-07). It has full jitter
+  (`wait_random_exponential`), an injectable `sleep` and
+  `stop_before_delay`. But `RetryCallState` calls `time.monotonic()`
+  directly, so the clock cannot be injected, and every attempt counts
+  toward `stop_after_attempt`. The `reauth` rule (one retry that uses no
+  attempt, and a second rejection that fails) would need a custom `stop`,
+  `retry`, `wait` and `before_sleep` sharing mutable state, which is more
+  code than the loop it replaces.
+- **stamina 26.1.0** (MIT, over tenacity). A backoff hook can return a
+  float, which covers `Retry-After`. But its jitter is additive, not full
+  jitter, its test mode is global, and it has no `reauth` notion.
+- **backoff 2.2.1** (MIT). Its last release was in 2022-10.
+
+Rejected: the own module is about 80 lines of stdlib code and keeps the
+policy in one place.
+
 **Neo4j:** uses the driver's own managed-transaction retry instead.
 `max_transaction_retry_time` is set to the store retry budget. The driver
 retries `TransientError`, `SessionExpired` and `ServiceUnavailable`, and

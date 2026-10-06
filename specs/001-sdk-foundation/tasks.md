@@ -88,16 +88,16 @@ Dependencies).
 
 **⚠️ CRITICAL**: no story work begins until this phase is complete
 
-- [ ] T006 [P] Write `tests/unit/test_errors.py`. It asserts:
+- [X] T006 [P] Write `tests/unit/test_errors.py`. It asserts:
   - the hierarchy of data-model §1;
   - `ConfigError` is a `ValueError`;
   - every class is re-exported from `tenetrag.protocols` and `tenetrag`;
   - `StructuredOutputError` carries `strategy` and `attempts`.
-- [ ] T007 Implement `src/tenetrag/protocols/errors.py`, stdlib only,
+- [X] T007 Implement `src/tenetrag/protocols/errors.py`, stdlib only,
   following data-model §1. Re-export it from
   `src/tenetrag/protocols/__init__.py` and `src/tenetrag/__init__.py`, so
   T006 passes.
-- [ ] T008 [P] Create `tests/conftest.py` and
+- [X] T008 [P] Create `tests/conftest.py` and
   `tests/integration/conftest.py`.
   - **Root conftest:**
     - registers the markers;
@@ -111,14 +111,14 @@ Dependencies).
       `pgvector/pgvector:0.8.7-pg16` and `-pg17`, each with its digest
       resolved through `docker buildx imagetools inspect` or the Docker
       Hub API when written.
-- [ ] T009 [P] Create `tests/support/secrets.py`.
+- [X] T009 [P] Create `tests/support/secrets.py`.
   - `PLANTED` holds distinctive fake secret strings, such as
     `sk-planted-…` and `pw-planted-…`.
   - `assert_no_secret(*texts)` checks given strings.
   - `assert_exception_clean(exc)` walks `__cause__` and `__context__`,
     checking `str` and `repr` at each level.
   - `assert_logs_clean(caplog)` checks captured log records.
-- [ ] T010 [P] Write `tests/unit/test_retry.py`. It asserts:
+- [X] T010 [P] Write `tests/unit/test_retry.py`. It asserts:
   - attempts stop at `max_attempts`, and total time stops at
     `max_total_seconds`, using an injected clock and sleep;
   - full-jitter backoff stays within bounds;
@@ -128,7 +128,7 @@ Dependencies).
     consume an attempt;
   - a second `reauth` becomes `fail`;
   - `fail` re-raises at once.
-- [ ] T011 Implement `src/tenetrag/_retry.py`, stdlib only, following
+- [X] T011 Implement `src/tenetrag/_retry.py`, stdlib only, following
   data-model §6 and research R10:
   - `RetryPolicy` built from `RetrySettings` values;
   - `Verdict` (`RETRY` with an optional delay, `REAUTH`, `FAIL`);

@@ -1,0 +1,43 @@
+"""Protocols and errors shared by every module, the engine included."""
+
+from tenetrag.protocols.errors import (
+    AuthError,
+    ConfigError,
+    CredentialMismatchError,
+    CredentialRejectedError,
+    CredentialSourceError,
+    LLMError,
+    MissingCredentialError,
+    MissingExtraError,
+    ModelUnavailableError,
+    OutputTruncatedError,
+    QueryError,
+    ResponseError,
+    StorageError,
+    StoreUnavailableError,
+    StructuredOutputError,
+    TenetRAGError,
+    UnsupportedRequestError,
+    UnsupportedServerError,
+)
+
+__all__ = [
+    "AuthError",
+    "ConfigError",
+    "CredentialMismatchError",
+    "CredentialRejectedError",
+    "CredentialSourceError",
+    "LLMError",
+    "MissingCredentialError",
+    "MissingExtraError",
+    "ModelUnavailableError",
+    "OutputTruncatedError",
+    "QueryError",
+    "ResponseError",
+    "StorageError",
+    "StoreUnavailableError",
+    "StructuredOutputError",
+    "TenetRAGError",
+    "UnsupportedRequestError",
+    "UnsupportedServerError",
+]
