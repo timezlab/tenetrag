@@ -1,0 +1,120 @@
+# Draft, 2026-10-04. Design input for the enterprise-docs pack; no code loads it yet.
+# Rationale: docs/product/v1-packs.md. Format: docs/product/domain-packs.md.
+pack: enterprise-docs
+version: 1
+extends: core
+entities:
+  # Internal documents: units, people, works and products inherit the document's issuer as
+  # their scope when the text names none (ADR 0016). Policy v1 of two companies stays two entities.
+  Organization:            # inherited: unit categories added to core's scope condition
+    scope: {inherit: document, when: {category: [department, team, committee, business_unit, branch]}}
+  Person:                  # inherited: an employee ID is tried before core's email key
+    scope: {inherit: document}
+    identity: [[scope, employee_id]]
+    vetoes: [employee_id]
+    attributes:
+      employee_id: {range: str, compare: upper}
+  Work:
+    scope: {inherit: document}   # a contract number is unique only within the party that numbers it
+  Product:
+    scope: {inherit: document}
+  Policy:                  # one entity per issued version; SUPERSEDES links versions
+    description: A named, approved set of internal rules, such as an expense policy or an information security policy.
+    scope: {role: issuer, to: [Organization], inherit: document}
+    identity: [[scope, code], [scope, title, version_label], [scope, title, issued_on]]   # title is the entity's name
+    vetoes: [code, version_label, issued_on]
+    names: versioned       # a mention with no version means the version in force on the citing date
+    version_start: [effective_from, issued_on]
+    document_link: [code, title]
+    attributes:
+      code: {range: str, compare: code}
+      title: {range: str}
+      version_label: {range: str}
+      issued_on: {range: date}
+      status: {range: DocStatus}
+      effective_from: {range: date}
+      effective_to: {range: date}   # describes only: an extension changes it
+  Procedure:
+    description: A named, approved sequence of steps for carrying out work, such as an employee onboarding procedure.
+    scope: {role: issuer, to: [Organization], inherit: document}
+    identity: [[scope, code], [scope, title, version_label], [scope, title, issued_on]]
+    vetoes: [code, version_label, issued_on]
+    names: versioned
+    version_start: [effective_from, issued_on]
+    document_link: [code, title]
+    attributes:
+      code: {range: str, compare: code}
+      title: {range: str}
+      version_label: {range: str}
+      issued_on: {range: date}
+      status: {range: DocStatus}
+      effective_from: {range: date}
+      effective_to: {range: date}
+  Project:
+    description: A named piece of work with a goal, an owner and a timeline.
+    scope: {role: owner, to: [Organization, Person], inherit: document}
+    identity: [[scope, code]]
+    vetoes: [code]
+    attributes:
+      code: {range: str, compare: code}
+      kind: {range: ProjectKind}
+      status: {range: WorkStatus}
+      start_date: {range: date}
+      end_date: {range: date}
+  System:
+    description: A named software system, application or platform.
+    scope: {role: owner, to: [Organization], inherit: document}
+enums:
+  OrgCategory: [department, team, committee, business_unit, branch]   # added to core's values
+  DocStatus: [draft, active, retired]
+  WorkStatus: [planned, active, on_hold, completed, cancelled]
+  ProjectKind: [project, program, initiative]
+  DecisionStatus: [proposed, approved, rejected, deferred, reversed]
+  ActionStatus: [open, in_progress, done, cancelled]
+  Modality: [must, should, may, must_not]
+relations:
+  OWNER_OF:   {from: [Person, Organization], to: [Policy, Procedure, Project, System, Product, Metric], time: interval, cardinality: {one_at_a_time: [object]}}
+  IMPLEMENTS: {from: [Procedure, Policy], to: [Policy, Work], time: interval}
+  APPLIES_TO: {from: [Policy, Procedure], to: [Organization, System, Project, Product], time: interval}
+  SUPERSEDES: {from: [Policy, Procedure, Work], to: [Policy, Procedure, Work], time: point}
+  USES:       {from: [Project, Procedure, Product], to: [System], time: interval}
+events:
+  Meeting:
+    is_a: Event
+    description: A named or dated meeting whose minutes or notes record who attended and what was discussed.
+    roles: {attendee: [Person, Organization], chair: [Person]}
+    attributes: {title: {range: str}}
+    identity: [[time, title], [time, chair]]
+  Decision:
+    is_a: Event
+    description: A choice that a person or body made or recorded, such as approving a budget or rejecting a proposal.
+    roles:
+      decided_by: [Person, Organization]
+      about: [Project, Policy, Procedure, System, Product, Metric, Concept]
+      made_in: [Meeting]
+    attributes: {status: {range: DecisionStatus}, rationale: {range: str}}
+    required: [about]
+    identity: [[time, about, decided_by]]
+facts:
+  ActionItem:
+    description: A task that a source assigns to a person or unit.
+    roles: {owner: [Person, Organization], about: [Project, Policy, Procedure, System, Product], assigned_in: [Meeting]}
+    attributes: {due_date: {range: date}, status: {range: ActionStatus}}
+    required: [owner]
+  Requirement:
+    description: Something a policy, procedure or regulation requires, allows or forbids, including limits on a metric.
+    roles: {source: [Policy, Procedure, Work], applies_to: [Organization, Person, System, Project, Product], metric: [Metric]}
+    attributes: {modality: {range: Modality}, condition: {range: str}, threshold: {range: str}, deadline: {range: date}}
+    required: [source]
+    version_key: [issuer, metric, applies_to, condition]   # one company's limit never supersedes another's
+  ReportedFigure:          # inherited from core: more subject types, nothing else
+    roles: {subject: [Project]}
+competency_questions:
+  - {id: ed-1, text: "Which decisions about X were made, in which meeting, by whom and when?", needs: [Decision, Meeting]}
+  - {id: ed-2, text: "Which version of policy X is in force on date D, and which version did it replace?", needs: [Policy, SUPERSEDES]}
+  - {id: ed-3, text: "Who owns system, product or project X now, and who owned it on date D?", needs: [OWNER_OF]}
+  - {id: ed-4, text: "Which action items owned by team T are still open, and when are they due?", needs: [ActionItem]}
+  - {id: ed-5, text: "Which procedures implement policy or regulation X, and what does X require of whom?", needs: [IMPLEMENTS, Requirement]}
+  - {id: ed-6, text: "What target and actual values were reported for metric M of project P?", needs: [ReportedFigure]}
+  - {id: ed-7, text: "What limits apply to metric M, and which source sets them?", needs: [Requirement]}
+  - {id: ed-8, text: "Everything about project, policy or product X: decisions, definitions, figures, owners and meetings.", needs: [Decision, Definition, ReportedFigure, OWNER_OF, Meeting]}

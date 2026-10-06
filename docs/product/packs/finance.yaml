@@ -1,0 +1,86 @@
+# Draft, 2026-10-04. Design input for the finance pack; no code loads it yet.
+# Rationale: docs/product/v1-packs.md. Format: docs/product/domain-packs.md.
+pack: finance
+version: 1
+extends: core
+entities:
+  Organization:            # inherited: LEI is tried before core's keys
+    attributes:
+      lei: {range: str, compare: upper, unique: global}
+      ticker: {range: str}
+    identity: [[lei]]
+    vetoes: [lei]          # a same-named foreign company has another LEI
+    exact_mappings: ["fibo-be-le-lp:LegalEntity"]
+  Instrument:
+    description: A tradable financial instrument such as a share, bond or fund unit.
+    identity: [[isin], {key: [exchange, ticker], during: [listed_on, delisted_on]}]   # tickers are reused after delisting
+    vetoes: [isin]
+    names: none
+    attributes:
+      isin: {range: str, compare: upper, unique: global}
+      ticker: {range: str, compare: upper}
+      exchange: {range: str, compare: upper}
+      listed_on: {range: date}
+      delisted_on: {range: date}
+      kind: {range: InstrumentKind}
+      currency: {range: str}
+enums:
+  OrgCategory: [bank, insurer, fund, asset_manager, regulator, exchange, rating_agency]
+  InstrumentKind: [share, bond, fund_unit, derivative, other]
+  PeriodKind: [fiscal_year, half_year, quarter, year_to_date, instant]
+  Consolidation: [consolidated, separate]
+  DealStatus: [announced, completed, terminated]
+  RatingActionKind: [assign, upgrade, downgrade, affirm, withdraw, watch]
+  RatingScope: [issuer, issue]
+  CorporateActionKind: [dividend, split, rights_issue, buyback, issuance, listing, delisting, bankruptcy]
+relations:
+  # control is derived from stakes later, never extracted
+  OWNS_STAKE:    {from: [Organization, Person], to: [Organization], time: interval, value: percentage, cardinality: {one_at_a_time: [subject, object]}}
+  SUBSIDIARY_OF: {from: [Organization], to: [Organization], time: interval, exact_mappings: ["gleif:IS_DIRECTLY_CONSOLIDATED_BY"]}
+  ISSUED:        {from: [Organization], to: [Instrument], time: point}
+  LISTED_ON:     {from: [Instrument], to: [Organization], where: {to: {category: [exchange]}}, time: interval}
+  REGULATED_BY:  {from: [Organization], to: [Organization], time: interval}
+  MANAGED_BY:    {from: [Organization], to: [Organization], time: interval, exact_mappings: ["gleif:IS_FUND-MANAGED_BY"]}
+events:
+  Acquisition:
+    is_a: Event
+    description: An organization or person buys a stake in, or all of, another organization.
+    roles: {buyer: [Organization, Person], target: [Organization], seller: [Organization, Person]}
+    attributes: {stake: {range: percentage}, price: {range: money}, status: {range: DealStatus}}
+    required: [buyer, target]
+    identity: [[time, buyer, target]]   # announcement and completion stay two events
+  RatingAction:
+    is_a: Event
+    description: A rating agency assigns, changes, affirms or withdraws a credit rating.
+    roles: {rater: [Organization], rated: [Organization, Instrument]}
+    attributes: {rating: {range: str}, outlook: {range: str}, action: {range: RatingActionKind}, scope: {range: RatingScope}}
+    required: [rater, rated, rating]
+    identity: [[time, rater, rated, scope]]
+  CorporateAction:
+    is_a: Event
+    description: An issuer's action that affects its securities, such as a dividend, split or buyback.
+    roles: {issuer: [Organization], instrument: [Instrument]}
+    attributes: {kind: {range: CorporateActionKind}, amount: {range: money}}
+    required: [issuer, kind]
+    identity: [[time, issuer, kind]]
+facts:
+  ReportedFigure:          # inherited from core: normalization fields for filings
+    roles: {subject: [Instrument]}
+    attributes:
+      currency: {range: str}
+      scale: {range: str}
+      period_kind: {range: PeriodKind}
+      consolidation: {range: Consolidation}
+      segment: {range: str}
+      restated: {range: bool}
+    version_key: [segment, consolidation, period_kind]   # added to core's key
+competency_questions:
+  - {id: fin-1, text: "Who owned what share of company B on date D, according to which document?", needs: [OWNS_STAKE]}
+  - {id: fin-2, text: "Who is the direct parent of company B now, and who was it before?", needs: [SUBSIDIARY_OF]}
+  - {id: fin-3, text: "What revenue did A report for period P, consolidated or separate, and was it restated later?", needs: [ReportedFigure]}
+  - {id: fin-4, text: "Which rating actions did agency R take on A or its bonds in the last year?", needs: [RatingAction]}
+  - {id: fin-5, text: "Which instruments has A issued, and where are they listed?", needs: [ISSUED, LISTED_ON]}
+  - {id: fin-6, text: "Which organizations does regulator X supervise?", needs: [REGULATED_BY]}
+  - {id: fin-7, text: "Which acquisitions did A announce or complete between two dates, at what stake and price?", needs: [Acquisition]}
+  - {id: fin-8, text: "Which dividends, buybacks or splits did A announce?", needs: [CorporateAction]}
+  - {id: fin-9, text: "Who was the chief executive of A in year Y?", needs: [HOLDS_POSITION]}

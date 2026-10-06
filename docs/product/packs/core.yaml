@@ -1,0 +1,106 @@
+# Draft, 2026-10-04. Design input for the core pack; no code loads it yet.
+# Rationale: docs/product/v1-packs.md. Format: docs/product/domain-packs.md.
+pack: core
+version: 1
+mode: strict
+entities:
+  # Identity (ADR 0016): scope, keys, vetoes and the name rule. Names are labels, not identity.
+  # core never inherits a scope from the document: a news publisher is not the employer of
+  # every person it names. enterprise-docs switches inheritance on for internal documents.
+  Person:
+    description: A specific, named human being.
+    examples: [Nguyễn Văn An, Jane Doe]
+    scope: {role: employer, to: [Organization], inherit: none}
+    identity: [[email]]
+    names: evidence          # a shared name merges only with a shared unit or title, else the LLM confirms
+    corroborate: [MEMBER_OF, HOLDS_POSITION]
+    attributes:
+      email: {range: str, compare: lower, unique: global}
+  Organization:
+    description: A named company, agency or institution, or a named unit or group inside one.
+    examples: [Công ty CP Alpha, Acme Corp, Risk Committee]
+    scope: {role: parent, to: [Organization], inherit: none, when: {category: [unit]}}   # units only; companies are unscoped
+    identity: [[registration_id]]
+    vetoes: [registration_id, established_on]
+    attributes:
+      category: {range: OrgCategory}
+      registration_id: {range: str, compare: digits, unique: global}   # a branch's 13-digit code contains its parent's
+      established_on: {range: date}   # a unit re-created under an old name is a new unit
+    exact_mappings: ["schema:Organization", "org:Organization"]
+  Place:
+    description: A named location such as a country, city, address or site.
+    scope: {role: parent, to: [Place], inherit: none}   # two communes of one name in two provinces
+    attributes:
+      kind: {range: PlaceKind}
+  Work:                    # a document the text refers to; the file being indexed is the engine's Document
+    description: A document or work the text refers to by title or number, such as a law, regulation, contract, standard or report. Not the document being read.
+    examples: [ISO 17442, 2025 Annual Report]
+    scope: {role: issuer, to: [Organization, Person], inherit: none}
+    identity: [[scope, code]]
+    vetoes: [code, issued_on]
+    document_link: [code, title]   # exact match to an indexed Document adds TEXT_IN
+    attributes:
+      kind: {range: WorkKind}
+      code: {range: str, compare: code, unique: self_scoped}   # "39/2016/TT-NHNN" names its issuer
+      title: {range: str}
+      issued_on: {range: date}
+  Product:
+    description: A named product or service that an organization offers.
+    scope: {role: provider, to: [Organization], inherit: none}
+    attributes:
+      kind: {range: ProductKind}
+  Metric:                  # anchors both Definition (formula) and ReportedFigure (values)
+    description: A named measure that documents define, calculate or report, such as revenue, churn rate or a ratio.
+    examples: [revenue, churn rate, net interest margin]
+    attributes:            # lexical: the term is the node; each source's meaning is a Definition fact
+      unit: {range: str}
+  Concept:                 # kept narrow on purpose: a catch-all type collects noise
+    description: A term that the text explicitly defines or explains. Not every abstract noun.
+enums:
+  OrgCategory: [company, government_agency, nonprofit, unit, other]
+  PlaceKind: [country, region, city, address, site, other]
+  WorkKind: [law, regulation, contract, standard, report, publication, other]
+  ProductKind: [product, service]
+  FigureBasis: [actual, target, forecast, budget]
+relations:
+  MEMBER_OF:      {from: [Person, Organization], to: [Organization], time: interval}
+  HOLDS_POSITION: {from: [Person], to: [Organization], time: interval, attributes: {title: {range: str, required: true}}}
+  PART_OF:        {from: [Organization], to: [Organization], time: interval}
+  LOCATED_IN:     {from: [Organization, Place], to: [Place], time: interval}
+  ISSUED_BY:      {from: [Work], to: [Organization, Person], time: point}
+  OFFERS:         {from: [Organization], to: [Product], time: interval}
+events:
+  Event:
+    description: Something that happened on a date that no more specific event type covers. Parent of every event type.
+    roles: {participant: [Person, Organization], location: [Place]}
+    attributes: {title: {range: str}}
+    time: point
+    identity: [[time, title]]   # events merge across documents only on a full match of one entry
+facts:
+  Definition:              # one fact per source and version; all versions are kept
+    description: A source's statement of what a term or metric means or how it is calculated.
+    roles: {term: [Concept, Metric], defined_by: [Organization, Person, Work]}
+    attributes: {text: {range: str}, formula: {range: str}, scope: {range: str}}   # text and formula verbatim; scope is where the definition applies, not an entity scope
+    required: [term, text]
+    version_key: [issuer, term, scope]   # facts with equal values are versions of one statement; issuer is engine-owned
+  ReportedFigure:
+    description: A value of a metric for a subject, as a source states it.
+    roles: {metric: [Metric], subject: [Organization, Product, Place, Person]}
+    attributes: {value: {range: str}, unit: {range: str}, period: {range: str}, basis: {range: FigureBasis}}   # value verbatim
+    required: [metric, subject, value]
+    version_key: [metric, subject, period, basis]
+  Statement:
+    description: Something a person or organization said or asserted.
+    roles: {speaker: [Person, Organization], about: [Person, Organization, Product, Concept, Work, Metric]}
+    required: [speaker]
+    extract: false         # off by default; a child pack or the profile can switch it on
+not_entities: [money, date, percentage, number, duration, quantity, url, email, phone]
+# retrieval is query-time: changing it never triggers a re-index
+retrieval: {hub_penalty: [Organization], max_hops: 2}
+competency_questions:
+  - {id: core-1, text: "Who held position T at organization O on date D?", needs: [HOLDS_POSITION]}
+  - {id: core-2, text: "Which units belong to organization O now, and since when?", needs: [PART_OF]}
+  - {id: core-3, text: "How do sources define term or metric X, and did the definition change over time?", needs: [Definition]}
+  - {id: core-4, text: "What value of metric M did a source report for subject S, and for which period?", needs: [ReportedFigure]}
+  - {id: core-5, text: "Which products or services does organization O offer?", needs: [OFFERS]}
+  - {id: core-6, text: "Which organization issued work W, and when?", needs: [ISSUED_BY]}
