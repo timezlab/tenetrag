@@ -1,0 +1,25 @@
+# Synthetic profile: the self-hosted example of contracts/config.md.
+connections:
+  graph:
+    kind: neo4j
+    uri: bolt://localhost:7687
+    credential: {kind: basic, user: neo4j, password_env: NEO4J_PASSWORD}
+models:
+  extraction:
+    provider: openai_compatible
+    base_url: http://localhost:11434/v1     # Ollama
+    model: qwen3
+    credential: {kind: none}
+    capabilities: {strategies: [json_mode, prompt_parse]}
+  answer:
+    provider: openai_compatible
+    base_url: http://localhost:11434/v1
+    model: qwen3
+    credential: {kind: none}
+  embedding:
+    provider: openai_compatible
+    base_url: http://localhost:11434/v1
+    model: bge-m3
+    dimensions: 1024
+    credential: {kind: none}
+language: vi

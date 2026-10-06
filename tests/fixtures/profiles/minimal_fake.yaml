@@ -1,0 +1,5 @@
+# Synthetic profile: three fake models, no connections.
+models:
+  extraction: {provider: fake, model: fake-chat}
+  answer: {provider: fake, model: fake-chat}
+  embedding: {provider: fake, model: fake-embed, dimensions: 8}

@@ -1,0 +1,11 @@
+# Synthetic profile: the Databricks example of contracts/config.md (from a laptop).
+models:
+  extraction:
+    provider: databricks
+    model: databricks-claude-sonnet-5
+    credential: {kind: cli_profile, name: dev}
+  embedding:
+    provider: databricks
+    model: databricks-qwen3-embedding-0-6b
+    dimensions: 1024          # checked by the live smoke test
+    credential: {kind: cli_profile, name: dev}
