@@ -177,6 +177,37 @@ that none of `openai`, `httpx2`, `databricks`, `neo4j`, `psycopg`,
   which breaks the fail-closed rule, and the subclass is a few lines.
   ruamel.yaml would add a dependency to fix one behaviour.
 
+**As built (T023–T027):** the shapes follow data model §2 and §5 to §8,
+with these choices the data model leaves open:
+- `RetrySettings` holds the shape and the backoff-order check. Its
+  subclasses `ModelRetrySettings` and `StoreRetrySettings` carry the two
+  default columns of §6, so a partial `retry:` keeps the right defaults
+  for the fields it omits.
+- `ChatModelSettings` and `EmbeddingModelSettings` are each one model
+  with `provider` as a `Literal`, not a union of per-provider classes.
+  One validator checks the per-provider fields of §2 and reports every
+  mismatch at once.
+- `capabilities.strategies` is a `Literal` of the `Strategy` values,
+  written out because `config` cannot import `llm`. T038 tests that the
+  two agree.
+- Connection names match `^[A-Za-z_][A-Za-z0-9_-]*$`, so a dotted path
+  in an error has one reading. `base_url`, `workspace_url` and Neo4j
+  `uri` reject a user or password in the URL, and the Postgres `host` is
+  a bare host name. Neither error repeats the value.
+- Seconds and `temperature` must be finite: JSON, and so a stage hash,
+  has no infinity or NaN.
+- Sections such as `retry` or `credential` carry no marker or only
+  `IndexTime`/`QueryTime`. `Content()` or `Operational()` on a section
+  is an error, because "every leaf has one marker" would otherwise hold
+  only by inheritance.
+- `field_phases(model=None)` walks `Profile` by default. Mapping keys
+  show as `*` in its paths (`connections.*.uri`). A union field's
+  variants are merged, and two variants giving one path different phases
+  is an error.
+- Errors never chain pydantic's `ValidationError` or a
+  `UnicodeDecodeError`, since their `str` holds input values. YAML
+  errors keep only PyYAML's problem text and position.
+
 ## R8. Stage hashes
 
 - **Decision:** SHA-256 over canonical JSON, as in data model §8, in

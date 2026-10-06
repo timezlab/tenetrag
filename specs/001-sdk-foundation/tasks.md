@@ -229,11 +229,11 @@ runs as written.
 
 ### Tests for User Story 2
 
-- [ ] T019 [P] [US2] Add the synthetic fixture profiles
+- [X] T019 [P] [US2] Add the synthetic fixture profiles
   `tests/fixtures/profiles/selfhosted.yaml` and `databricks.yaml`, copied
   from the two examples in [contracts/config.md](contracts/config.md), and
   `minimal_fake.yaml`, with three fake models.
-- [ ] T020 [P] [US2] Write `tests/unit/config/test_loading.py` with the
+- [X] T020 [P] [US2] Write `tests/unit/config/test_loading.py` with the
   tests of contracts/config.md `test_duplicate_key_rejected`,
   `test_unknown_and_invalid_reported_together` and
   `test_secret_like_key_hint`, plus:
@@ -242,7 +242,7 @@ runs as written.
   - an unreadable path raises `ConfigError` naming the path;
   - a loaded `Profile` is frozen;
   - `profile_from_dict` and `profile_from_yaml` give equal profiles.
-- [ ] T021 [P] [US2] Write `tests/unit/config/test_phases.py`. It covers
+- [X] T021 [P] [US2] Write `tests/unit/config/test_phases.py`. It covers
   `test_every_leaf_has_phase` on `Profile`, plus synthetic models
   showing that:
   - a leaf with no marker fails, naming its path;
@@ -250,7 +250,7 @@ runs as written.
   - an `Operational()` leaf under `IndexTime` resolves to query-time;
   - `models.answer.model` resolves to query-time and
     `models.extraction.model` to index-time `extract`.
-- [ ] T022 [P] [US2] Write `tests/unit/config/test_hashing.py` with:
+- [X] T022 [P] [US2] Write `tests/unit/config/test_hashing.py` with:
   - `test_hash_ignores_query_time`, `test_hash_embedding_only`,
     `test_hash_extraction_only`, `test_hash_default_equals_omitted` and
     `test_hash_golden` (pin the hashes of `selfhosted.yaml` and
@@ -260,7 +260,7 @@ runs as written.
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement `src/tenetrag/config/phases.py`:
+- [X] T023 [P] [US2] Implement `src/tenetrag/config/phases.py`:
   - `Phase` and `Stage` enums, from data-model §8;
   - marker classes `IndexTime(stage)`, `QueryTime`, `Content` and
     `Operational`;
@@ -268,7 +268,7 @@ runs as written.
     nested models, unions and mappings, resolves markers by the
     nearest-phased-ancestor rule, and raises `ConfigError` listing the bad
     paths.
-- [ ] T024 [P] [US2] Implement `src/tenetrag/config/sources.py`, the
+- [X] T024 [P] [US2] Implement `src/tenetrag/config/sources.py`, the
   `CredentialSource` discriminated union on `kind` from data-model §3.
   - Variants: `none`, `api_key(env)`, `basic(user, password_env)`,
     `pat(token_env)`, `oauth_m2m(client_id, client_secret_env)`,
@@ -277,7 +277,7 @@ runs as written.
   - Environment variable names are validated against
     `^[A-Za-z_][A-Za-z0-9_]*$`.
   - Every leaf is marked `Operational()`.
-- [ ] T025 [US2] Implement `src/tenetrag/config/profile.py`, following
+- [X] T025 [US2] Implement `src/tenetrag/config/profile.py`, following
   the tables of data-model §2, §5, §6 and §7:
   - `RetrySettings`, `PoolSettings`, `TlsMode` (`auto`, `require`,
     `verify`, `off`), `Neo4jSettings`, `PostgresSettings` (discriminated
@@ -294,7 +294,7 @@ runs as written.
 
   Every leaf gets exactly one marker. All models are frozen with
   `extra="forbid"`. Depends on T023 and T024.
-- [ ] T026 [US2] Implement `src/tenetrag/config/loading.py` with
+- [X] T026 [US2] Implement `src/tenetrag/config/loading.py` with
   `load_profile`, `profile_from_yaml` and `profile_from_dict`:
   - a `yaml.SafeLoader` subclass whose `construct_mapping` raises on
     duplicate keys, with the line number;
@@ -304,7 +304,7 @@ runs as written.
 
   Export the names from `src/tenetrag/config/__init__.py`. Depends on
   T025.
-- [ ] T027 [US2] Implement `src/tenetrag/config/hashing.py` with
+- [X] T027 [US2] Implement `src/tenetrag/config/hashing.py` with
   `stage_hashes(profile)`, following data-model §8:
   - collect the index-time leaves per stage through `field_phases`;
   - canonical JSON of `{"format": 1, "stage", "fields"}` with sorted keys,
@@ -312,8 +312,22 @@ runs as written.
   - the result is `"sha256:<hex>"` for every `Stage`.
 
   Depends on T023 and T025.
-- [ ] T028 [US2] Run `uv run pytest tests/unit/config -q`, pin the golden
+- [X] T028 [US2] Run `uv run pytest tests/unit/config -q`, pin the golden
   hashes in `test_hashing.py`, and run `make check`.
+
+  Result (2026-10-06): `make check` passes with 282 unit tests, 195 of
+  them in `tests/unit/config`. The tests passed on the first
+  implementation, so 21 deliberate faults were tried in `phases.py`,
+  `loading.py`, `hashing.py` and `profile.py`. Two survived and got
+  tests:
+  - `ensure_ascii=True` changed no hash, since every pinned value was
+    ASCII. A recipe test with a Vietnamese model name now catches it.
+  - Echoing PyYAML's own message leaked nothing in the syntax-error test:
+    PyYAML quotes only about 35 characters on each side of the error
+    mark, and the planted secret sat further away. The test now puts it
+    next to the mark.
+
+  Deviations from the task text are in research R7 "As built".
 
 **Checkpoint**: profiles load, fail loudly, and hash by stage
 
@@ -435,7 +449,10 @@ proves SC-009.
   - an unknown model gets `[prompt_parse]` with no schema limits;
   - overrides replace single fields;
   - creating an embedding model without a known `max_input_tokens` raises
-    `ConfigError`.
+    `ConfigError`;
+  - `tenetrag.config.profile.StrategyName` lists exactly the values of
+    `Strategy`. `config` cannot import `llm`, so the names are written
+    twice.
 - [ ] T039 [P] [US4] Write `tests/unit/llm/test_structured.py`: the
   strategy order, the forbidden keyword and property-count checks before
   any call, re-asking with the validation error appended,
