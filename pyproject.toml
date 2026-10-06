@@ -90,3 +90,39 @@ markers = [
     "docker: needs a Docker daemon and the pinned database images",
     "live: calls real external services; opt-in through named variables",
 ]
+
+# Import rules of research R5 and ARCHITECTURE.md. The engine contract arrives
+# with tenetrag.engine in M1.
+[tool.importlinter]
+root_package = "tenetrag"
+include_external_packages = true
+
+# Higher layers may import lower ones, never the reverse; `|` makes siblings
+# independent. Exhaustive: a new module under tenetrag fails this contract
+# until it is placed in a layer.
+[[tool.importlinter.contracts]]
+name = "Module layers"
+type = "layers"
+containers = ["tenetrag"]
+layers = [
+    "llm | storage",
+    "auth",
+    "config",
+    "protocols | _retry",
+]
+exhaustive = true
+
+[[tool.importlinter.contracts]]
+name = "protocols and config import no optional SDK"
+type = "forbidden"
+source_modules = ["tenetrag.protocols", "tenetrag.config"]
+forbidden_modules = ["openai", "databricks", "neo4j", "psycopg", "psycopg_pool"]
+
+[[tool.importlinter.contracts]]
+name = "auth imports no optional SDK, except databricks-sdk in auth.databricks"
+type = "forbidden"
+source_modules = ["tenetrag.auth"]
+forbidden_modules = ["openai", "databricks", "neo4j", "psycopg", "psycopg_pool"]
+ignore_imports = ["tenetrag.auth.databricks -> databricks"]
+# auth.databricks arrives in US3. A typo here only makes the contract stricter.
+unmatched_ignore_imports_alerting = "none"

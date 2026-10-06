@@ -127,6 +127,17 @@ MIT, BSD, Apache-2.0, PSF-2.0, MIT-0 or Python-2.0, except:
 
 The engine contract arrives with `tenetrag.engine` in M1.
 
+**As built (T014):** rules 1 to 4 are one `layers` contract over the
+container `tenetrag`, from the top: `llm | storage`, `auth`, `config`,
+`protocols | _retry`. `|` makes siblings independent, so `protocols` and the
+stdlib-only `_retry` cannot import each other. The contract is
+`exhaustive`, so a new module under `tenetrag` fails `lint-imports` until
+it is placed in a layer, which a list of forbidden modules would not catch.
+Rule 5 follows from it while M0 has no other modules. Two `forbidden`
+contracts keep `protocols`, `config` and `auth` from `openai`,
+`databricks`, `neo4j`, `psycopg` and `psycopg_pool`, with one ignored
+import, `tenetrag.auth.databricks -> databricks`, for US3.
+
 **Base import test:** a fresh subprocess imports `tenetrag` and asserts
 that none of `openai`, `httpx2`, `databricks`, `neo4j`, `psycopg`,
 `psycopg_pool` is in `sys.modules` (SC-008).
@@ -143,7 +154,14 @@ that none of `openai`, `httpx2`, `databricks`, `neo4j`, `psycopg`,
     `c18668ad3cf93ea998bef934396af7bb5c839dc7` (v10.2.0, an immutable
     release).
   - `actions/checkout` at v7.0.1, pinned by its full SHA, resolved with
-    `git ls-remote` when the workflow is written.
+    `git ls-remote` when the workflow is written:
+    `3d3c42e5aac5ba805825da76410c181273ba90b1` (2026-07-17).
+  - uv itself at 0.12.23 (ADR 0019), with the sha256 of the
+    `x86_64-unknown-linux-gnu` tarball. Without `version`, setup-uv
+    installs the latest uv, which may be under 24 hours old.
+- **Integration job before US5:** `make integration` accepts pytest's
+  exit 5 (no test collected) until T055 adds the first docker test, and
+  T055 removes that allowance.
 - **Python 3.15:** final is due 2026-10-09. It joins the matrix after
   release.
 - **Python 3.11:** in security support only, so the floor is revisited

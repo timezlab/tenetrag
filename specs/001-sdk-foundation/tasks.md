@@ -152,17 +152,17 @@ Then add `import neo4j` to `src/tenetrag/protocols/models.py`, and
 
 ### Tests for User Story 1
 
-- [ ] T012 [P] [US1] Write `tests/unit/test_base_import.py`. It starts a
+- [X] T012 [P] [US1] Write `tests/unit/test_base_import.py`. It starts a
   subprocess (`sys.executable -c "import tenetrag, sys; print(sorted(sys.modules))"`)
   and asserts that none of `openai`, `httpx2`, `httpx`, `databricks`,
   `neo4j`, `psycopg` or `psycopg_pool` is loaded (FR-004, SC-008).
-- [ ] T013 [P] [US1] Write `tests/unit/test_network_blocked.py`. It
+- [X] T013 [P] [US1] Write `tests/unit/test_network_blocked.py`. It
   asserts that opening a TCP socket in a unit test raises pytest-socket's
   `SocketBlockedError`, which proves FR-002's guard is active.
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Add the import-linter contracts of research R5 to
+- [X] T014 [US1] Add the import-linter contracts of research R5 to
   `pyproject.toml` (`[tool.importlinter]`):
   - a forbidden contract keeping `tenetrag.protocols` from importing any
     other `tenetrag` module;
@@ -175,7 +175,10 @@ Then add `import neo4j` to `src/tenetrag/protocols/models.py`, and
     `tenetrag.auth.databricks` for `databricks`.
 
   Then run `uv run lint-imports`.
-- [ ] T015 [P] [US1] Create `Makefile` with these targets:
+
+  Built as one exhaustive `layers` contract plus two `forbidden`
+  contracts; research R5 "As built" explains why.
+- [X] T015 [P] [US1] Create `Makefile` with these targets:
   - `format-check` (`uv run ruff format --check .`);
   - `lint` (`uv run ruff check .`);
   - `types` (`uv run mypy`);
@@ -184,7 +187,7 @@ Then add `import neo4j` to `src/tenetrag/protocols/models.py`, and
   - `integration` (`uv run pytest -m docker`);
   - `check`, which runs the first five in order and stops at the first
     failure.
-- [ ] T016 [P] [US1] Create `.github/workflows/ci.yml`:
+- [X] T016 [P] [US1] Create `.github/workflows/ci.yml`:
   - triggers: `push` and `pull_request`, with `permissions: contents:
     read`;
   - pins: `actions/checkout` pinned by its full SHA for v7.0.1 (resolve
@@ -194,13 +197,22 @@ Then add `import neo4j` to `src/tenetrag/protocols/models.py`, and
     --all-extras`, then `make check`;
   - job `integration`, on Python 3.14: `uv sync --locked --all-extras`,
     then `make integration`.
-- [ ] T017 [US1] Fill the Commands section of `AGENTS.md` with the exact
+- [X] T017 [US1] Fill the Commands section of `AGENTS.md` with the exact
   commands of T015 and the setup line `uv sync --locked --all-extras`.
   Replace "Not set up yet" and keep `AGENTS.md` under 150 lines.
-- [ ] T018 [US1] Run `make check` on the skeleton, and run the negative
+- [X] T018 [US1] Run `make check` on the skeleton, and run the negative
   checks of quickstart §1: a formatting fault, a type error, a forbidden
   import and a failing test each fail their gate. Revert each one, and
   note the results in the task log.
+
+  Result (2026-10-06): `make check` passes in about 1 s, with 87 unit
+  tests, and the CI sequence passes locally on Python 3.11.14 and 3.14.8.
+  Each fault stopped `make check` at its own gate with exit 2:
+  - `x=1` in `llm/__init__.py` stopped at `ruff format --check`;
+  - `count: int = "one"` stopped at `mypy` (`[assignment]`);
+  - `import neo4j` in `protocols/models.py` stopped at `lint-imports`,
+    naming `tenetrag.protocols.models -> neo4j`;
+  - a failing unit test stopped at `pytest` (1 failed, 87 passed).
 
 **Checkpoint**: gates are green and enforced. MVP reached.
 
@@ -578,7 +590,9 @@ images. `uv run pytest tests/unit/storage -q` passes without Docker.
   with the pinned image. It covers `test_health_ok`,
   `test_wrong_password`, `test_database_not_found`,
   `test_restart_recovers` (restart the container inside `write`, and the
-  unit replays) and `test_unavailable` (container stopped).
+  unit replays) and `test_unavailable` (container stopped). Then remove
+  the exit-5 allowance from the `integration` target in `Makefile`, so a
+  run that collects no docker test fails again.
 - [ ] T056 [P] [US5] Write `tests/integration/postgres/test_postgres.py`,
   marked `docker` and parametrized over the pg16 and pg17 images. It
   covers:

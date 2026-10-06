@@ -10,9 +10,10 @@ preferred, or Postgres) ([ADR 0008](docs/decisions/0008-build-databricks-and-ope
 
 **Status:** M0 in progress
 ([specs/001-sdk-foundation](specs/001-sdk-foundation/tasks.md)): the
-package skeleton, tooling and locked dependencies exist, with no features
-yet. The design is settled through ADR 0019, and the constitution is at
-v1.1.0.
+package skeleton, the error types and the quality gates exist, locally and
+in CI; profile loading, credentials, model clients and store connections
+come next. The design is settled through ADR 0019, and the constitution is
+at v1.1.0.
 
 ## Stack
 Python · Postgres/pgvector (local, managed, Lakebase) · Neo4j · Delta via
@@ -47,8 +48,22 @@ these are the rules most often broken.
   against the linked source.
 
 ## Commands
-Not set up yet. M0 adds the formatter, linter, type-checker and pytest; list
-the exact commands here when it does.
+Setup: `uv sync --locked --all-extras` (uv 0.12 or later; it fails if
+`uv.lock` is stale). Run `make check` before calling work done; CI runs the
+same gates on Python 3.11 and 3.14.
+
+| Gate | Command |
+|---|---|
+| all five below, in order | `make check` |
+| format | `uv run ruff format --check .` (`make format-check`) |
+| lint | `uv run ruff check .` (`make lint`) |
+| types | `uv run mypy` (`make types`) |
+| import rules | `uv run lint-imports` (`make imports`) |
+| unit tests, network blocked | `uv run pytest -m "not docker and not live"` (`make test`) |
+| integration, needs Docker | `uv run pytest -m docker` (`make integration`) |
+
+Import rules live in `[tool.importlinter]` in `pyproject.toml`. A new module
+under `tenetrag` fails `lint-imports` until it is placed in a layer there.
 
 ## Docs map
 
