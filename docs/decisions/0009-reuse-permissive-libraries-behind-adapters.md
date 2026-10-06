@@ -1,6 +1,10 @@
 # Reuse permissive libraries behind adapters, outside the engine
 
-**Status:** accepted
+**Status:** accepted; exceptions granted by
+[ADR 0017](0017-allow-psycopg-as-a-narrow-license-exception.md) (psycopg
+under LGPL) and
+[ADR 0018](0018-name-credential-sources-in-the-profile.md) (the OpenAI and
+Databricks SDKs' environment reads), both 2026-10-06.
 **Date:** 2026-10-04
 **Deciders:** Liam Lee (session 2026-10-04)
 

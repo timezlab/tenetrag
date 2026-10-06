@@ -9,9 +9,9 @@ MCP server. Two deployment branches are built in parallel: Databricks
 preferred, or Postgres) ([ADR 0008](docs/decisions/0008-build-databricks-and-open-branches-in-parallel.md)).
 
 **Status:** design phase, no code yet. The design is settled through
-ADR 0016, and the constitution is ratified (v1.0.0). Next milestone is M0
-([SDK brief milestones](docs/product/sdk-platform-brief.md)), started as a
-Spec Kit feature.
+ADR 0019, and the constitution is at v1.1.0. M0 is planned in
+[specs/001-sdk-foundation](specs/001-sdk-foundation/plan.md); next is its
+task list.
 
 ## Stack
 Python · Postgres/pgvector (local, managed, Lakebase) · Neo4j · Delta via
@@ -28,6 +28,8 @@ these are the rules most often broken.
 - **Fail closed on identity.** Credentials are always passed explicitly, and
   a missing credential raises `AuthError`. Never fall back to another
   identity ([ADR 0003](docs/decisions/0003-caller-supplied-credentials.md)).
+  The profile may name a source, never a secret; the OpenAI and Databricks
+  SDKs' own env reads are the one accepted exception ([ADR 0018](docs/decisions/0018-name-credential-sources-in-the-profile.md)).
 - **`engine` depends only on protocols** and the pure `config` and `packs`
   modules. It never imports storage, llm, `databricks-sdk` or `pyspark`
   ([ARCHITECTURE.md](ARCHITECTURE.md)).
@@ -63,6 +65,6 @@ the exact commands here when it does.
 | Know what papers show about a GraphRAG method | [docs/reference/graphrag-research.md](docs/reference/graphrag-research.md) |
 | Pick or reuse a library (license, Vietnamese support, reuse rule) | [docs/reference/supporting-libraries.md](docs/reference/supporting-libraries.md), [ADR 0009](docs/decisions/0009-reuse-permissive-libraries-behind-adapters.md) |
 | See the raw research behind a reference doc | [docs/research/](docs/research/) snapshots (not maintained) via [docs/index.md](docs/index.md#research-snapshots) |
-| Start a feature (3+ tasks or 2+ days; smaller changes go straight in) | Spec Kit `speckit-specify` → `specs/NNN-<name>/` (none yet) |
+| Start a feature (3+ tasks or 2+ days; smaller changes go straight in) | Spec Kit `speckit-specify` → `specs/NNN-<name>/` (first: [001-sdk-foundation](specs/001-sdk-foundation/spec.md)) |
 | Follow coding and security rules | `.agents/rules/` (auto-loaded through `.claude/rules`) |
 | Read standing principles, or check a plan against them | [.specify/memory/constitution.md](.specify/memory/constitution.md) |

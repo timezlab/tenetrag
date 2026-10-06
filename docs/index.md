@@ -23,6 +23,9 @@
 - [decisions/0014-use-synchronous-protocols-with-one-hop-per-store-call.md](decisions/0014-use-synchronous-protocols-with-one-hop-per-store-call.md) — synchronous, batched protocols with a bounded thread pool; the store runs one `hop` per call and the engine composes hops (accepted)
 - [decisions/0015-write-vectors-with-the-graph-when-one-store-holds-both.md](decisions/0015-write-vectors-with-the-graph-when-one-store-holds-both.md) — vectors go in the document's graph transaction when one store holds both; otherwise vectors first, then graph, then cleanup (accepted)
 - [decisions/0016-identify-entities-by-scope-keys-and-vetoes.md](decisions/0016-identify-entities-by-scope-keys-and-vetoes.md) — names are labels, not identity: each entity type declares scope, keys, vetoes and a name rule; extraction quotes every identity value; identity cases in CI with zero wrong merges (accepted)
+- [decisions/0017-allow-psycopg-as-a-narrow-license-exception.md](decisions/0017-allow-psycopg-as-a-narrow-license-exception.md) — psycopg and psycopg-pool (LGPL) allowed in the `postgres` extra only, unmodified and not vendored; every connection parameter passed explicitly (accepted)
+- [decisions/0018-name-credential-sources-in-the-profile.md](decisions/0018-name-credential-sources-in-the-profile.md) — the profile names where a credential comes from, never its value; the OpenAI and Databricks SDKs' own environment reads are accepted with a warning (accepted)
+- [decisions/0019-use-uv-ruff-mypy-pytest-and-import-linter-as-gates.md](decisions/0019-use-uv-ruff-mypy-pytest-and-import-linter-as-gates.md) — repository gates: uv with a 24-hour `exclude-newer`, ruff, mypy strict, pytest with the network blocked, import-linter, GitHub Actions pinned by SHA (accepted)
 
 ## Reference
 - [reference/databricks-platform.md](reference/databricks-platform.md) — verified, dated Databricks facts: Lakebase, OBO matrix, Volumes, AI Search, models, parsing, MLflow, regions

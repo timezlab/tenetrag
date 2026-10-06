@@ -1,6 +1,9 @@
 # Require caller-supplied credentials and never fall back to another identity
 
-**Status:** accepted
+**Status:** accepted; refined by
+[ADR 0018](0018-name-credential-sources-in-the-profile.md) (2026-10-06):
+the profile may name a credential's source, and the official SDKs' own
+environment reads are accepted with a warning.
 **Date:** 2026-10-02
 **Deciders:** Liam Lee (brainstorm session, 2026-10-02)
 

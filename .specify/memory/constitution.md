@@ -1,5 +1,18 @@
 <!--
 Sync Impact Report
+- Version change: 1.0.0 → 1.1.0 (MINOR: two named exceptions expand the
+  guidance of principles II and IX; no principle is removed or redefined)
+- Modified principles:
+  II. Fail Closed on Identity: adds the accepted environment reads of the
+  official OpenAI and Databricks SDKs (ADR 0018)
+  IX. Dated Facts and Vetted Dependencies: the ADR 0009 conditions allow
+  narrow exceptions granted by an ADR (ADR 0017 psycopg, ADR 0018)
+- Added sections: none. Removed sections: none
+- Templates: plan, spec and tasks templates need no edit (✅); AGENTS.md
+  version and identity rule updated (✅)
+- Deferred: none
+
+Previous report (1.0.0):
 - Version change: template (unversioned) → 1.0.0 (first ratification)
 - Principles: the five template slots are replaced by nine principles:
   I. No Adopter Data in Git (NON-NEGOTIABLE); II. Fail Closed on Identity;
@@ -55,6 +68,12 @@ confidential. A leak in git history cannot be taken back.
   configuration or preflight, with the reason, before any query.
 - Real credentials MUST NOT appear in source, config, examples, logs or
   fixtures.
+- Exception (ADR 0018): once the caller has named a source, the official
+  OpenAI and Databricks SDKs may read their own environment variables
+  (`OPENAI_ORG_ID`, `OPENAI_PROJECT_ID`, `OPENAI_CUSTOM_HEADERS`,
+  `DATABRICKS_*`). The SDK passes everything it knows explicitly, and
+  warns when it sees such variables set. With no source named, nothing is
+  read.
 
 Rationale: a silent fallback can read data under the wrong user
 ([ADR 0003](../../docs/decisions/0003-caller-supplied-credentials.md)).
@@ -150,7 +169,10 @@ only measured gains earn a place on the default path.
   its dated reference doc. Preview and Beta items MUST be re-verified
   against the linked source.
 - A third-party library outside the engine sits behind an adapter and
-  meets the six conditions of ADR 0009, including a permissive license.
+  meets the six conditions of ADR 0009, including a permissive license,
+  unless an ADR grants a narrow, named exception. The exceptions are
+  psycopg and psycopg-pool under LGPL (ADR 0017), and the environment
+  reads of principle II (ADR 0018).
 - Before a dependency is added: its exact name is verified, its version is
   checked on OSV (including `MAL-` advisories), its install scripts are
   read, and no version published in the last 24 hours is used. The
@@ -208,4 +230,4 @@ releases and mistyped package names.
   reason in its Complexity Tracking table, and an ADR that contradicts a
   principle amends the constitution first.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 1.1.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
