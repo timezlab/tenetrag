@@ -422,7 +422,8 @@ Milestones (all of them belong to v1, Neo4j included):
 7. Resolved on 2026-10-04: the four non-goals under Out of scope are
    accepted, and the app keeps its full scope.
 8. Resolved on 2026-10-04: reserve `tenetrag` on PyPI with a 0.0.0
-   placeholder before the first public push (author).
+   placeholder before the first public push (author). Done on
+   2026-10-06.
 9. Resolved on 2026-10-04: each document is atomic and a run record marks
    completion, on every backend
    ([ADR 0008](../decisions/0008-build-databricks-and-open-branches-in-parallel.md)).
