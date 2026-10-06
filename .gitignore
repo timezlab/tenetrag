@@ -4,3 +4,15 @@ docs/private/
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Python tooling
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+dist/
+build/
+*.egg-info/
+
+# Local environment files may hold secrets
+.env

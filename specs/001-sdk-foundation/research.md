@@ -21,6 +21,7 @@ CPython 3.11–3.14, so no build script runs on install [pypi].
 | mypy | 2.4.0 | MIT | type checker (dev) |
 | pytest | 9.1.1 | MIT | tests (dev) |
 | pytest-socket | 0.8.1 | MIT | blocks network in unit tests (dev) |
+| types-PyYAML | 6.0.12.20260906 | Apache-2.0 | PyYAML stubs for mypy (dev); uploaded 2026-09-06, added at lock time |
 | import-linter | 2.15 | BSD-2-Clause | import rules (dev) |
 | testcontainers | 4.15.0 | Apache-2.0 | Docker in integration tests (dev only: its Ryuk reaper pulls an image) |
 | pydantic | 2.13.5 | MIT | profile model (base) |
@@ -34,6 +35,25 @@ CPython 3.11–3.14, so no build script runs on install [pypi].
 `openai` 3.x brings `httpx2` (Pydantic's fork of httpx, BSD-3-Clause).
 Its old advisories are fixed in 2.12.0. The latest, 2.13.1, has none
 [osv].
+
+**Lock check (T005, 2026-10-06 09:15 UTC).** `uv lock` with uv 0.12.23
+resolved 65 packages and recorded `exclude-newer-span = "PT24H"`. Every
+direct dependency locked at the version in the table above (`neo4j`
+6.3.1, `httpx2` 2.13.1). The newest upload in the lock is `rpds-py`
+2026.9.1, 40.7 hours old, and every package has wheels. An OSV querybatch
+for all 64 third-party packages in `uv.lock` returned 0 advisories and no
+`MAL-` entry [osv].
+
+Runtime licenses of the transitive dependencies (base and all extras) are
+MIT, BSD, Apache-2.0, PSF-2.0, MIT-0 or Python-2.0, except:
+- `psycopg`, `psycopg-binary` and `psycopg-pool`: LGPL-3.0-only, allowed
+  by ADR 0017;
+- `certifi` 2026.7.22: MPL-2.0, pulled in by `requests` through
+  `databricks-sdk` (the `databricks` extra) and through `docker` (dev,
+  via testcontainers). MPL-2.0 is file-level copyleft
+  that applies only to modified certifi files; TenetRAG uses it
+  unmodified [inferred, not legal advice]. The author accepted it as
+  "equivalent" on 2026-10-06, recorded in ADR 0009 condition 1.
 
 ## R1. Package manager and build
 
@@ -57,6 +77,10 @@ Its old advisories are fixed in 2.12.0. The latest, 2.13.1, has none
     formatter.
 - **Rationale:** one fast tool replaces black, isort and flake8 with
   plugins. `TID` bans relative imports and complements import-linter.
+- **Scope:** ruff 0.16 also formats Python code blocks inside Markdown
+  [observed at T005]. `pyproject.toml` excludes `*.md`, because the code
+  in docs and specs is design sketches, and excludes `.agents` and
+  `.claude`, the agent harness scripts.
 
 ## R3. Type checker
 

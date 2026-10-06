@@ -8,10 +8,11 @@ MCP server. Two deployment branches are built in parallel: Databricks
 (Lakebase by default, Delta, pgvector or AI Search) and elsewhere (Neo4j
 preferred, or Postgres) ([ADR 0008](docs/decisions/0008-build-databricks-and-open-branches-in-parallel.md)).
 
-**Status:** design phase, no code yet. The design is settled through
-ADR 0019, and the constitution is at v1.1.0. M0 is planned in
-[specs/001-sdk-foundation](specs/001-sdk-foundation/plan.md); next is its
-task list.
+**Status:** M0 in progress
+([specs/001-sdk-foundation](specs/001-sdk-foundation/tasks.md)): the
+package skeleton, tooling and locked dependencies exist, with no features
+yet. The design is settled through ADR 0019, and the constitution is at
+v1.1.0.
 
 ## Stack
 Python · Postgres/pgvector (local, managed, Lakebase) · Neo4j · Delta via

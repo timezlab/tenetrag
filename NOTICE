@@ -1,0 +1,16 @@
+TenetRAG
+Copyright 2026 Liam Lee
+
+This product is licensed under the Apache License, Version 2.0. See the
+LICENSE file.
+
+Optional dependencies under other licenses
+------------------------------------------
+
+The `postgres` extra installs the following packages from PyPI as separate
+distributions. TenetRAG does not bundle, vendor or modify them (ADR 0017).
+
+- psycopg (with the `binary` extra), licensed under LGPL-3.0-only.
+  https://www.psycopg.org/
+- psycopg-pool, licensed under LGPL-3.0-only.
+  https://www.psycopg.org/

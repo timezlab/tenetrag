@@ -30,7 +30,7 @@ Dependencies).
 
 **Purpose**: package, tooling configuration and the locked dependency set
 
-- [ ] T001 Create `pyproject.toml` with:
+- [X] T001 Create `pyproject.toml` with:
   - project `tenetrag`, version `0.1.0.dev0`, `requires-python = ">=3.11"`,
     license `Apache-2.0`, and hatchling as the build backend over a `src/`
     layout;
@@ -45,10 +45,10 @@ Dependencies).
   - `[tool.uv] exclude-newer = "24 hours"`.
 
   Use the research.md version table.
-- [ ] T002 [P] Add `LICENSE` with the official Apache-2.0 text, and
+- [X] T002 [P] Add `LICENSE` with the official Apache-2.0 text, and
   `NOTICE` naming TenetRAG's copyright plus psycopg and psycopg-pool under
   LGPL-3.0-only, as ADR 0017 requires.
-- [ ] T003 [P] Create the package skeleton:
+- [X] T003 [P] Create the package skeleton:
   - `src/tenetrag/__init__.py` with `__version__`, `src/tenetrag/py.typed`;
   - empty `__init__.py` files in `src/tenetrag/protocols/`, `config/`,
     `auth/`, `llm/` and `storage/`;
@@ -56,7 +56,7 @@ Dependencies).
     `__init__.py` where pytest needs them;
   - `.venv/`, `.mypy_cache/`, `.ruff_cache/`, `.pytest_cache/`, `dist/`
     and `build/` appended to `.gitignore`.
-- [ ] T004 Add the tool configuration to `pyproject.toml`:
+- [X] T004 Add the tool configuration to `pyproject.toml`:
   - ruff: line length 100, rules `E F W I B UP S SIM RUF ANN PT TID BLE N`,
     `tests/**` ignoring `S101` and `ANN`, `COM812` and `ISC001` off;
   - mypy: `strict = true`, `packages = ["tenetrag"]`, the `pydantic.mypy`
@@ -66,7 +66,7 @@ Dependencies).
     `docker` and `live`, `testpaths = ["tests"]`.
 
   Depends on T001.
-- [ ] T005 Run the dependency gate and lock:
+- [X] T005 Run the dependency gate and lock:
   1. Run `uv lock`, so `exclude-newer` applies.
   2. Confirm each direct dependency's locked version is older than
      24 hours and matches research.md, adding `types-PyYAML`'s license and

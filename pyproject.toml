@@ -1,0 +1,92 @@
+[build-system]
+requires = ["hatchling>=1.32.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tenetrag"
+dynamic = ["version"]
+description = "Temporal Entity Network with Evidence Trails for Retrieval-Augmented Generation: a Python SDK for GraphRAG."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.11"
+authors = [{ name = "Liam Lee" }]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python :: 3 :: Only",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pydantic>=2.13,<3",
+    "PyYAML>=6.0.3",
+    "jsonschema>=4.26",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=3.24,<4"]
+databricks = ["openai>=3.24,<4", "databricks-sdk>=0.146"]
+neo4j = ["neo4j>=6.3.1,<7"]
+# LGPL-3.0-only, allowed only in this extra (ADR 0017).
+postgres = ["psycopg[binary]>=3.3.6,<4", "psycopg-pool>=3.3.3,<4"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.10",
+    "mypy>=2.4.0",
+    "types-PyYAML>=6.0.12.20260906",
+    "pytest>=9.1.1",
+    "pytest-socket>=0.8.1",
+    "import-linter>=2.15",
+    "testcontainers[neo4j]>=4.15.0",
+]
+
+[tool.hatch.version]
+path = "src/tenetrag/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tenetrag"]
+
+# Ship code, tests and license files only; docs, specs and the agent harness stay in git.
+[tool.hatch.build.targets.sdist]
+include = ["/src/tenetrag", "/tests", "/README.md", "/LICENSE", "/NOTICE", "/pyproject.toml"]
+
+[tool.uv]
+# Dependency gate: never resolve a version published in the last 24 hours.
+exclude-newer = "24 hours"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+# Agent harness scripts (hooks, skills) are vendored tooling, not TenetRAG code.
+# Code blocks in Markdown docs and specs are design sketches, not code.
+extend-exclude = [".agents", ".claude", "*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF", "ANN", "PT", "TID", "BLE", "N"]
+# Both conflict with the formatter.
+ignore = ["COM812", "ISC001"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "ANN"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.mypy]
+strict = true
+packages = ["tenetrag"]
+mypy_path = "src"
+plugins = ["pydantic.mypy"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers --disable-socket"
+testpaths = ["tests"]
+markers = [
+    "docker: needs a Docker daemon and the pinned database images",
+    "live: calls real external services; opt-in through named variables",
+]

@@ -51,7 +51,10 @@ It found:
    `serving` adapter. It sits behind an adapter that implements one of our
    protocols or registries, and all six conditions hold:
    1. The license is permissive (MIT, BSD, Apache-2.0 or equivalent). No
-      GPL or AGPL, even as an option.
+      GPL or AGPL, even as an option. A transitive dependency under the
+      file-level copyleft MPL-2.0, used unmodified, counts as equivalent;
+      the first case is `certifi`, through `requests` (author,
+      2026-10-06).
    2. It lives in an optional extra. Importing the base package does not
       import it.
    3. It reads no ambient credentials. The adapter passes every key, token,
