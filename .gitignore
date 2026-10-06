@@ -1,0 +1,6 @@
+# Adopter-specific notes (e.g. the first adopter's use case) — never commit
+docs/private/
+
+# Python bytecode
+__pycache__/
+*.pyc
