@@ -11,9 +11,10 @@ preferred, or Postgres) ([ADR 0008](docs/decisions/0008-build-databricks-and-ope
 **Status:** M0 in progress
 ([specs/001-sdk-foundation](specs/001-sdk-foundation/tasks.md)): the
 package skeleton, the error types, the quality gates (locally and in CI),
-profile loading with stage hashes, credentials, and the chat and
-embedding model clients exist; store connections come next. The design is settled through ADR 0019, and the constitution is
-at v1.1.0.
+profile loading with stage hashes, credentials, the chat and embedding
+model clients, the Neo4j and Postgres connections, and a local Docker
+Compose stack exist; the docs and final checks of Phase 8 come next. The
+design is settled through ADR 0019, and the constitution is at v1.1.0.
 
 ## Stack
 Python · Postgres/pgvector (local, managed, Lakebase) · Neo4j · Delta via
@@ -61,6 +62,9 @@ same gates on Python 3.11 and 3.14.
 | import rules | `uv run lint-imports` (`make imports`) |
 | unit tests, network blocked | `uv run pytest -m "not docker and not live"` (`make test`) |
 | integration, needs Docker | `uv run pytest -m docker` (`make integration`) |
+
+Local Neo4j and Postgres: `make dev-up` / `make dev-down`, or `make prod-up`
+for a long-running stack ([docs/guides/local-stack.md](docs/guides/local-stack.md)).
 
 Import rules live in `[tool.importlinter]` in `pyproject.toml`. A new module
 under `tenetrag` fails `lint-imports` until it is placed in a layer there.

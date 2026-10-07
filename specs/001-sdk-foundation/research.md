@@ -488,6 +488,73 @@ matters for identity.
 psycopg. pg8000 also defaults to unverified TLS that falls back to
 plaintext [source: pg8000 `core.py:218-240`].
 
+**As built (T054, T056, T057, T059),** against psycopg 3.3.6 (libpq
+18.0.6 in the binary wheel) and psycopg-pool 3.3.3:
+- **No SQLSTATE at connect.** A failed login raises `OperationalError`
+  with `sqlstate` None, so the class-`28` re-mint above cannot work. A
+  spike on pg16 showed it. A rejection is read from the server's message
+  instead: `password authentication failed`, `no pg_hba.conf entry` or
+  `pg_hba.conf rejects connection`. A server whose `lc_messages` is not
+  English words these differently; its rejections then count as failed
+  connections, are retried, and end as `StoreUnavailableError` with
+  libpq's text as the cause. `database "…" does not exist` is read the
+  same way and raises `QueryError` at once.
+- **The password stays on the error.** A failed connection keeps libpq's
+  `FinishedPGconn` on `exc.pgconn`, and it holds the password. The login
+  class re-raises every connection failure as a new error of the same
+  class, with the password masked in the text and no `pgconn`, outside
+  the `except` block. So connection errors are chained like any other,
+  and what the pool logs (`str(ex)`) is masked too. The leak test checks
+  that no error in a chain keeps a `pgconn`.
+- **The password is added per connection, not by a `kwargs` callable.**
+  The pool's `kwargs` hold everything but the password. The
+  `connection_class` is built per connection object, bound to the
+  credential, and adds the `basic` password or the current token when
+  the pool calls `connect`. A rejected token is invalidated and re-minted
+  once for that connection; a `basic` rejection raises at once. The note
+  on `CredentialRejectedError` gives the server's reason.
+- **Tokens come from the credential's cache.** Each new connection asks
+  the token source, which re-mints only within 60 s of expiry, so a
+  long-lived token is shared by connections until then.
+- **One connection outside the pool first.** `open(wait=True)` turns
+  every connect failure into `PoolTimeout` after the timeout, so opening
+  first makes one connection under the retry policy, which raises a
+  rejection or a missing database at once, then opens the pool. A pool
+  that still cannot fill raises `StoreUnavailableError`; a closed pool
+  fails at once instead of being retried.
+- **More explicit parameters.** `sslcertmode=disable`,
+  `gssencmode=disable` and `require_auth=!gss,!sspi`, so no client
+  certificate, Kerberos ticket or SSPI login is used, plus
+  `sslrootcert=system` with `tls: verify` and `connect_timeout` rounded
+  up to whole seconds. Opening refuses a libpq older than 16, which lacks
+  the first and the last.
+- **Environment still read.** libpq takes any parameter left unset from
+  `PG*` variables, and an empty parameter counts as unset, so a variable
+  cannot be blocked by passing `""`. A spike showed that `PGHOSTADDR`
+  sends the connection to its address while `host` stays as given, so
+  only `tls: verify` would notice another server. The cause is in
+  psycopg 3.3.6: it resolves `host` into an explicit `hostaddr` itself,
+  but skips that when PGHOSTADDR is set (`_conninfo_attempts.py:90`,
+  `get_param` reads `os.environ`). Settled with the author on 2026-10-07:
+  - Each physical connection resolves `host` with `socket.getaddrinfo`,
+    as psycopg does, and passes every address as `hostaddr`, with `host`
+    repeated once per address. An explicit `hostaddr` wins over the
+    variable (spike), TLS still checks the name in `host`, and each new
+    connection looks the name up again. A failed lookup raises psycopg's
+    own `OperationalError`, so it is retried like a refused connection.
+  - `PGSERVICE` cannot redirect once host, `hostaddr`, port and dbname
+    are explicit (spike), but its service file can set `options`.
+    `PGOPTIONS` sends server settings such as `search_path`. Masking
+    either means always sending `options`, which poolers that limit
+    startup parameters may reject, so opening raises `ConfigError` while
+    either is set. An empty value is refused too: libpq looks up a
+    service named `""` for an empty `PGSERVICE` and fails as if the
+    server were down (spike).
+- **A rejection after opening.** The pool makes new connections in
+  background workers. A rejection there is logged by the pool as a
+  warning, and the waiting unit ends with `PoolTimeout`, then
+  `StoreUnavailableError`.
+
 ## R13. Neo4j driver
 
 **Decision:** `GraphDatabase.driver(uri, auth=…)` with these settings:
@@ -513,6 +580,24 @@ plaintext [source: pg8000 `core.py:218-240`].
 
 **Environment:** the driver reads only `PYTHONNEO4JDEBUG` and
 `SSLKEYLOGFILE`, neither a credential [source].
+
+**As built (T053, T055, T057, T058),** against neo4j 6.3.1:
+- **Health without `verify_connectivity()`.** `CALL dbms.components()`
+  runs as a read unit on the configured database, which connects,
+  authenticates and checks that the database exists in one step. The
+  `Neo4j Kernel` row gives the version and edition.
+- **TLS.** `require` sets `encrypted=True` with `TrustAll()`, and
+  `verify` sets `TrustSystemCAs()`, both on a plain scheme only. The
+  driver refuses these settings with a `+s` scheme, which encrypts and
+  checks the certificate against the system CAs itself. `off` with a
+  `+s` scheme raises `ConfigError`.
+- **Errors.** `SessionExpired` and `ConnectionAcquisitionTimeoutError`
+  also map to `StoreUnavailableError`. A rejected credential is raised
+  without the driver's error, whose text came from the server; other
+  driver errors hold no secret and are chained.
+- `connection_timeout` is set from `connect_timeout_seconds`.
+- In tests, `Neo4jError._hydrate_neo4j(code=…, message=…)` builds the
+  same error class the driver builds for a server code.
 
 ## R14. Where errors live
 

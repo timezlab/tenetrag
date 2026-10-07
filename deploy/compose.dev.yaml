@@ -1,0 +1,18 @@
+# Local development (docs/guides/local-stack.md): ports on 127.0.0.1, and
+# passwords from deploy/.env. The SDK runs on the host. A backend service that
+# runs from mounted code and reloads on change joins this file with the server.
+name: tenetrag-dev
+
+services:
+  neo4j:
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?set NEO4J_PASSWORD in deploy/.env, 8 characters or more}
+    ports:
+      - "127.0.0.1:${NEO4J_BOLT_PORT:-7687}:7687"
+      - "127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474"
+
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"

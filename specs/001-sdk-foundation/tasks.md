@@ -613,7 +613,7 @@ images. `uv run pytest tests/unit/storage -q` passes without Docker.
 
 ### Tests for User Story 5
 
-- [ ] T053 [P] [US5] Write `tests/unit/storage/test_neo4j_unit.py`. It
+- [X] T053 [P] [US5] Write `tests/unit/storage/test_neo4j_unit.py`. It
   patches `neo4j.GraphDatabase.driver` and covers:
   - `test_tls_auto` for Neo4j URIs;
   - `test_telemetry_disabled`;
@@ -624,7 +624,7 @@ images. `uv run pytest tests/unit/storage -q` passes without Docker.
   - `test_health_floor`, with faked `dbms.components()` rows below
     2026.09;
   - `MissingExtraError` when `neo4j` is not importable.
-- [ ] T054 [P] [US5] Write `tests/unit/storage/test_postgres_unit.py`. It
+- [X] T054 [P] [US5] Write `tests/unit/storage/test_postgres_unit.py`. It
   patches `psycopg_pool.ConnectionPool` and covers:
   - every connection parameter is passed explicitly: host, port, dbname,
     user, password and `sslmode` (`require` remote, `disable` local,
@@ -636,7 +636,7 @@ images. `uv run pytest tests/unit/storage -q` passes without Docker.
   - the `connection_class` re-mint, using a fake `connect` that fails
     once with SQLSTATE `28P01`;
   - `test_identity_isolation`.
-- [ ] T055 [P] [US5] Write `tests/integration/neo4j/test_neo4j.py`,
+- [X] T055 [P] [US5] Write `tests/integration/neo4j/test_neo4j.py`,
   marked `docker`, on `neo4j:2026.09.0-community` through testcontainers
   with the pinned image. It covers `test_health_ok`,
   `test_wrong_password`, `test_database_not_found`,
@@ -644,7 +644,7 @@ images. `uv run pytest tests/unit/storage -q` passes without Docker.
   unit replays) and `test_unavailable` (container stopped). Then remove
   the exit-5 allowance from the `integration` target in `Makefile`, so a
   run that collects no docker test fails again.
-- [ ] T056 [P] [US5] Write `tests/integration/postgres/test_postgres.py`,
+- [X] T056 [P] [US5] Write `tests/integration/postgres/test_postgres.py`,
   marked `docker` and parametrized over the pg16 and pg17 images. It
   covers:
   - `test_health_ok`, which includes confirming `pg_trgm` and `vector`
@@ -659,11 +659,11 @@ images. `uv run pytest tests/unit/storage -q` passes without Docker.
 
 ### Implementation for User Story 5
 
-- [ ] T057 [P] [US5] Implement `HealthReport` and `open_connection` in
+- [X] T057 [P] [US5] Implement `HealthReport` and `open_connection` in
   `src/tenetrag/storage/__init__.py`. Dispatch by `settings.kind`, resolve
   the credential through `resolve_credential`, and import the drivers
   lazily with `MissingExtraError`.
-- [ ] T058 [US5] Implement `Neo4jConnection` in
+- [X] T058 [US5] Implement `Neo4jConnection` in
   `src/tenetrag/storage/neo4j.py`, following research R13:
   - **TLS:** the `auto` check on the URI scheme, where loopback hosts are
     `localhost`, `127.0.0.0/8` and `::1`.
@@ -684,7 +684,7 @@ images. `uv run pytest tests/unit/storage -q` passes without Docker.
     - other errors map to `QueryError`.
 
   Depends on T057.
-- [ ] T059 [US5] Implement `PostgresConnection` in
+- [X] T059 [US5] Implement `PostgresConnection` in
   `src/tenetrag/storage/postgres.py`, following research R12:
   - **Parameters:** a kwargs callable returns every parameter explicitly
     on each new connection, with a fresh token for `token_provider`.
@@ -702,13 +702,58 @@ images. `uv run pytest tests/unit/storage -q` passes without Docker.
     `StoreUnavailableError`, `UnsupportedServerError` or `QueryError`.
 
   Depends on T011, T036 and T057.
-- [ ] T060 [US5] Extend `tests/unit/test_secrets_never_leak.py` with part 3:
+- [X] T060 [US5] Extend `tests/unit/test_secrets_never_leak.py` with part 3:
   - connection failures with `PLANTED` passwords and tokens, on the unit
     fakes;
   - check exceptions, `caplog` and `repr`.
 
   Then run `uv run pytest tests/unit/storage -q`,
   `uv run pytest -m docker -q` and `make check`.
+- [X] T060a [US5] Add a local stack in `deploy/` (added 2026-10-07 at the
+  author's request): `compose.yaml` with Neo4j and Postgres on the pinned
+  images, a development overlay (ports on 127.0.0.1, passwords from
+  `deploy/.env`) and a production overlay (secret files, restarts, memory
+  limits, rotated logs). Add `deploy/.env.example`, the `dev-up`,
+  `dev-down`, `prod-up` and `prod-down` targets, the guard test
+  `tests/unit/test_local_stack.py` and `docs/guides/local-stack.md`. A
+  development service that runs the server from mounted code and reloads
+  on change waits for the server; the UI's backend and frontend join the
+  production overlay later.
+
+  Result (2026-10-07): `make check` passes with 658 unit tests: 87 for
+  storage, 8 for the local stack and 8 in leak-test part 3.
+  `uv run pytest -m docker` passes 17 tests on the pinned images in about
+  two minutes. Both compose modes were started, and `health()` passed on
+  both stores through the SDK, with no password in the container logs.
+  psycopg reports no SQLSTATE for a failed login and keeps the password
+  on `exc.pgconn`, so rejections are read from the server's message and
+  connection errors are re-raised masked, without `pgconn`. A spike
+  showed that `PGHOSTADDR` redirects a connection whose host is given;
+  T060b settles it. One test bug was fixed as its own
+  step: the new leak test planted a secret the credential never sent.
+  15 deliberate faults were tried on the connections. The one that
+  survived (the Neo4j missing-database message, which the server's text
+  also matched) got its own test, with a matching one for Postgres. An
+  unmasked message and a kept `pgconn` each fail leak-test part 3. Two
+  more cases, a pool that cannot fill and a closed connection, were
+  added red first.
+  Deviations from the task text are in research R12 and R13 "As built".
+- [X] T060b [US5] Keep Postgres connections on the profile's host (added
+  2026-10-07 at the author's request). Each physical connection resolves
+  `host` and passes the addresses as `hostaddr`, so `PGHOSTADDR` cannot
+  redirect it. Opening raises `ConfigError` while `PGOPTIONS` or
+  `PGSERVICE` is set, even empty.
+
+  Result (2026-10-07): `make check` passes with 669 unit tests, 11 of
+  them new. `test_pghostaddr_cannot_redirect` failed first on pg16 and
+  pg17, where the connection went to the variable's address and timed
+  out, and passes after the change. Spikes showed that an explicit
+  `hostaddr` beats the variable, that `PGSERVICE` cannot redirect once
+  the address is explicit but can still set `options`, and that libpq
+  fails on an empty `PGSERVICE`; the last added a red-first test. The
+  fake gained a host-name table for `socket.getaddrinfo`, so unit tests
+  never look up a real name. 9 deliberate faults were all caught. Details
+  in research R12, As built.
 
 **Checkpoint**: both stores connect safely, and every story works
 

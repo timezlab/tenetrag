@@ -119,6 +119,10 @@ This starts the pinned `neo4j:2026.09.0-community` and
 - the Postgres token minter is called once per new connection, and twice
   after a rejected token.
 
+For a manual check, the local stack runs the same Neo4j image and the
+pg17 image: `make dev-up`, then call `health()` as
+[docs/guides/local-stack.md](../../docs/guides/local-stack.md) shows.
+
 ## Done when
 
 - `make check` and `uv run pytest -m docker` pass locally and in CI on

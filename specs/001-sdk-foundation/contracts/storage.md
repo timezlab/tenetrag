@@ -41,8 +41,18 @@ class HealthReport: ...        # data-model §7
   raises `UnsupportedServerError` below the floors (data-model §7).
 - No method takes query text with values spliced in. Values go as driver
   parameters. No method formats SQL or Cypher.
-- `auto` TLS rejects a plain scheme or `sslmode` for a non-local host
-  with a `ConfigError`, unless `tls: off` is set.
+- `auto` TLS rejects a plain Neo4j scheme for a non-local host with a
+  `ConfigError`, unless `tls` is `require`, `verify` or `off`. For
+  Postgres, `auto` gives `sslmode=require` for a non-local host and
+  `disable` for a local one.
+- Errors never hold a secret. A Postgres connection failure is re-raised
+  with the password masked and without psycopg's connection object
+  (research R12, As built).
+- A Postgres connection goes only to the profile's host. Each physical
+  connection resolves `host` itself and passes the addresses as
+  `hostaddr`, so PGHOSTADDR cannot redirect it. Opening raises
+  `ConfigError` while PGOPTIONS or PGSERVICE is set, even empty (research
+  R12, As built).
 - Each connection object holds one pool for one `Credential.identity`.
   `open_connection` with another identity returns another object with
   another pool.
@@ -63,6 +73,7 @@ research R4. Unit tests use fakes for the driver layer.
 | `test_new_token_per_connection` (docker, Postgres) | each new physical connection calls the minter |
 | `test_pool_max_age` (unit) | the configured age reaches the pool and driver settings |
 | `test_identity_isolation` (unit) | two identities never share a pool |
-| `test_tls_auto` (unit) | `neo4j://db.example.com` and `sslmode=disable` on a remote host raise `ConfigError`; localhost passes |
-| `test_database_not_found` (docker, Neo4j) | raises `QueryError` naming the database |
+| `test_tls_auto` (unit) | `neo4j://db.example.com` raises `ConfigError`; localhost passes; `test_sslmode_follows_tls` maps `tls` to `sslmode` |
+| `test_database_not_found` (docker, Neo4j) | raises `QueryError` naming the database; `test_missing_database_raises_at_once` (unit) does the same for Postgres |
+| `test_pghostaddr_cannot_redirect` (docker and unit, Postgres) | with PGHOSTADDR naming another address, the connection still reaches the profile's host; `test_session_variables_are_refused` (unit) raises `ConfigError` for PGOPTIONS and PGSERVICE |
 | `test_telemetry_disabled` (unit) | the driver is created with `telemetry_disabled=True` |

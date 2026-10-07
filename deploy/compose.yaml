@@ -1,0 +1,43 @@
+# The shared part of the local stack (docs/guides/local-stack.md). Always run it
+# with an overlay, compose.dev.yaml or compose.prod.yaml, which set the
+# passwords and ports. The images are the ones the integration tests pin by
+# digest (tests/integration/conftest.py); tests/unit/test_local_stack.py keeps
+# them equal.
+
+services:
+  neo4j:
+    image: neo4j:2026.09.0-community@sha256:0dfcadbd51e1d2e5a0cf86d054a0bb537a4bce212796d967cbd88445aaf3fbf3
+    environment:
+      # The image turns NEO4J_a_b__c into the setting a.b_c.
+      NEO4J_dbms_usage__report_enabled: "false"
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --spider http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  postgres:
+    image: pgvector/pgvector:0.8.7-pg17@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tenetrag}
+      POSTGRES_DB: ${POSTGRES_DB:-tenetrag}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # Parallel index builds use shared memory, and Docker gives 64 MB by default.
+    shm_size: 256mb
+    healthcheck:
+      # Over TCP, since the first start runs a socket-only server while it initializes.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+volumes:
+  neo4j-data:
+  neo4j-logs:
+  postgres-data:

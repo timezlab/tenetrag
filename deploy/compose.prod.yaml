@@ -1,0 +1,54 @@
+# A long-running local stack (docs/guides/local-stack.md): passwords from
+# secret files, restarts, memory limits and rotated logs. Ports stay on
+# 127.0.0.1. The backend and frontend that serve the TenetRAG UI join this
+# file when they exist, and reach the stores over the compose network.
+name: tenetrag
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "5"
+
+services:
+  neo4j:
+    environment:
+      NEO4J_AUTH_FILE: /run/secrets/neo4j_auth
+      NEO4J_server_memory_heap_initial__size: ${NEO4J_HEAP_SIZE:-1g}
+      NEO4J_server_memory_heap_max__size: ${NEO4J_HEAP_SIZE:-1g}
+      NEO4J_server_memory_pagecache_size: ${NEO4J_PAGECACHE_SIZE:-1g}
+    secrets:
+      - neo4j_auth
+    ports:
+      - "127.0.0.1:${NEO4J_BOLT_PORT:-7687}:7687"
+      - "127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${NEO4J_MEMORY_LIMIT:-3g}
+    logging: *logging
+    security_opt:
+      - no-new-privileges:true
+
+  postgres:
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${POSTGRES_MEMORY_LIMIT:-2g}
+    logging: *logging
+    security_opt:
+      - no-new-privileges:true
+
+secrets:
+  neo4j_auth:
+    file: ${TENETRAG_SECRETS_DIR:-./secrets}/neo4j_auth
+  postgres_password:
+    file: ${TENETRAG_SECRETS_DIR:-./secrets}/postgres_password

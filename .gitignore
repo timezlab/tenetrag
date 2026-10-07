@@ -17,3 +17,6 @@ build/
 
 # Local environment files may hold secrets
 .env
+
+# Secret files of the local production stack (deploy/compose.prod.yaml)
+deploy/secrets/

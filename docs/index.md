@@ -27,6 +27,9 @@
 - [decisions/0018-name-credential-sources-in-the-profile.md](decisions/0018-name-credential-sources-in-the-profile.md) — the profile names where a credential comes from, never its value; the OpenAI and Databricks SDKs' own environment reads are accepted with a warning (accepted)
 - [decisions/0019-use-uv-ruff-mypy-pytest-and-import-linter-as-gates.md](decisions/0019-use-uv-ruff-mypy-pytest-and-import-linter-as-gates.md) — repository gates: uv with a 24-hour `exclude-newer`, ruff, mypy strict, pytest with the network blocked, import-linter, GitHub Actions pinned by SHA (accepted)
 
+## Guides
+- [guides/local-stack.md](guides/local-stack.md) — Neo4j and Postgres in Docker Compose: development and production modes, secret files, connecting the SDK, what joins later
+
 ## Reference
 - [reference/databricks-platform.md](reference/databricks-platform.md) — verified, dated Databricks facts: Lakebase, OBO matrix, Volumes, AI Search, models, parsing, MLflow, regions
 - [reference/neo4j-platform.md](reference/neo4j-platform.md) — verified, dated Neo4j facts: editions and licenses, version floors, vector and full-text search, transactions, modelling, reusable code
