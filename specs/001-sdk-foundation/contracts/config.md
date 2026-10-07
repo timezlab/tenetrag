@@ -67,6 +67,7 @@ models:
     model: bge-m3
     dimensions: 1024
     credential: {kind: none}
+    capabilities: {max_input_tokens: 8192}  # no shipped profile for bge-m3
 language: vi
 ```
 
