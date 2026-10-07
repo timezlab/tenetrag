@@ -763,23 +763,31 @@ images. `uv run pytest tests/unit/storage -q` passes without Docker.
 
 **Purpose**: docs that change with the code, and the final validation
 
-- [ ] T061 [P] Update `ARCHITECTURE.md`:
+- [X] T061 [P] Update `ARCHITECTURE.md`:
   - replace the "No code exists yet" banner;
   - mark which modules exist after M0;
   - in the module map, `config` and `auth` may import `protocols`, and
     errors live in `tenetrag.protocols.errors` (research R14);
   - add `_retry` as a private stdlib-only helper of `llm` and `storage`;
   - list the extras `openai`, `databricks`, `neo4j` and `postgres`.
-- [ ] T062 [P] Update `README.md`:
+
+  Result (2026-10-07): the banner says which modules M0 built, the
+  unbuilt rows are marked *planned*, `_retry` has its own row, and the
+  page points at the import-linter contracts in `pyproject.toml`.
+- [X] T062 [P] Update `README.md`:
   - status: M0 foundation, not released;
   - a "Development" section with the setup and `make check` lines;
   - the two example profiles, linked to
     `specs/001-sdk-foundation/contracts/config.md`.
-- [ ] T063 [P] Update `docs/product/engine-brief.md` §6.4:
+
+  Result (2026-10-07): the README links the two examples by anchor and
+  their tested copies in `tests/fixtures/profiles/`, rather than copying
+  them.
+- [X] T063 [P] Update `docs/product/engine-brief.md` §6.4:
   - `ChatResult` gains `strategy` and `finish_reason`;
   - `max_input_tokens` must be known when the model is created;
   - a one-line pointer to `src/tenetrag/protocols/models.py`.
-- [ ] T064 [P] Update `docs/reference/databricks-platform.md`. Add the
+- [X] T064 [P] Update `docs/reference/databricks-platform.md`. Add the
   dated facts from research R11, verified 2026-10-06 at databricks-sdk
   v0.146.0, with source paths:
   - `Config` fills unset attributes from `DATABRICKS_*`, `ARM_*` and
@@ -789,17 +797,77 @@ images. `uv run pytest tests/unit/storage -q` passes without Docker.
   - `ModelServingUserCredentials` falls back outside Model Serving.
 
   Add the last one to the "Fail-open traps" table.
-- [ ] T065 Run [quickstart.md](quickstart.md) end to end:
+
+  Result (2026-10-07): a new "`databricks-sdk` behaviour" table links each
+  fact to its lines at tag v0.146.0. The three source files at that tag
+  are byte-identical to the installed wheel.
+- [X] T065 Run [quickstart.md](quickstart.md) end to end:
   - time a fresh clone to green gates (SC-001);
   - record the unit suite duration (SC-002);
   - run the optional self-hosted check if Ollama is available;
   - run the live Databricks smoke test only if the author asks.
 
   Record the results at the bottom of `quickstart.md`.
-- [ ] T066 Set the status in `specs/001-sdk-foundation/spec.md` to
+
+  Result (2026-10-07): fresh clone to green gates in 29 s, unit suite in
+  7.4 s (5.3 s in CI). Ollama is not installed, so the self-hosted check
+  ran against a local stub server. It found that the self-hosted example
+  could not create its embedding model (no input limit for `bge-m3`).
+  `test_selfhosted_example_creates_its_models` failed first with that
+  `ConfigError` (1 failed, 7 passed), then passed once the example and its
+  fixture set `capabilities.max_input_tokens: 8192`. The live Databricks
+  test was not run.
+- [X] T066 Set the status in `specs/001-sdk-foundation/spec.md` to
   "Implemented". Confirm every FR and SC maps to a passing test or a
   recorded check, and list any gaps in the spec's Assumptions or in
   `docs/tech-debt.md`. Create that file only if a gap exists.
+
+  Result (2026-10-07): four gaps, so `docs/tech-debt.md` now exists; two
+  assumptions were added to the spec. Test names drop the `test_` prefix.
+
+  | Req | Passing test or recorded check |
+  |---|---|
+  | FR-001 | `Makefile`, the Commands section of `AGENTS.md`, T018's negative checks |
+  | FR-002 | `opening_a_tcp_socket_is_blocked`; `tests/integration/conftest.py` skips with "Docker not available"; the CI integration job |
+  | FR-003 | `make types` (mypy strict); each of the five suppressions states its reason |
+  | FR-004 | `make imports` (three contracts); `base_import_loads_no_optional_package` |
+  | FR-005 | `ci.yml`, green on `7a8ecb2`; image digests in `tests/integration/conftest.py`. **Gap:** integration on 3.14 only |
+  | FR-006 | `uv sync --locked` in CI; the gate record in research "Versions and the dependency gate" and R1 |
+  | FR-007 | `pyproject.toml` name, Python floor, license files; the SC-010 run with no Databricks package |
+  | FR-008 | `no_unlisted_error_classes`, `direct_parent` |
+  | FR-009 | the nine tests of `test_secrets_never_leak.py`; `missing_database_says_how_to_fix`, `missing_extra_error_names_the_extra_and_how_to_install_it` |
+  | FR-010 | `test_loading.py` (22 tests) |
+  | FR-011 | `test_profile.py` (38 tests), such as `selfhosted_fixture_values`, `language_codes_accepted` |
+  | FR-012 | `test_phases.py` (18 tests), such as `every_leaf_has_phase`, `operational_under_index_time_resolves_to_query_time` |
+  | FR-013 | `test_hashing.py` (11 tests) on 3.11 and 3.14. Other systems: spec Assumptions |
+  | FR-014 | `credential_source_rejects_a_value_field`, `secret_like_key_hint` |
+  | FR-015 | `missing_credential`, `none_from_profile`, `missing_credential_names_the_target` |
+  | FR-016 | `ambient_vars_never_read`, `override_wins`, `named_env_unset`, `ambient_credential_variables_are_cleared`, `openai_env_warning`, `databricks_env_warning` |
+  | FR-017 | `refresh_same_identity`, `cli_profile_fixes_the_auth_type`, `reauth_builds_a_new_config_once`, `pat_and_obo_never_import_databricks_sdk` |
+  | FR-018 | `mismatch`, `kind_the_target_cannot_use_is_refused`, `api_key_cannot_open_neo4j`, `none_is_refused` |
+  | FR-019 | `repr_and_str_are_masked`, `test_secrets_never_leak.py` |
+  | FR-020 | `fakes_satisfy_the_protocols`, `same_code_three_providers` |
+  | FR-021 | `test_capabilities.py` (16 tests), `capability_overrides_reach_the_model`. **Gap:** live smoke not run |
+  | FR-022 | `test_structured.py` (13 tests), `strategy_order` |
+  | FR-023 | `rate_limit_retry_after`, `rate_limit_budget_exhausted`, `server_error_is_retried`, `auth_fails_fast`, `test_retry.py` (18 tests) |
+  | FR-024 | `count_tokens_is_unknown`, the network-blocked unit suite, `refresh_happens_once_across_threads`. **Gap:** no concurrent model calls |
+  | FR-025 | `test_fake.py` (13 tests) |
+  | FR-026 | `test_neo4j_unit.py` (28 tests), `tests/integration/neo4j` (5 tests) |
+  | FR-027 | `test_postgres_unit.py` (42 tests), `tests/integration/postgres` (7 tests, on pg16 and pg17) |
+  | FR-028 | `identity_isolation`, `tls_auto`, `sslmode_follows_tls`, `rejected_auth`, `unavailable_names_host_and_port`, `other_server_errors_are_query_errors`. **Gap:** a rejection in the pool's worker |
+  | FR-029 | recorded check: no DDL in `src/tenetrag`, and no method takes query text |
+  | FR-030 | T017, T061, T062, and the status line of `AGENTS.md` |
+  | FR-031 | ADR 0019 (package manager, gates), ADR 0018 (the official clients rather than our own HTTP client), ADR 0017 (Postgres driver) |
+  | SC-001 | T065: 29 s |
+  | SC-002 | T065: 7.4 s locally, 5.3 s in CI; `opening_a_tcp_socket_is_blocked` |
+  | SC-003 | `every_leaf_has_phase`, `leaf_with_no_marker_fails_naming_its_path` |
+  | SC-004 | `yaml_dict_and_key_order_give_equal_hashes`, `hash_ignores_query_time`, `hash_embedding_only`, on both CI Pythons |
+  | SC-005 | `test_resolve.py`, `test_factories.py`, `missing_credential_names_the_connection`, `wrong_password` (docker) |
+  | SC-006 | `test_secrets_never_leak.py` |
+  | SC-007 | `test_retry.py`, `restart_recovers` and `unavailable` (docker, both stores), the rate-limit tests |
+  | SC-008 | `base_import_loads_no_optional_package`, `make imports` |
+  | SC-009 | `same_code_three_providers` |
+  | SC-010 | T065's stub-server run, `selfhosted_example_creates_its_models` |
 
 ---
 

@@ -40,6 +40,9 @@
 - [reference/domain-schemas.md](reference/domain-schemas.md) — evidence for the v1 packs: finance type inventories, finance and banking standards, the banking split, enterprise documents, glossaries and semantic layers, cross-domain types, datasets
 - [reference/test-corpora.md](reference/test-corpora.md) — test data without adopter documents: synthetic corpus, public proxies with licenses and fit, running the real corpus in place
 
+## Tech debt
+- [tech-debt.md](tech-debt.md) — gaps and quirks left for later on purpose, each with where, why and the trigger to fix
+
 ## Research snapshots
 Raw lane reports from 2026-10-02 to 2026-10-05, kept for detail and audit. They are not
 maintained: each starts with its errata and a link to the reference doc that

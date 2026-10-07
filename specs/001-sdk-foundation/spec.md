@@ -5,7 +5,8 @@ this feature through `.specify/feature.json`
 
 **Created**: 2026-10-06
 
-**Status**: Draft
+**Status**: Implemented (2026-10-07). Gaps are listed under Assumptions
+and in [docs/tech-debt.md](../../docs/tech-debt.md).
 
 **Input**: User description: "M0 foundation for TenetRAG, per the SDK platform brief milestones: repo quality gates (formatter, linter, type-checker, pytest), the `tenetrag` package skeleton with optional extras and per-domain errors, the config profile model (YAML or dict, every field tagged index-time or query-time, ADR 0005), caller-supplied credentials that fail closed (ADR 0003), LLM classes (Databricks, OpenAI-compatible, fake) behind the ChatModel and EmbeddingModel protocols, and Neo4j and Postgres connection wrappers. No engine, ingest or retrieval yet."
 
@@ -559,9 +560,8 @@ token from a fake token source.
 
 ## Assumptions
 
-- The repository will be hosted on GitHub, since the brief ships wheels on
-  GitHub Releases. It has no remote yet, so the CI configuration is
-  committed now and first runs on the first push.
+- The repository is hosted on GitHub, since the brief ships wheels on
+  GitHub Releases. CI runs on every push.
 - Floors: Neo4j 2026.09, from the constitution. Postgres 16, the lowest
   version Lakebase offers.
 - Exact names (credential constructors, classes, commands) are fixed in
@@ -586,6 +586,17 @@ token from a fake token source.
   variables the test names. CI holds no secrets in M0 and runs none of
   them.
 - All fixtures are synthetic (constitution principle I).
+- Stage hashes across operating systems (FR-013): CI runs on Linux only.
+  `test_hash_golden` pins the digests, so any system that runs the suite
+  checks them, but no other system has run it yet.
+- SC-010 was checked with a local stub server in place of Ollama, which
+  was not installed (quickstart results). The stub proves the wiring and
+  the missing Databricks package, not model quality.
+- Gaps found when checking each requirement against its test (T066), with
+  the reason each waits: the CI integration job on Python 3.11 (FR-005),
+  a concurrency test for model clients (FR-024), the live Databricks
+  smoke test (FR-021), and a pool rejection reported as unavailable
+  (FR-028). See [docs/tech-debt.md](../../docs/tech-debt.md).
 - Out of scope for M0:
   - the Anthropic and LiteLLM-native model classes and the reranker
     (later milestones);

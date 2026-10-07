@@ -11,8 +11,10 @@ Python API, tool specs or an MCP server. It runs anywhere on Neo4j
 Delta tables for the graph, pgvector (default) or Databricks AI Search for
 vectors.
 
-> **Status: design phase.** No code or releases yet. Nothing here is
-> installable.
+> **Status: M0 foundation, not released.** The profile, credentials, chat
+> and embedding models, and the Neo4j and Postgres connections exist
+> ([M0 spec](specs/001-sdk-foundation/spec.md)). Indexing and retrieval
+> come in later milestones. Nothing is published to PyPI yet.
 
 ## Planned capabilities (v1)
 
@@ -35,6 +37,25 @@ vectors.
 - Benchmarks over your golden set with MLflow, RAGAS and DeepEval.
 - Runs fully offline for development: local Neo4j or Postgres and fake
   models.
+
+## Development
+
+You need Python 3.11 or later and uv 0.12 or later. Docker is needed only
+for the integration tests and the [local stack](docs/guides/local-stack.md).
+
+```sh
+uv sync --locked --all-extras        # fails if uv.lock is stale
+make check                           # format, lint, types, import rules, unit tests
+make integration                     # Neo4j and Postgres tests, needs Docker
+```
+
+A profile names the stores, the models and where each credential comes
+from, never the secret itself. Two example profiles are in the
+[config contract](specs/001-sdk-foundation/contracts/config.md):
+[self-hosted](specs/001-sdk-foundation/contracts/config.md#example-profile-self-hosted)
+(Neo4j and Ollama) and
+[Databricks, from a laptop](specs/001-sdk-foundation/contracts/config.md#example-profile-databricks-from-a-laptop).
+Tested copies are in [tests/fixtures/profiles/](tests/fixtures/profiles/).
 
 ## Learn more
 

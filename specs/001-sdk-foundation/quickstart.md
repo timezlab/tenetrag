@@ -129,3 +129,17 @@ pg17 image: `make dev-up`, then call `health()` as
   Python 3.11 and 3.14.
 - `ARCHITECTURE.md`, the Commands section of `AGENTS.md` and `README.md`
   reflect what landed (FR-030).
+
+## Results (2026-10-07, T065)
+
+Run on Linux x86_64 with 88 CPUs and uv 0.12.23, from a fresh clone of
+`main` at `7a8ecb2`, with an empty uv cache. The Docker images were
+already pulled.
+
+| Check | Result |
+|---|---|
+| Fresh clone to green gates (SC-001) | 29 s: clone 2.0 s, `uv sync --locked --all-extras` 2.2 s, `make check` 24.7 s. uv chose Python 3.14.8, which was already installed. |
+| Unit suite (SC-002) | 669 passed in 7.4 s locally. On the CI runners for `7a8ecb2`: 5.3 s on 3.11 and 5.5 s on 3.14. |
+| Integration | 19 passed in 119 s in the fresh clone (Python 3.14), and in 109 s in CI. |
+| Self-hosted check (SC-010) | Ollama is not installed, so a local stub server with canned OpenAI-style replies stood in for it. In a venv with only `tenetrag[openai,neo4j]` at the locked versions, the self-hosted example profile, pointed at the stub and at Neo4j 2026.09 in Docker, gave: `health()` passed; `generate()` with a schema returned valid data through `json_mode`; `embed_documents()` returned 1024-dimension vectors; no `databricks` package was installed or loaded. The run first showed that the example could not create its embedding model, because nothing gave the input limit of `bge-m3`. The example now sets `capabilities.max_input_tokens`, and `test_selfhosted_example_creates_its_models` pins it. |
+| Live Databricks smoke | Not run: the author did not ask for it. Listed in [docs/tech-debt.md](../../docs/tech-debt.md). |

@@ -1,7 +1,8 @@
 # Databricks platform facts this project depends on
 
 **Verified:** 2026-10-02 against official docs (sources inline); the model
-facts re-checked 2026-10-07. Preview/Beta
+facts re-checked 2026-10-07; the `databricks-sdk` facts read in its source
+on 2026-10-06. Preview/Beta
 items change fast — re-check the linked page before building on one, and
 update this file in the same PR when a fact changes.
 Raw lane reports (snapshots, not maintained):
@@ -68,6 +69,20 @@ reasoning from primary facts · **[unverified]** could not confirm.
 | Queries succeed but RLS is ignored | App's default SP pool connects as table owner | Never route an OBO-mode request to the SP pool |
 | OBO silently becomes app identity in dev | AppKit `asUser(req)` falls back to the SP pool without a token | Missing token → `AuthError` |
 | Agent runs as SP although OBO was configured | `get_user_workspace_client()` falls back to SP "without raising" | Do not call fallback helpers; check identity explicitly |
+| An OBO credential runs as whoever the environment names | Outside Model Serving, `ModelServingUserCredentials` hands over to the default credential chain ([`credentials_provider.py:1522-1553`](https://github.com/databricks/databricks-sdk-py/blob/v0.146.0/databricks/sdk/credentials_provider.py#L1522-L1553), v0.146.0) | `obo` is a static bearer token; never use `ModelServingUserCredentials` |
+
+### `databricks-sdk` behaviour
+
+Read in the source of databricks-sdk v0.146.0 on 2026-10-06, the version
+the `databricks` extra pins as its floor ([research R11](../../specs/001-sdk-foundation/research.md)).
+Re-check these when raising the floor.
+
+| Fact | Detail | Source |
+|---|---|---|
+| Environment fills unset attributes | `Config` reads every attribute's variable (`DATABRICKS_*`, `ARM_*`, `GOOGLE_CREDENTIALS`) for attributes not passed in code, before the named profile, and has no switch to turn this off. An explicit `auth_type` keeps the auth family fixed. The SDK logs a warning naming the variables that are set ([ADR 0018](../decisions/0018-name-credential-sources-in-the-profile.md)). | [primary] [`config.py:725-743`](https://github.com/databricks/databricks-sdk-py/blob/v0.146.0/databricks/sdk/config.py#L725-L743), [`config.py:808-811`](https://github.com/databricks/databricks-sdk-py/blob/v0.146.0/databricks/sdk/config.py#L808-L811) |
+| Host metadata probe | With a host set, `Config()` fetches `{host}/.well-known/databricks-config` to fill account id, workspace id and OIDC discovery. Best effort: a failure logs a warning and the explicit settings stand. | [primary] [`config.py:632-684`](https://github.com/databricks/databricks-sdk-py/blob/v0.146.0/databricks/sdk/config.py#L632-L684), [`oauth.py:474-484`](https://github.com/databricks/databricks-sdk-py/blob/v0.146.0/databricks/sdk/oauth.py#L474-L484) |
+| `external-browser` blocks | The U2M browser flow waits for the redirect on a local port with no timeout, so a run with no user present hangs. TenetRAG allows `oauth_u2m` only when stdin and stdout are terminals. | [primary] [`oauth.py:677-692`](https://github.com/databricks/databricks-sdk-py/blob/v0.146.0/databricks/sdk/oauth.py#L677-L692) |
+| `ModelServingUserCredentials` falls back | Inside Model Serving it returns the user's downscoped token; anywhere else it returns the default credential chain. See the trap above. | [primary] [`credentials_provider.py:1522-1553`](https://github.com/databricks/databricks-sdk-py/blob/v0.146.0/databricks/sdk/credentials_provider.py#L1522-L1553) |
 
 ## Files
 

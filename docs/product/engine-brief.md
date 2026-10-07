@@ -1035,6 +1035,9 @@ class VectorStore(Protocol):
 
 ### 6.4 Model protocols
 
+Built in M0: [`src/tenetrag/protocols/models.py`](../../src/tenetrag/protocols/models.py)
+holds the code; this section keeps the shape.
+
 ```python
 class ChatModel(Protocol):
     model_id: str
@@ -1042,7 +1045,9 @@ class ChatModel(Protocol):
                  max_output_tokens: int | None = None,
                  temperature: float | None = None) -> ChatResult: ...
         # None: the model's configured max_output_tokens and temperature
-        # ChatResult: text, data (parsed JSON or None), usage (input, cached input, output tokens)
+        # ChatResult: text, data (parsed JSON or None), usage (input, cached input, output tokens),
+        # model_id, strategy (the structured-output strategy that ran, None without a schema),
+        # finish_reason (as the provider reports it, or None)
 
 class EmbeddingModel(Protocol):
     model_id: str
@@ -1057,8 +1062,15 @@ class Reranker(Protocol):  # optional, `rerank` extra
     def rerank(self, query: str, texts: Sequence[str]) -> list[float]: ...
 ```
 
-The structured-output strategy stays in the `llm` layer. The engine still
-validates `data` against the compiled schema, since it is LLM output.
+The structured-output strategy stays in the `llm` layer; the engine sees
+only its name in `ChatResult.strategy`. The engine still validates `data`
+against the compiled schema, since it is LLM output.
+
+`max_input_tokens` must be known when the model is created: from the
+shipped capability profile or from `capabilities.max_input_tokens` in the
+profile, otherwise creating the model raises `ConfigError`. Without it,
+over-long texts could not be refused before the call
+([contracts/llm.md](../../specs/001-sdk-foundation/contracts/llm.md)).
 
 ### 6.5 Backend notes
 
