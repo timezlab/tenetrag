@@ -24,7 +24,10 @@ def assert_no_secret(*texts: str) -> None:
 
 
 def assert_exception_clean(exc: BaseException) -> None:
-    """Check str, repr and notes of the exception and of its whole cause/context chain."""
+    """Check str, repr and notes of the exception and of its whole cause/context chain.
+
+    No error in the chain may keep psycopg's connection object, which holds the password.
+    """
     seen: set[int] = set()
     pending: list[BaseException] = [exc]
     while pending:
@@ -34,6 +37,7 @@ def assert_exception_clean(exc: BaseException) -> None:
         seen.add(id(current))
         notes = getattr(current, "__notes__", [])
         assert_no_secret(str(current), repr(current), *notes)
+        assert getattr(current, "pgconn", None) is None, f"{current!r} keeps its connection"
         pending.extend(e for e in (current.__cause__, current.__context__) if e is not None)
 
 

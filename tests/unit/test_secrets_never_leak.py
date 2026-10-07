@@ -1,12 +1,13 @@
 """Planted secrets never reach repr, str, logs or exception chains (SC-006).
 
-Part 1 covers credentials and part 2 models; the store part follows with US5.
+Part 1 covers credentials, part 2 models and part 3 store connections.
 """
 
 import logging
 import sys
 
 import httpx2
+import neo4j
 import pytest
 
 from tenetrag import AuthError, CredentialRejectedError, CredentialSourceError, TenetRAGError
@@ -26,8 +27,11 @@ from tenetrag.config import (
     ChatModelSettings,
     EmbeddingModelSettings,
     ModelRetrySettings,
+    Neo4jSettings,
     OAuthM2MSource,
     PatSource,
+    PostgresSettings,
+    StoreRetrySettings,
 )
 from tenetrag.llm import (
     DatabricksChatModel,
@@ -36,8 +40,16 @@ from tenetrag.llm import (
     capability_profile,
 )
 from tenetrag.protocols import Message
+from tenetrag.storage import Neo4jConnection, PostgresConnection
 from tests.support.fake_databricks import HOST, FakeConfig, FakeWorkspaceClient
 from tests.support.fake_openai import FakeServer, error_reply
+from tests.support.fake_stores import (
+    FakeNeo4j,
+    FakePostgres,
+    install_fake_postgres,
+    neo4j_error,
+    refused,
+)
 from tests.support.secrets import (
     PLANTED,
     assert_exception_clean,
@@ -268,3 +280,74 @@ def test_databricks_model_errors_never_leak(kind, fake_sdk, caplog):
     assert_exception_clean(caught.value)
     assert_logs_clean(caplog)
     assert_no_secret(str(model), repr(model))
+
+
+# Part 3: store connections. Server messages here echo the secret sent, which no
+# real server is known to do, so masking is checked as well as dropping pgconn.
+
+POSTGRES_FAILURES = {
+    "rejected": ['FATAL:  password authentication failed for user "app" {secret}'] * 2,
+    "missing database": ['FATAL:  database "graph" does not exist {secret}'],
+    "unreachable": ["Connection refused {secret}"] * 2,
+}
+
+
+def postgres_credential(kind: CredentialKind) -> Credential:
+    if kind is CredentialKind.BASIC:
+        return Credentials.basic("app", Secret(PASSWORD))
+    return Credentials.token_provider(
+        "app", lambda: AccessToken(Secret(TOKEN), expires_at=None), identity="app"
+    )
+
+
+@pytest.mark.parametrize("failure", list(POSTGRES_FAILURES))
+@pytest.mark.parametrize("kind", [CredentialKind.BASIC, CredentialKind.TOKEN_PROVIDER])
+def test_postgres_errors_never_leak(kind, failure, monkeypatch, caplog):
+    secret = PASSWORD if kind is CredentialKind.BASIC else TOKEN
+    reasons = [reason.format(secret=secret) for reason in POSTGRES_FAILURES[failure]]
+    server = FakePostgres(refusals=[refused("db.example.com", reason) for reason in reasons])
+    install_fake_postgres(monkeypatch, server)
+    settings = PostgresSettings(
+        kind="postgres",
+        host="db.example.com",
+        database="graph",
+        retry=StoreRetrySettings(max_attempts=2),
+    )
+    with caplog.at_level(logging.DEBUG), pytest.raises(TenetRAGError) as caught:
+        PostgresConnection(
+            settings, name="vectors", credential=postgres_credential(kind), sleep=lambda s: None
+        )
+    assert server.passwords[0] == secret  # so a leak was possible
+    assert_exception_clean(caught.value)
+    assert_logs_clean(caplog)
+
+
+def test_postgres_connection_never_leaks(monkeypatch, caplog):
+    install_fake_postgres(monkeypatch, FakePostgres())
+    settings = PostgresSettings(kind="postgres", host="db.example.com", database="graph")
+    with caplog.at_level(logging.DEBUG):
+        connection = PostgresConnection(
+            settings, name="vectors", credential=postgres_credential(CredentialKind.BASIC)
+        )
+        logger.debug("connection %s %r", connection, connection)
+    assert_logs_clean(caplog)
+    assert_no_secret(str(connection), repr(connection))
+
+
+def test_neo4j_errors_never_leak(monkeypatch, caplog):
+    fake = FakeNeo4j()
+    monkeypatch.setattr(neo4j.GraphDatabase, "driver", fake)
+    settings = Neo4jSettings(kind="neo4j", uri="neo4j+s://graph.example.com")
+    with caplog.at_level(logging.DEBUG):
+        connection = Neo4jConnection(
+            settings, name="graph", credential=Credentials.basic("neo4j", Secret(PASSWORD))
+        )
+        logger.debug("connection %s %r", connection, connection)
+        rejected = neo4j_error("Neo.ClientError.Security.Unauthorized", f"no {PASSWORD}")
+        fake.last.failures = [rejected]
+        with pytest.raises(CredentialRejectedError) as caught:
+            connection.read(lambda tx: None)
+    assert fake.last.auth.credentials == PASSWORD  # so a leak was possible
+    assert_exception_clean(caught.value)
+    assert_logs_clean(caplog)
+    assert_no_secret(str(connection), repr(connection))
