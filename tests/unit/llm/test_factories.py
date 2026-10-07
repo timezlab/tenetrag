@@ -6,7 +6,10 @@ Behaviours:
    a missing one raises MissingCredentialError even with OPENAI_API_KEY set,
    and a kind the target cannot use raises CredentialMismatchError.
 3. The capability overrides of the settings reach the model.
+4. The self-hosted example profile creates every model it names (SC-010).
 """
+
+from pathlib import Path
 
 import pytest
 
@@ -18,6 +21,7 @@ from tenetrag.config import (
     ChatModelSettings,
     EmbeddingModelSettings,
     PatSource,
+    load_profile,
 )
 from tenetrag.llm import (
     DatabricksChatModel,
@@ -32,6 +36,7 @@ from tenetrag.llm import (
 from tenetrag.protocols import Message
 from tests.support.fake_openai import FakeServer, chat_reply
 
+SELFHOSTED = Path(__file__).parents[2] / "fixtures" / "profiles" / "selfhosted.yaml"
 BASE_URL = "https://llm.example.net/v1"
 HOST = "https://adb-1.example.net"
 ASK = [Message("user", "Which city?")]
@@ -142,3 +147,13 @@ def test_fake_from_settings_answers_its_script():
     )
     assert model.generate(ASK).text == "Huế"
     assert model.model_id == "fake-chat"
+
+
+def test_selfhosted_example_creates_its_models():
+    # Loading alone passed while the embedding model lacked an input limit and
+    # could not be created; the README points users at this example.
+    models = load_profile(SELFHOSTED).models
+    chat_model_from_settings(models.extraction, target_name="models.extraction")
+    chat_model_from_settings(models.answer, target_name="models.answer")
+    embedding = embedding_model_from_settings(models.embedding, target_name="models.embedding")
+    assert (embedding.dimensions, embedding.max_input_tokens) == (1024, 8192)
