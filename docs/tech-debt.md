@@ -3,20 +3,6 @@
 Known gaps and quirks that were left for later on purpose. One entry per
 item. Remove an entry in the change that fixes it.
 
-## The CI integration job runs on Python 3.14 only
-
-- **Where:** `.github/workflows/ci.yml:34-47`, the `integration` job.
-- **Symptom:** FR-005 asks for the integration tests on Python 3.11 and
-  the newest stable Python. The `gates` job has both, but the Docker job
-  has only 3.14. On 2026-10-07 the integration suite passed locally on
-  3.11 and 3.14, and in CI on 3.14.
-- **Why deferred:** T016 planned a single Docker job to keep CI short,
-  and the gap showed up only in the M0 requirement check (T066).
-- **Trigger to fix:** before the first release, or at once if a test
-  fails on one Python version only. The fix is a `python-version` matrix
-  on the job.
-- **Created:** 2026-10-07
-
 ## No test calls one model client from many threads
 
 - **Where:** `src/tenetrag/llm/openai_compatible.py:67`, `:155`, and

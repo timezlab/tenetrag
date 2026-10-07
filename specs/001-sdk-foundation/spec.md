@@ -593,10 +593,11 @@ token from a fake token source.
   was not installed (quickstart results). The stub proves the wiring and
   the missing Databricks package, not model quality.
 - Gaps found when checking each requirement against its test (T066), with
-  the reason each waits: the CI integration job on Python 3.11 (FR-005),
-  a concurrency test for model clients (FR-024), the live Databricks
-  smoke test (FR-021), and a pool rejection reported as unavailable
-  (FR-028). See [docs/tech-debt.md](../../docs/tech-debt.md).
+  the reason each waits: a concurrency test for model clients (FR-024),
+  the live Databricks smoke test (FR-021), and a pool rejection reported
+  as unavailable (FR-028). See [docs/tech-debt.md](../../docs/tech-debt.md).
+  A fourth, the CI integration job on Python 3.14 only (FR-005), was
+  fixed on 2026-10-07 with a Python matrix on the job.
 - Out of scope for M0:
   - the Anthropic and LiteLLM-native model classes and the reranker
     (later milestones);

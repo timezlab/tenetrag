@@ -34,6 +34,10 @@ jobs:
   integration:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.14"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -42,6 +46,6 @@ jobs:
         with:
           version: "0.12.23"
           checksum: "9167d72b3319674b6303c4cbe071854bba13ebdf3d76b1a7cbdc175471fb66d6"
-          python-version: "3.14"
+          python-version: ${{ matrix.python-version }}
       - run: uv sync --locked --all-extras
       - run: make integration

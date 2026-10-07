@@ -196,7 +196,8 @@ Then add `import neo4j` to `src/tenetrag/protocols/models.py`, and
   - job `gates`, with matrix Python 3.11 and 3.14: `uv sync --locked
     --all-extras`, then `make check`;
   - job `integration`, on Python 3.14: `uv sync --locked --all-extras`,
-    then `make integration`.
+    then `make integration`. (2026-10-07: now on 3.11 and 3.14, after
+    T066 found the gap against FR-005.)
 - [X] T017 [US1] Fill the Commands section of `AGENTS.md` with the exact
   commands of T015 and the setup line `uv sync --locked --all-extras`.
   Replace "Not set up yet" and keep `AGENTS.md` under 150 lines.
@@ -831,7 +832,7 @@ images. `uv run pytest tests/unit/storage -q` passes without Docker.
   | FR-002 | `opening_a_tcp_socket_is_blocked`; `tests/integration/conftest.py` skips with "Docker not available"; the CI integration job |
   | FR-003 | `make types` (mypy strict); each of the five suppressions states its reason |
   | FR-004 | `make imports` (three contracts); `base_import_loads_no_optional_package` |
-  | FR-005 | `ci.yml`, green on `7a8ecb2`; image digests in `tests/integration/conftest.py`. **Gap:** integration on 3.14 only |
+  | FR-005 | `ci.yml`, green on `7a8ecb2`; image digests in `tests/integration/conftest.py`. **Gap:** integration on 3.14 only; fixed the same day with a matrix |
   | FR-006 | `uv sync --locked` in CI; the gate record in research "Versions and the dependency gate" and R1 |
   | FR-007 | `pyproject.toml` name, Python floor, license files; the SC-010 run with no Databricks package |
   | FR-008 | `no_unlisted_error_classes`, `direct_parent` |
