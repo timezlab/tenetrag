@@ -23,18 +23,23 @@ from tenetrag.config import (
 PROFILES = Path(__file__).parents[2] / "fixtures" / "profiles"
 QUERY = (Phase.QUERY, None)
 
+# Capability fields that can change what a model returns.
 CAPABILITY_FIELDS = (
     "strategies",
     "accepts_temperature",
     "accepts_top_p",
-    "forbidden_schema_keywords",
-    "max_schema_properties",
-    "max_input_tokens",
     "max_output_tokens",
     "embedding_dimensions",
     "query_prefix",
     "passage_prefix",
     "parse_retries",
+)
+# Capability fields that only refuse a request before it is sent, so an output
+# that succeeded is the same under any value: operational.
+REQUEST_CHECK_FIELDS = (
+    "forbidden_schema_keywords",
+    "max_schema_properties",
+    "max_input_tokens",
 )
 
 # The whole index-time field set of M0. Changing it changes stage hashes, so
@@ -112,6 +117,8 @@ def test_index_time_field_set_is_pinned():
         ("models.extraction.credential.kind", QUERY),
         ("models.extraction.log_content", QUERY),
         ("models.embedding.batch_size", QUERY),
+        *[(f"models.extraction.capabilities.{name}", QUERY) for name in REQUEST_CHECK_FIELDS],
+        *[(f"models.embedding.capabilities.{name}", QUERY) for name in REQUEST_CHECK_FIELDS],
         ("connections.*.uri", QUERY),
         ("connections.*.host", QUERY),
         ("connections.*.pool.min_size", QUERY),

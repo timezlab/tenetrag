@@ -15,6 +15,8 @@ Behaviours:
 11. reauth without an on_reauth hook fails with the original error.
 12. fail re-raises the original error at once.
 13. A BaseException that is not an Exception passes through unclassified.
+14. An error raised by on_reauth does not carry the rejected failure, whose text
+    may hold what the server sent back.
 """
 
 import random
@@ -261,6 +263,19 @@ def test_second_reauth_fails_with_the_original_error(fake_time):
     assert caught.value is second
     assert on_reauth.count == 1
     assert script.calls == 2
+
+
+def test_reauth_hook_error_does_not_carry_the_rejected_failure(fake_time):
+    class HookError(Exception):
+        pass
+
+    def on_reauth() -> None:
+        raise HookError("no new token")
+
+    with pytest.raises(HookError) as caught:
+        run(Script(RejectedError("server text")), fake_time, on_reauth=on_reauth)
+    assert caught.value.__cause__ is None
+    assert caught.value.__context__ is None
 
 
 def test_reauth_without_a_hook_fails_with_the_original_error(fake_time):

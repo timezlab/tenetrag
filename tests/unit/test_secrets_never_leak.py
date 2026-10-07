@@ -1,14 +1,15 @@
 """Planted secrets never reach repr, str, logs or exception chains (SC-006).
 
-Part 1 covers credentials; the model and store parts follow with US4 and US5.
+Part 1 covers credentials and part 2 models; the store part follows with US5.
 """
 
 import logging
 import sys
 
+import httpx2
 import pytest
 
-from tenetrag import AuthError, CredentialRejectedError, CredentialSourceError
+from tenetrag import AuthError, CredentialRejectedError, CredentialSourceError, TenetRAGError
 from tenetrag.auth import (
     AccessToken,
     Credential,
@@ -18,8 +19,25 @@ from tenetrag.auth import (
     TargetKind,
     resolve_credential,
 )
-from tenetrag.config import ApiKeySource, BasicSource, OAuthM2MSource, PatSource
+from tenetrag.config import (
+    ApiKeySource,
+    BasicSource,
+    CapabilityOverrides,
+    ChatModelSettings,
+    EmbeddingModelSettings,
+    ModelRetrySettings,
+    OAuthM2MSource,
+    PatSource,
+)
+from tenetrag.llm import (
+    DatabricksChatModel,
+    OpenAICompatibleChatModel,
+    OpenAICompatibleEmbeddingModel,
+    capability_profile,
+)
+from tenetrag.protocols import Message
 from tests.support.fake_databricks import HOST, FakeConfig, FakeWorkspaceClient
+from tests.support.fake_openai import FakeServer, error_reply
 from tests.support.secrets import (
     PLANTED,
     assert_exception_clean,
@@ -149,3 +167,104 @@ def test_unset_source_variable_never_leaks_others(monkeypatch):
     with pytest.raises(CredentialSourceError) as caught:
         resolve_credential(TargetKind.NEO4J, "connections.graph", source)
     assert_exception_clean(caught.value)
+
+
+# Part 2: models. The server echoes the key, as some proxies and servers do.
+
+BASE_URL = "https://llm.example.net/v1"
+ASK = [Message("user", "Which city?")]
+ECHO = f"Incorrect API key provided: {API_KEY}."
+NO_CHOICES = {"id": "c", "object": "chat.completion", "created": 1, "choices": [], "note": ECHO}
+
+FAILURES = {
+    "rejected": [error_reply(401, ECHO)],
+    "rate_limited": [error_reply(429, ECHO), error_reply(429, ECHO)],
+    "server_error": [error_reply(500, ECHO), error_reply(500, ECHO)],
+    "bad_request": [error_reply(400, ECHO)],
+    "not_json": [httpx2.Response(200, text=f"<html>proxy error for {API_KEY}</html>")],
+    "no_choices": [httpx2.Response(200, json=NO_CHOICES)],
+}
+
+
+def openai_chat(server: FakeServer) -> OpenAICompatibleChatModel:
+    settings = ChatModelSettings(
+        provider="openai_compatible",
+        base_url=BASE_URL,
+        model="gpt-4o",
+        log_content=True,
+        retry=ModelRetrySettings(max_attempts=2),
+    )
+    return OpenAICompatibleChatModel(
+        settings,
+        credential=Credentials.api_key(Secret(API_KEY)),
+        capabilities=capability_profile("openai_compatible", "gpt-4o"),
+        http_client=server.client(),
+        sleep=lambda seconds: None,
+    )
+
+
+@pytest.fixture
+def openai_env(monkeypatch):
+    """A planted admin key the SDK would read, and a variable that makes the client warn."""
+    monkeypatch.setenv("OPENAI_ADMIN_KEY", CLIENT_SECRET)
+    monkeypatch.setenv("OPENAI_ORG_ID", "org-test")
+
+
+@pytest.mark.parametrize("failure", list(FAILURES))
+def test_model_errors_never_leak(failure, openai_env, caplog):
+    server = FakeServer(*FAILURES[failure])
+    with caplog.at_level(logging.DEBUG):
+        model = openai_chat(server)
+        logger.debug("model %s %r", model, model)
+        with pytest.raises(TenetRAGError) as caught:  # AuthError on 401, LLMError otherwise
+            model.generate(ASK)
+    assert server.last.headers["authorization"] == f"Bearer {API_KEY}"  # so a leak was possible
+    assert all(CLIENT_SECRET not in str(request.headers) for request in server.requests)
+    assert_exception_clean(caught.value)
+    assert_logs_clean(caplog)
+    assert_no_secret(str(model), repr(model))
+
+
+def test_embedding_errors_never_leak(openai_env, caplog):
+    server = FakeServer(error_reply(401, ECHO))
+    settings = EmbeddingModelSettings(
+        provider="openai_compatible", base_url=BASE_URL, model="bge-m3", dimensions=4
+    )
+    with caplog.at_level(logging.DEBUG):
+        model = OpenAICompatibleEmbeddingModel(
+            settings,
+            credential=Credentials.api_key(Secret(API_KEY)),
+            capabilities=capability_profile(
+                "openai_compatible", "bge-m3", CapabilityOverrides(max_input_tokens=512)
+            ),
+            http_client=server.client(),
+        )
+        logger.debug("model %s %r", model, model)
+        with pytest.raises(CredentialRejectedError) as caught:
+            model.embed_documents(["Huế"])
+    assert_exception_clean(caught.value)
+    assert_logs_clean(caplog)
+    assert_no_secret(str(model), repr(model))
+
+
+@pytest.mark.parametrize("kind", [CredentialKind.PAT, CredentialKind.CLI_PROFILE])
+def test_databricks_model_errors_never_leak(kind, fake_sdk, caplog):
+    fake_sdk.tokens = [TOKEN, TOKEN]
+    echo = f"Invalid token {PAT} or {TOKEN}."
+    server = FakeServer(error_reply(401, echo), error_reply(401, echo))
+    settings = ChatModelSettings(
+        provider="databricks", model="databricks-gpt-5", workspace_url=HOST
+    )
+    with caplog.at_level(logging.DEBUG):
+        model = DatabricksChatModel(
+            settings,
+            credential=build(kind, None, fake_sdk),
+            capabilities=capability_profile("databricks", "databricks-gpt-5"),
+            http_client=server.client(),
+        )
+        logger.debug("model %s %r", model, model)
+        with pytest.raises(CredentialRejectedError) as caught:
+            model.generate(ASK)
+    assert_exception_clean(caught.value)
+    assert_logs_clean(caplog)
+    assert_no_secret(str(model), repr(model))

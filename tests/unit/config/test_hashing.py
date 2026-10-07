@@ -18,20 +18,22 @@ PROFILES = Path(__file__).parents[2] / "fixtures" / "profiles"
 
 # Pinned after the first green run. A change here is a change of the hash
 # format or of the index-time field set, and needs a reason in the commit.
+# Changed in M0 phase 6: three request-check capability fields left the
+# index-time set (T038).
 GOLDEN = {
     "selfhosted": {
         Stage.CHUNK: "sha256:e72a5a7b71ba5db66ef0080ca76119a05e659d9352a883461b587ed8cc12cd47",
-        Stage.EXTRACT: "sha256:a01fe1cb51d77d48c3fb27e8be5f7ae3c9a1eb6b1f5198490f378c4903f54e6b",
+        Stage.EXTRACT: "sha256:7efe7333d88b6b0b3803f2c2082114de15c2e2df975c36de4244cb0b9691fcaa",
         Stage.RESOLVE: "sha256:af9279ee7fff762692097bad083c2278bed82bf9d84cf7b3dbdf2ab789859a38",
-        Stage.EMBED: "sha256:fe181d76855e7fc2282de4bcfda28eaf41d3d5ea5bef31a68408159327d2cfd0",
+        Stage.EMBED: "sha256:a4849b4634d4a777cdf6a2851265d518a9a166af28a9ba65c56f6293150c6981",
         Stage.CLUSTER: "sha256:0888af2dead1f985b5c81b551d3ff2559307afecac5c98b3830863b4a305d061",
         Stage.REPORTS: "sha256:5f774d41c2a014c20f214e9ae4160410dbf2479402f0c3241c3478fa23d76f2a",
     },
     "databricks": {
         Stage.CHUNK: "sha256:e72a5a7b71ba5db66ef0080ca76119a05e659d9352a883461b587ed8cc12cd47",
-        Stage.EXTRACT: "sha256:22e402997e4282b52b3f430008f44d326be21ad7031ab31a637c93a5f8e080f4",
+        Stage.EXTRACT: "sha256:7693dc4cb7bc18fcb4fc6f53749cf63832a602e7a4cc94602ee023b2147f2014",
         Stage.RESOLVE: "sha256:af9279ee7fff762692097bad083c2278bed82bf9d84cf7b3dbdf2ab789859a38",
-        Stage.EMBED: "sha256:1de7d85f45fc0161e2725ae5756841dc4743d061c0f83d29df0cfa9c94fa67fb",
+        Stage.EMBED: "sha256:59e8aa17e178a1f7979ba5462149f21b67588ea8540b99f2018e866a40d5c973",
         Stage.CLUSTER: "sha256:0888af2dead1f985b5c81b551d3ff2559307afecac5c98b3830863b4a305d061",
         Stage.REPORTS: "sha256:5f774d41c2a014c20f214e9ae4160410dbf2479402f0c3241c3478fa23d76f2a",
     },
@@ -159,6 +161,11 @@ def test_strings_are_compared_in_nfc():
         ("models.extraction.log_content", True),
         ("models.embedding.batch_size", 16),
         ("models.embedding.timeout_seconds", 5),
+        # Leaf paths, so the fixture's other capabilities (its strategies) stay as they are.
+        ("models.extraction.capabilities.forbidden_schema_keywords", ["anyOf"]),
+        ("models.extraction.capabilities.max_schema_properties", 10),
+        ("models.extraction.capabilities.max_input_tokens", 1000),
+        ("models.embedding.capabilities.max_input_tokens", 512),
     ],
 )
 def test_hash_ignores_query_time(dotted, value):
