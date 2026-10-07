@@ -100,7 +100,8 @@ TENETRAG_LIVE_DATABRICKS_PROFILE=dev uv run pytest -m live -q
 - A chat call with a schema succeeds.
 - The embedding endpoint returns the dimension that its shipped profile
   states. If not, fix the profile.
-- With `DATABRICKS_HOST` also set, one warning names it.
+- With `DATABRICKS_HOST` set (the test sets it to the profile's own
+  host), one warning names it.
 
 ## 5. Store connections (Story 5)
 

@@ -67,7 +67,7 @@ from a YAML file, a YAML string or a dict.
 | `workspace_url` | `databricks`; required unless the credential carries the host (CLI profile, runtime) | — | operational |
 | `temperature` | all | 0.0 | content |
 | `max_output_tokens` | all | none | content |
-| `capabilities` | all; overrides of §5 | none | content |
+| `capabilities` | all; overrides of §5 | none | content, except `forbidden_schema_keywords`, `max_schema_properties` and `max_input_tokens`: operational, since they only refuse a request before it is sent |
 | `credential` | all except `fake`; a `CredentialSource` (§3) | none | operational |
 | `timeout_seconds` | all | 120 | operational |
 | `retry` | all; `RetrySettings` | §6 | operational |
@@ -75,7 +75,7 @@ from a YAML file, a YAML string or a dict.
 
 **`EmbeddingModelSettings`**: `provider`, `model`, `base_url` or
 `workspace_url`, `dimensions` (content; required unless the shipped
-capability profile gives it), `capabilities` (content), `batch_size`
+capability profile gives it), `capabilities` (as for chat), `batch_size`
 (operational, default 64), `credential`, `timeout_seconds` (60),
 `retry` and `log_content` (operational).
 
@@ -178,15 +178,19 @@ No step reads a variable, file or runtime the caller did not name.
 |---|---|
 | `strategies` | supported structured-output strategies. The class uses the first in the fixed order `native_schema`, `tool_call`, `json_mode`, `prompt_parse` that the profile lists |
 | `accepts_temperature`, `accepts_top_p` | when false, the class drops that parameter |
-| `forbidden_schema_keywords` | such as `$ref`, `anyOf`, `oneOf`, `allOf`, `pattern` on Databricks |
+| `forbidden_schema_keywords` | such as `$ref`, `anyOf`, `oneOf`, `allOf`, `pattern`, `prefixItems` on Databricks |
 | `max_schema_properties` | 64 on Databricks |
 | `max_input_tokens`, `max_output_tokens` | none when unknown |
 | `embedding_dimensions` | for embedding models |
 | `query_prefix`, `passage_prefix` | empty by default |
 | `parse_retries` | re-asks after a parse or validation failure, default 2 |
 
-- **Lookup:** shipped profiles match the model name by prefix.
-  `capabilities` in the profile overrides individual fields.
+- **Lookup:** in layers, each replacing single fields: the provider's
+  base, then the longest model family whose name prefixes the model's up
+  to a boundary (`-`, `.`, `:`, `_` or the end), then an exact model name
+  (for facts documented for one model only, such as Sonnet 5's sampling
+  rule), then `capabilities` in the profile. A model must be known: a
+  remote `$ref` is always refused, whatever the profile.
 - **Unknown models:** `strategies = [prompt_parse]` and no schema limits.
   This works on every server. The caller widens it in the profile once
   the server is known to support more.
@@ -284,20 +288,26 @@ with two additive fields:
   - `text`;
   - `data`: parsed JSON, or `None` without a schema;
   - `usage`, `model_id`;
-  - `strategy`: a `Strategy` or `None` (added);
+  - `strategy`: the name of the `Strategy` that ran, or `None` without
+    a schema (added). `Strategy` is a `StrEnum` in `tenetrag.llm`, so the
+    field is typed `str | None` in the stdlib-only protocols;
   - `finish_reason` (added).
 
 ## 10. Fake models
 
-**`FakeChatModel(responses=…, model_id="fake-chat")`**
+**`FakeChatModel(responses=…, model_id="fake-chat", capabilities=None)`**
 - It takes a sequence of scripted items, each a text, a dict (returned as
-  `data` and as JSON text) or an exception to raise. A callable
+  `data` and as JSON text), a `ChatResult` (keeps its usage) or an
+  exception to raise, one per attempt. A callable
   `(messages, schema) -> item` can be passed instead.
-- It records each call as `(messages, schema, params)`.
+- It runs the same structured-output loop as the real classes, so schema
+  checks, validation and re-asking behave the same.
+- It records each `generate` call as `(messages, schema, params)`, after
+  the schema check, so a refused request records nothing.
 - It raises `AssertionError` when the script runs out, so a test never
   passes on a default.
 
-**`FakeEmbeddingModel(dimensions=8)`**
+**`FakeEmbeddingModel(dimensions=8, model_id="fake-embed", max_input_tokens=8192)`**
 - It returns a unit vector derived from SHA-256 of the prefixed text, so
   the same text always gives the same vector, and the query and passage
   prefixes differ.

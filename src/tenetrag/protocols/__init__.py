@@ -20,24 +20,38 @@ from tenetrag.protocols.errors import (
     UnsupportedRequestError,
     UnsupportedServerError,
 )
+from tenetrag.protocols.models import (
+    ChatModel,
+    ChatResult,
+    EmbeddingModel,
+    Message,
+    Role,
+    Usage,
+)
 
 __all__ = [
     "AuthError",
+    "ChatModel",
+    "ChatResult",
     "ConfigError",
     "CredentialMismatchError",
     "CredentialRejectedError",
     "CredentialSourceError",
+    "EmbeddingModel",
     "LLMError",
+    "Message",
     "MissingCredentialError",
     "MissingExtraError",
     "ModelUnavailableError",
     "OutputTruncatedError",
     "QueryError",
     "ResponseError",
+    "Role",
     "StorageError",
     "StoreUnavailableError",
     "StructuredOutputError",
     "TenetRAGError",
     "UnsupportedRequestError",
     "UnsupportedServerError",
+    "Usage",
 ]

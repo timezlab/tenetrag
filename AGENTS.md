@@ -11,8 +11,8 @@ preferred, or Postgres) ([ADR 0008](docs/decisions/0008-build-databricks-and-ope
 **Status:** M0 in progress
 ([specs/001-sdk-foundation](specs/001-sdk-foundation/tasks.md)): the
 package skeleton, the error types, the quality gates (locally and in CI),
-profile loading with stage hashes, and credentials exist; model clients
-and store connections come next. The design is settled through ADR 0019, and the constitution is
+profile loading with stage hashes, credentials, and the chat and
+embedding model clients exist; store connections come next. The design is settled through ADR 0019, and the constitution is
 at v1.1.0.
 
 ## Stack

@@ -10,21 +10,27 @@ with the additive result fields of
 
 ```python
 class ChatModel(Protocol):
-    model_id: str
+    @property
+    def model_id(self) -> str: ...
     def generate(self, messages: Sequence[Message], *, schema: Mapping[str, Any] | None = None,
                  max_output_tokens: int | None = None,
-                 temperature: float = 0.0) -> ChatResult: ...
+                 temperature: float | None = None) -> ChatResult: ...
+        # None: the settings' max_output_tokens and temperature
 
 class EmbeddingModel(Protocol):
-    model_id: str
-    dimensions: int
-    max_input_tokens: int
+    @property
+    def model_id(self) -> str: ...
+    @property
+    def dimensions(self) -> int: ...
+    @property
+    def max_input_tokens(self) -> int: ...
     def embed_documents(self, texts: Sequence[str]) -> list[list[float]]: ...
     def embed_queries(self, texts: Sequence[str]) -> list[list[float]]: ...
     def count_tokens(self, text: str) -> int | None: ...
 ```
 
-`max_input_tokens` is a required protocol attribute. It comes from the
+The attributes are read-only properties, so a plain attribute or a
+property satisfies them. `max_input_tokens` is a required protocol attribute. It comes from the
 shipped capability profile, or from `capabilities.max_input_tokens` in the
 settings. When neither gives it, model creation raises `ConfigError`
 asking for it. Without
@@ -39,20 +45,27 @@ Imports allowed: the standard library, `tenetrag.protocols`,
 
 ```python
 def chat_model_from_settings(settings: ChatModelSettings, *, target_name: str,
-                             credential: Credential | None = None) -> ChatModel: ...
+                             credential: Credential | None = None,
+                             http_client: httpx2.Client | None = None,
+                             fake_responses: Sequence[ScriptItem] = ()) -> ChatModel: ...
 def embedding_model_from_settings(settings: EmbeddingModelSettings, *, target_name: str,
-                                  credential: Credential | None = None) -> EmbeddingModel: ...
+                                  credential: Credential | None = None,
+                                  http_client: httpx2.Client | None = None) -> EmbeddingModel: ...
     # Pick the class by `provider`; resolve the credential (auth contract);
     # raise MissingExtraError when `openai` is not installed.
+    # `http_client` and `fake_responses` are test seams: the first reaches the
+    # HTTP providers, the second the fake; each provider ignores the other.
 
 class OpenAICompatibleChatModel: ...      # ChatModel
 class OpenAICompatibleEmbeddingModel: ... # EmbeddingModel
+    # Both: (settings, *, credential, capabilities, http_client=None,
+    #        sleep=time.sleep, clock=time.monotonic); the credential is used as given.
 class DatabricksChatModel(OpenAICompatibleChatModel): ...      # base_url = {workspace}/serving-endpoints
 class DatabricksEmbeddingModel(OpenAICompatibleEmbeddingModel): ...
 class FakeChatModel: ...                  # data-model §10
 class FakeEmbeddingModel: ...
 
-class Strategy(Enum): NATIVE_SCHEMA, TOOL_CALL, JSON_MODE, PROMPT_PARSE
+class Strategy(StrEnum): NATIVE_SCHEMA, TOOL_CALL, JSON_MODE, PROMPT_PARSE  # the fixed order
 @dataclass(frozen=True)
 class CapabilityProfile: ...              # data-model §5
 def capability_profile(provider: str, model: str,
@@ -101,3 +114,6 @@ Unit tests run with `MockTransport` from `httpx2`, passed as
 | `test_openai_env_not_used_for_key` | with `OPENAI_API_KEY` and `OPENAI_BASE_URL` set, requests carry our key and URL |
 | `test_openai_env_warning` | `OPENAI_ORG_ID` set logs one warning naming it |
 | `test_fake_deterministic` | the same inputs give identical outputs; an exhausted script raises `AssertionError` |
+| `test_custom_headers_cannot_replace_our_token` | an `Authorization` line in `OPENAI_CUSTOM_HEADERS` never replaces the credential's token, and `none` sends no header |
+| `test_bad_request_names_status_and_message` | a 400 raises `LLMError` with the status and the server's message, with no chained SDK exception |
+| `test_model_errors_never_leak` (SC-006) | 401, 429, 5xx, 400 and unreadable answers, with the server echoing the key, leave no planted secret in errors, logs or `repr` |

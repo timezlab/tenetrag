@@ -1040,7 +1040,8 @@ class ChatModel(Protocol):
     model_id: str
     def generate(self, messages: Sequence[Message], *, schema: Mapping | None = None,
                  max_output_tokens: int | None = None,
-                 temperature: float = 0.0) -> ChatResult: ...
+                 temperature: float | None = None) -> ChatResult: ...
+        # None: the model's configured max_output_tokens and temperature
         # ChatResult: text, data (parsed JSON or None), usage (input, cached input, output tokens)
 
 class EmbeddingModel(Protocol):

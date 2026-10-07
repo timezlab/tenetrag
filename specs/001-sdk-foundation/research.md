@@ -22,11 +22,13 @@ CPython 3.11–3.14, so no build script runs on install [pypi].
 | pytest | 9.1.1 | MIT | tests (dev) |
 | pytest-socket | 0.8.1 | MIT | blocks network in unit tests (dev) |
 | types-PyYAML | 6.0.12.20260906 | Apache-2.0 | PyYAML stubs for mypy (dev); uploaded 2026-09-06, added at lock time |
+| types-jsonschema | 4.26.0.20260518 | Apache-2.0 | jsonschema stubs for mypy (dev), added in phase 6: jsonschema has no `py.typed`. The newer 4.26.0.20261006 was under 24 hours old |
 | import-linter | 2.15 | BSD-2-Clause | import rules (dev) |
 | testcontainers | 4.15.0 | Apache-2.0 | Docker in integration tests (dev only: its Ryuk reaper pulls an image) |
 | pydantic | 2.13.5 | MIT | profile model (base) |
 | PyYAML | 6.0.3 | MIT | profile YAML (base) |
 | jsonschema | 4.26.0 | MIT | validates structured output (base) |
+| referencing | 0.37.0 | MIT | an empty schema registry, so no `$ref` is fetched (base, phase 6; already locked under jsonschema, now declared since it is imported) |
 | openai | 3.24.0 | Apache-2.0 | chat and embedding clients (extras `openai`, `databricks`) |
 | databricks-sdk | 0.146.0 | Apache-2.0 | Databricks OAuth, CLI profile, runtime (extra `databricks`) |
 | neo4j | ≥ 6.3.1 | Apache-2.0 AND Python-2.0 | Neo4j driver (extra `neo4j`); 6.4.0 was uploaded 2026-10-05 15:37 UTC, too new to lock today |
@@ -267,6 +269,81 @@ profiles.
 **Alternative rejected:** our own HTTP client. It would close the three
 `OPENAI_*` reads, but the author judged it not worth 150–250 lines to
 maintain.
+
+**As built (T045–T052),** against openai 3.24.0:
+- **Authorization per request, not `api_key=<callable>`.** The source
+  showed a fail-open in the design above: headers from
+  `OPENAI_CUSTOM_HEADERS` are merged after the auth headers
+  (`_base_client.py` `_build_headers` and `_merge_headers`), so an
+  `Authorization` line there replaced our key. A spike on `MockTransport`
+  sent the ambient token. Every request now passes
+  `extra_headers={"Authorization": "Bearer <token>"}`, which is merged
+  last, and the `none` credential passes `openai.omit`, which removes the
+  header. The client gets `api_key="unused"`. This also ties each
+  rejection to the token that was sent, with no shared mutable `api_key`
+  across threads. Pinned by `test_custom_headers_cannot_replace_our_token`.
+- `admin_api_key=""` and `webhook_secret=""`, so `OPENAI_ADMIN_KEY` and
+  `OPENAI_WEBHOOK_SECRET` are not read; the SDK reads them when the
+  argument is `None`.
+- **Errors** are never chained to the SDK's exceptions, whose text holds
+  the server's body:
+  - 401 raises `CredentialRejectedError`, after one reauth for a
+    refreshable credential;
+  - 403 raises `CredentialRejectedError`;
+  - 429, 5xx and connection failures are retried, then raise
+    `ModelUnavailableError` with the status and the attempts;
+  - other 4xx raise `LLMError` with the server's message, every token we
+    sent masked, cut at 500 characters;
+  - a body the SDK cannot read raises `ResponseError`.
+
+  `_retry.run_with_retry` now calls `on_reauth` outside the `except`
+  block, so a `CredentialRejectedError` from the token source does not
+  carry the rejected request's error as `__context__` (regression test in
+  `test_retry.py`).
+- The output limit is `max_completion_tokens` on OpenAI-compatible
+  servers and `max_tokens` on Databricks, sent only when the call or the
+  settings give one. `temperature` is sent unless the profile drops it;
+  `top_p` is never sent.
+- `ChatModel.generate(temperature=None)`: `None` means the settings'
+  temperature. Engine brief §6.4 and contracts/llm.md said
+  `temperature: float = 0.0`, which would override the settings on every
+  call; both now show `float | None = None`.
+- **Request shapes:** the schema name is `output`, and the tool's
+  description is "Return the answer as this function's arguments." For
+  `json_mode` and `prompt_parse`, the schema (JSON with sorted keys and
+  non-ASCII kept) is appended to the caller's first system message, or
+  sent as a new one. A re-ask appends the answer as an assistant message
+  and the validation error as a user message. Code fences are stripped
+  before parsing. With `tool_call`, an answer without the tool call falls
+  back to the message text, which is still validated.
+- **Schema checks,** before any call: valid JSON Schema 2020-12; no
+  `$ref` outside the schema; then the profile's forbidden keywords and
+  property count (the sum over every `properties` map). Names under
+  `properties`, `$defs` and similar maps are not keywords, and the values
+  of `enum`, `const`, `default` and `examples` are not walked.
+- **Shipped profiles** (`llm/capabilities.py`, each with its source):
+  - Databricks endpoints also forbid `prefixItems` (verified 2026-10-07).
+  - Claude on Databricks takes `json_schema` but not `json_object`.
+  - The Sonnet 5 sampling rule matches the exact name:
+    `databricks-claude-sonnet-5-5` shares the prefix but not the note.
+  - OpenAI `gpt-4o` (not the 2024-05-13 snapshot), `gpt-4.1`, `gpt-5` and
+    `gpt-6` get all four strategies. `gpt-5` and `gpt-6` drop
+    `temperature` and `top_p` (documented for GPT-6 when reasoning is on;
+    [inferred] for gpt-5 from community reports).
+  - `databricks-qwen3-embedding-0-6b`: 1024 dimensions and 32,000 input
+    tokens (rounded down from "~32K"), unverified until the live test
+    runs.
+- Embedding requests send no `dimensions` parameter: `dimensions` in the
+  settings states the expected size, and a vector of another size raises
+  `ResponseError`.
+- The factories take two test seams beyond the first contract:
+  `http_client` (an `httpx2.Client`, for `MockTransport`) and
+  `fake_responses` (the fake chat script). Each provider ignores the one
+  that does not apply. contracts/llm.md shows them.
+- The SDK's `X-Stainless-*` headers (SDK version, OS, Python version) are
+  sent unchanged. They describe the client platform and hold no secret.
+- `referencing` became a direct dependency. It was already locked under
+  jsonschema, and the code now imports it.
 
 ## R10. Retry policy
 

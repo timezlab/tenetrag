@@ -453,7 +453,7 @@ proves SC-009.
 
 ### Tests for User Story 4
 
-- [ ] T038 [P] [US4] Write `tests/unit/llm/test_capabilities.py`:
+- [X] T038 [P] [US4] Write `tests/unit/llm/test_capabilities.py`:
   - prefix lookup picks the Databricks profile for `databricks-*` models;
   - `claude-sonnet-5` drops temperature;
   - an unknown model gets `[prompt_parse]` with no schema limits;
@@ -462,13 +462,17 @@ proves SC-009.
     `ConfigError`;
   - `tenetrag.config.profile.StrategyName` lists exactly the values of
     `Strategy`. `config` cannot import `llm`, so the names are written
-    twice.
-- [ ] T039 [P] [US4] Write `tests/unit/llm/test_structured.py`: the
+    twice;
+  - in `tests/unit/config`, `capabilities.forbidden_schema_keywords`,
+    `max_schema_properties` and `max_input_tokens` are operational, so
+    changing them moves no stage hash. They only refuse a request before
+    it is sent, and never change an output that succeeded.
+- [X] T039 [P] [US4] Write `tests/unit/llm/test_structured.py`: the
   strategy order, the forbidden keyword and property-count checks before
   any call, re-asking with the validation error appended,
   `StructuredOutputError(strategy, attempts)`, and jsonschema with an
   empty registry refusing a remote `$ref`.
-- [ ] T040 [P] [US4] Write `tests/unit/llm/test_openai_compatible.py`.
+- [X] T040 [P] [US4] Write `tests/unit/llm/test_openai_compatible.py`.
   It drives an `httpx2.MockTransport`, passed as `http_client`, and
   covers the contracts/llm.md tests `test_strategy_order` (with request
   bodies matching the research R9 table), `test_parse_retry_then_error`,
@@ -477,20 +481,20 @@ proves SC-009.
   `test_temperature_dropped`, `test_forbidden_schema`,
   `test_usage_unknown_not_zero`, `test_openai_env_not_used_for_key` and
   `test_openai_env_warning`.
-- [ ] T041 [P] [US4] Write `tests/unit/llm/test_embeddings.py`:
+- [X] T041 [P] [US4] Write `tests/unit/llm/test_embeddings.py`:
   - `test_embedding_order_and_dimension` and `test_prefixes`;
   - empty and over-long texts are rejected before any request, by
     position;
   - `encoding_format: "float"` is sent;
   - batching respects `batch_size`.
-- [ ] T042 [P] [US4] Write `tests/unit/llm/test_fake.py`. It covers
+- [X] T042 [P] [US4] Write `tests/unit/llm/test_fake.py`. It covers
   `test_fake_deterministic`, scripted exceptions, the callable script,
   call recording, and different vectors for query and passage prefixes.
-- [ ] T043 [P] [US4] Write `tests/unit/llm/test_same_code_three_providers.py`.
+- [X] T043 [P] [US4] Write `tests/unit/llm/test_same_code_three_providers.py`.
   One function takes a `Profile` and calls `generate` with a schema and
   `embed_documents`. It runs against fake, OpenAI-compatible (mock) and
   Databricks (mock) profiles, changing only the profile (SC-009).
-- [ ] T044 [P] [US4] Write `tests/live/test_databricks_live.py`, marked
+- [X] T044 [P] [US4] Write `tests/live/test_databricks_live.py`, marked
   `live`.
   - It is skipped unless `TENETRAG_LIVE_DATABRICKS_PROFILE` is set.
   - It runs one chat call with a small schema and one embedding call.
@@ -499,13 +503,13 @@ proves SC-009.
 
 ### Implementation for User Story 4
 
-- [ ] T045 [P] [US4] Implement `src/tenetrag/protocols/models.py`,
+- [X] T045 [P] [US4] Implement `src/tenetrag/protocols/models.py`,
   stdlib only, following data-model §9 and contracts/llm.md:
   - `Message`, `Usage` and `ChatResult` as frozen dataclasses;
   - `ChatModel` and `EmbeddingModel` as `Protocol`s.
 
   Re-export them from `src/tenetrag/protocols/__init__.py`.
-- [ ] T046 [P] [US4] Implement `src/tenetrag/llm/capabilities.py`:
+- [X] T046 [P] [US4] Implement `src/tenetrag/llm/capabilities.py`:
   - `Strategy`, `CapabilityProfile` and `capability_profile(provider,
     model, overrides)`;
   - shipped profiles only for documented facts:
@@ -520,7 +524,10 @@ proves SC-009.
     `docs/reference/databricks-platform.md`.
   - `databricks-qwen3-embedding-0-6b` is marked unverified until T044
     confirms its dimension.
-- [ ] T047 [US4] Implement `src/tenetrag/llm/structured.py`:
+  - In `src/tenetrag/config/profile.py`, mark the three request-refusing
+    capability fields `Operational()` (T038), and update the data-model
+    §2 `capabilities` row.
+- [X] T047 [US4] Implement `src/tenetrag/llm/structured.py`:
   - the schema checks against the profile limits;
   - the request fragments per strategy (research R9);
   - parsing of text, tool-call arguments or JSON;
@@ -529,11 +536,11 @@ proves SC-009.
   - `OutputTruncatedError` on `finish_reason == "length"`.
 
   Depends on T045 and T046.
-- [ ] T048 [P] [US4] Implement `src/tenetrag/llm/fake.py` with
+- [X] T048 [P] [US4] Implement `src/tenetrag/llm/fake.py` with
   `FakeChatModel` and `FakeEmbeddingModel`, following data-model §10.
   Fake chat applies the same `structured.py` validation to scripted data.
   Depends on T045 and T047.
-- [ ] T049 [US4] Implement `src/tenetrag/llm/openai_compatible.py`:
+- [X] T049 [US4] Implement `src/tenetrag/llm/openai_compatible.py`:
   - **Classes:** `OpenAICompatibleChatModel` and
     `OpenAICompatibleEmbeddingModel`.
   - **Client construction** (research R9):
@@ -554,25 +561,42 @@ proves SC-009.
     `log_content` is true.
 
   Depends on T011, T036, T046 and T047.
-- [ ] T050 [US4] Implement `src/tenetrag/llm/databricks.py`:
+- [X] T050 [US4] Implement `src/tenetrag/llm/databricks.py`:
   `DatabricksChatModel` and `DatabricksEmbeddingModel` subclass the
   OpenAI-compatible pair. They set `base_url =
   f"{workspace_url}/serving-endpoints"`, take the host from the
   credential when the source is `cli_profile` or `runtime`, and use the
   Databricks capability profiles. Depends on T049.
-- [ ] T051 [US4] Implement `chat_model_from_settings` and
+- [X] T051 [US4] Implement `chat_model_from_settings` and
   `embedding_model_from_settings` in `src/tenetrag/llm/__init__.py`. They
   pick the class by `provider`, call `resolve_credential` with the target
   name, and pass the capability profile and settings. Export the classes,
   `Strategy`, `CapabilityProfile` and `capability_profile`. Depends on
   T048 to T050.
-- [ ] T052 [US4] Extend `tests/unit/test_secrets_never_leak.py` with part 2:
+- [X] T052 [US4] Extend `tests/unit/test_secrets_never_leak.py` with part 2:
   - model calls with `PLANTED` keys go through 401, 429 and malformed
     responses on `MockTransport`;
   - check the exceptions, `caplog` and the model `repr`.
 
   Then run `uv run pytest tests/unit/llm tests/unit/test_secrets_never_leak.py -q`
   and `make check`.
+
+  Result (2026-10-07): `make check` passes with 555 unit tests: 119 for
+  models and 9 in leak-test part 2. The live test (T044) has not been run
+  yet, so the qwen3 embedding profile is still unverified. Reading
+  openai 3.24.0 showed that `OPENAI_CUSTOM_HEADERS` can replace the
+  client's `Authorization`, so the token is now sent on every request,
+  where it wins. The three request-refusing capability fields became
+  operational, which moved only the EXTRACT and EMBED golden hashes.
+  Four test bugs were fixed as their own steps: the hashing variant
+  replaced the whole `capabilities` map, two helpers passed one argument
+  twice, and the leak test expected `LLMError` where a 401 rightly raises
+  `CredentialRejectedError`. A fault in `_retry` was also fixed: a failing
+  reauth hook carried the rejected error as its context. 18 deliberate
+  faults were tried, and the one that survived (a family prefix matched
+  without a boundary) got its own test. `referencing` is now a direct
+  dependency. Deviations from the task text are in research R9 "As
+  built".
 
 **Checkpoint**: one interface for all three providers, with fail-fast
 errors and no silent fallbacks

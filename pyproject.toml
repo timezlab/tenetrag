@@ -20,6 +20,8 @@ dependencies = [
     "pydantic>=2.13,<3",
     "PyYAML>=6.0.3",
     "jsonschema>=4.26",
+    # Imported directly for an empty schema registry, so no $ref is ever fetched.
+    "referencing>=0.37",
 ]
 
 [project.optional-dependencies]
@@ -38,6 +40,7 @@ dev = [
     "pytest-socket>=0.8.1",
     "import-linter>=2.15",
     "testcontainers[neo4j]>=4.15.0",
+    "types-jsonschema>=4.26.0.20260518",
 ]
 
 [tool.hatch.version]

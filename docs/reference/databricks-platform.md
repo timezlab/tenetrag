@@ -1,6 +1,7 @@
 # Databricks platform facts this project depends on
 
-**Verified:** 2026-10-02 against official docs (sources inline). Preview/Beta
+**Verified:** 2026-10-02 against official docs (sources inline); the model
+facts re-checked 2026-10-07. Preview/Beta
 items change fast — re-check the linked page before building on one, and
 update this file in the same PR when a fact changes.
 Raw lane reports (snapshots, not maintained):
@@ -102,12 +103,16 @@ reasoning from primary facts · **[unverified]** could not confirm.
   responses, embeddings, completions); endpoint names `databricks-<model>`.
   [primary] [API reference](https://docs.databricks.com/aws/en/machine-learning/foundation-model-apis/api-reference)
 - Multilingual embedding: only `databricks-qwen3-embedding-0-6b` (Public
-  Preview); GTE/BGE are English-only. [primary]
+  Preview; "configurable dimensionality up to 1024", context "~32K
+  tokens"); GTE/BGE are English-only (`gte-large-en` 1024 dimensions and
+  8192 tokens, `bge-large-en` 1024 and 512). [primary, 2026-10-07]
   [supported models](https://learn.microsoft.com/en-us/azure/databricks/machine-learning/foundation-models/supported-models)
-- Structured outputs: no `$ref`/`anyOf`/`oneOf`/`allOf`/`pattern`, ≤64 keys;
-  Claude cannot combine `response_format` with tools; `claude-sonnet-5`
-  rejects `temperature`/`top_p`/`top_k` with HTTP 400; tool calling ≤32
-  functions. [primary]
+- Structured outputs: no `$ref`/`anyOf`/`oneOf`/`allOf`/`pattern`/
+  `prefixItems`, ≤64 keys; Claude supports `json_schema` but not
+  `json_object`, and cannot combine `response_format` with tools;
+  `claude-sonnet-5` rejects `temperature`/`top_p`/`top_k` with HTTP 400
+  (the note names that model only, not `claude-sonnet-5-5`); tool calling
+  ≤32 functions. [primary, 2026-10-07]
   [structured outputs](https://docs.databricks.com/aws/en/machine-learning/model-serving/structured-outputs),
   [function calling](https://docs.databricks.com/aws/en/machine-learning/model-serving/function-calling)
 - External models (OpenAI, Azure OpenAI, Anthropic, Bedrock, Vertex, …) go

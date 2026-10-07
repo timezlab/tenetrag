@@ -104,21 +104,29 @@ def run_with_retry(
     attempt = 1
     reauth_used = False
     while True:
+        reauth: Callable[[], None] | None = None
+        pause = 0.0
         try:
             return fn()
         except Exception as exc:
             verdict = classify(exc)
             if verdict.action is Action.REAUTH and on_reauth is not None and not reauth_used:
-                reauth_used = True
-                on_reauth()
-                continue
-            if verdict.action is not Action.RETRY:
+                reauth = on_reauth
+            elif verdict.action is not Action.RETRY:
                 raise
-            elapsed = clock() - start
-            delay = _next_delay(policy, attempt, verdict.retry_after_seconds, elapsed, rand)
-            if attempt >= policy.max_attempts or delay is None:
-                raise RetryExhaustedError(attempt, elapsed) from exc
-        sleep(delay)
+            else:
+                elapsed = clock() - start
+                delay = _next_delay(policy, attempt, verdict.retry_after_seconds, elapsed, rand)
+                if attempt >= policy.max_attempts or delay is None:
+                    raise RetryExhaustedError(attempt, elapsed) from exc
+                pause = delay
+        if reauth is not None:
+            # Outside the except block, so an error from the hook does not carry the
+            # rejected failure, whose text may hold what the server sent back.
+            reauth_used = True
+            reauth()
+            continue
+        sleep(pause)
         attempt += 1
 
 

@@ -151,6 +151,9 @@ StrategyName = Literal["native_schema", "tool_call", "json_mode", "prompt_parse"
 Provider = Literal["databricks", "openai_compatible", "fake"]
 
 _Limit = Annotated[int | None, Field(ge=1), Content()]
+# Limits that only refuse a request before it is sent. They never change an output
+# that succeeded, so they move no stage hash.
+_RequestLimit = Annotated[int | None, Field(ge=1), Operational()]
 
 
 class CapabilityOverrides(_Settings):
@@ -159,9 +162,9 @@ class CapabilityOverrides(_Settings):
     strategies: Annotated[tuple[StrategyName, ...] | None, Field(min_length=1), Content()] = None
     accepts_temperature: Annotated[bool | None, Content()] = None
     accepts_top_p: Annotated[bool | None, Content()] = None
-    forbidden_schema_keywords: Annotated[tuple[str, ...] | None, Content()] = None
-    max_schema_properties: _Limit = None
-    max_input_tokens: _Limit = None
+    forbidden_schema_keywords: Annotated[tuple[str, ...] | None, Operational()] = None
+    max_schema_properties: _RequestLimit = None
+    max_input_tokens: _RequestLimit = None
     max_output_tokens: _Limit = None
     embedding_dimensions: _Limit = None
     query_prefix: Annotated[str | None, Content()] = None
