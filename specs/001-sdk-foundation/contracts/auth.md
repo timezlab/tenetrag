@@ -62,6 +62,8 @@ def resolve_credential(
     target_name: str,                        # dotted profile path, used in errors
     source: CredentialSource | None,         # from the profile
     override: Credential | None = None,      # from code; wins
+    *,
+    workspace_url: str | None = None,        # the model's; pat, oauth_m2m and oauth_u2m sources need it
 ) -> Credential: ...
     # MissingCredentialError, CredentialSourceError or CredentialMismatchError
 ```

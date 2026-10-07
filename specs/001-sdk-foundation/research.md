@@ -343,6 +343,40 @@ refreshes under a lock [source: `oauth.py:279`, `327-332`]. The SDK's
 unused attribute, plus a custom credentials strategy. It is undocumented
 behaviour, and the author chose the simpler path.
 
+**As built (T034–T036),** against databricks-sdk 0.146.0:
+- `cli_profile` also passes `auth_type="databricks-cli"`, as data model §3
+  asks, so a `DATABRICKS_TOKEN` in the environment cannot switch it to a
+  PAT. A profile that holds a PAT fails with the `databricks auth login`
+  hint; such users name a `pat` source instead.
+- A failed `databricks auth token` raises `IOError("cannot get access
+  token: …")`, at build and at refresh, and `Config()` wraps only
+  `ValueError`s (`credentials_provider.py:773-789`). Both `ValueError` and
+  `OSError` map to `CredentialSourceError`, chained, and the message names
+  the identity and the fix without repeating the SDK's text.
+- The delegated kinds do not use `_TokenSource`. The SDK caches and
+  refreshes under its own lock and does not say when a token expires, so a
+  second cache would hold stale tokens. `_SdkTokenSource` asks
+  `config.authenticate()` on each call. On a rejection it builds a new
+  `Config` once, which fetches a fresh token; a `WorkspaceClient` from the
+  caller is asked once more instead. Tokens are compared by value.
+- The environment warning lists the variables `Config.attributes()` reads
+  (`env` and `env_aliases`), not every `DATABRICKS_*` name, so runtime
+  markers such as `DATABRICKS_RUNTIME_VERSION` do not trigger it on every
+  cluster.
+- `resolve_credential` takes `workspace_url`: `pat`, `oauth_m2m` and
+  `oauth_u2m` sources need the host, and the profile holds it on the model.
+  contracts/auth.md shows the new parameter.
+- `Credential.source` is also `none` for the `none` kind and `browser` for
+  `oauth_u2m`. Identities are `kind:label`: `basic:<user>`,
+  `pat:<host>`, `oauth_m2m:<client id>@<host>`, `cli_profile:<name>`,
+  `token_provider:<caller's label>`.
+- Code constructors take the workspace URL as `https://<host>`, and refuse
+  another scheme or a user and password in it.
+- Importing the SDK imports urllib3, which opens a local IPv6 socket to
+  probe support. `tests/unit/conftest.py` imports urllib3 before
+  pytest-socket blocks sockets, so the probe does not show as a blocked
+  network call.
+
 ## R12. Postgres driver (author's decision)
 
 **Decision:** psycopg 3.3 with the `binary` extra, and psycopg-pool 3.3,

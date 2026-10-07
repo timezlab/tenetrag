@@ -345,24 +345,24 @@ holds with ambient variables exported.
 
 ### Tests for User Story 3
 
-- [ ] T029 [P] [US3] Write `tests/unit/auth/test_secret.py`. It covers:
+- [X] T029 [P] [US3] Write `tests/unit/auth/test_secret.py`. It covers:
   - `repr` and `str` are `Secret('***')`;
   - `reveal()` returns the value;
   - an empty value and an unset or empty `from_env` name raise
     `CredentialSourceError`, naming the variable and never a value.
-- [ ] T030 [P] [US3] Write `tests/unit/auth/test_resolve.py` with these
+- [X] T030 [P] [US3] Write `tests/unit/auth/test_resolve.py` with these
   tests from contracts/auth.md: `test_missing_credential` (with no socket
   opened), `test_ambient_vars_never_read`, `test_named_env_unset`,
   `test_override_wins` and `test_mismatch`. Add one parametrized test over
   the accepted-kinds table of contracts/auth.md.
-- [ ] T031 [P] [US3] Write `tests/unit/auth/test_token_source.py`. It
+- [X] T031 [P] [US3] Write `tests/unit/auth/test_token_source.py`. It
   covers:
   - `test_refresh_same_identity`;
   - refresh happens once when 8 threads ask together;
   - `invalidate()` then rejection raises `CredentialRejectedError`;
   - `test_obo_not_refreshed`;
   - a token near `expires_at` is refreshed before use.
-- [ ] T032 [P] [US3] Write `tests/unit/auth/test_databricks.py`. It
+- [X] T032 [P] [US3] Write `tests/unit/auth/test_databricks.py`. It
   injects a fake `Config` factory, so no Databricks SDK network is used,
   and covers:
   - `test_runtime_outside_databricks`;
@@ -374,14 +374,14 @@ holds with ambient variables exported.
     and says to run `databricks auth login --profile <name>`;
   - `pat` and `obo` never import `databricks.sdk`;
   - `workspace_client` takes its headers from `client.config.authenticate()`.
-- [ ] T033 [P] [US3] Write `tests/unit/test_secrets_never_leak.py`, part 1:
+- [X] T033 [P] [US3] Write `tests/unit/test_secrets_never_leak.py`, part 1:
   - for every credential kind, build it with `PLANTED` values, then print
     it, log it at DEBUG and raise each auth error built from it;
   - check everything with the `tests/support/secrets.py` helpers.
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Implement `src/tenetrag/auth/credentials.py`, following
+- [X] T034 [US3] Implement `src/tenetrag/auth/credentials.py`, following
   data-model §4 and contracts/auth.md:
   - `Secret`, `AccessToken`, `CredentialKind`, and the frozen
     `Credential` with `kind`, `identity`, `source` and `refreshable`;
@@ -393,7 +393,7 @@ holds with ambient variables exported.
     `token_provider`, `pat`, `obo`, `oauth_m2m`, `oauth_u2m`,
     `cli_profile`, `runtime` and `workspace_client`. The Databricks ones
     delegate to `auth/databricks.py` lazily.
-- [ ] T035 [US3] Implement `src/tenetrag/auth/databricks.py`, following
+- [X] T035 [US3] Implement `src/tenetrag/auth/databricks.py`, following
   research R11:
   - `databricks.sdk` is imported lazily inside functions, and its absence
     raises `MissingExtraError("databricks")`.
@@ -414,7 +414,7 @@ holds with ambient variables exported.
     never used. Add a comment citing ADR 0003.
 
   Depends on T034.
-- [ ] T036 [US3] Implement `src/tenetrag/auth/resolve.py`:
+- [X] T036 [US3] Implement `src/tenetrag/auth/resolve.py`:
   - `TargetKind` and the accepted-kinds table;
   - `resolve_credential(target, target_name, source, override)`: the
     override wins, a profile `CredentialSource` becomes a `Credential`
@@ -423,9 +423,19 @@ holds with ambient variables exported.
 
   Export the public names from `src/tenetrag/auth/__init__.py`. Depends
   on T034 and T035.
-- [ ] T037 [US3] Run `uv run pytest tests/unit/auth tests/unit/test_secrets_never_leak.py -q`,
+- [X] T037 [US3] Run `uv run pytest tests/unit/auth tests/unit/test_secrets_never_leak.py -q`,
   then `make check`, and run quickstart §3 with ambient variables
   exported.
+
+  Result (2026-10-06): `make check` passes with 416 unit tests, 134 of
+  them for credentials, and quickstart §3 passes with `DATABRICKS_TOKEN`
+  and `OPENAI_API_KEY` exported. Reading the SDK showed that a failed
+  `databricks auth token` raises `IOError`, not `ValueError`, so a test
+  went red and both now map to `CredentialSourceError`. 29 deliberate
+  faults were tried. The one that survived, a late rejection of a token
+  already replaced on schedule, got its own test. The thread test passed
+  30 runs out of 30. Deviations from the task text are in research R11
+  "As built".
 
 **Checkpoint**: credentials fail closed and never leak
 

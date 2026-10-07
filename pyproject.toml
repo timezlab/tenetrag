@@ -125,5 +125,3 @@ type = "forbidden"
 source_modules = ["tenetrag.auth"]
 forbidden_modules = ["openai", "databricks", "neo4j", "psycopg", "psycopg_pool"]
 ignore_imports = ["tenetrag.auth.databricks -> databricks"]
-# auth.databricks arrives in US3. A typo here only makes the contract stricter.
-unmatched_ignore_imports_alerting = "none"
