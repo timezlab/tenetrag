@@ -4,7 +4,15 @@
 [ADR 0017](0017-allow-psycopg-as-a-narrow-license-exception.md) (psycopg
 under LGPL) and
 [ADR 0018](0018-name-credential-sources-in-the-profile.md) (the OpenAI and
-Databricks SDKs' environment reads), both 2026-10-06.
+Databricks SDKs' environment reads), both 2026-10-06. Extended on
+2026-10-11 to two more modules:
+- `app`, by
+  [ADR 0020](0020-ship-the-app-as-fastapi-with-a-nextjs-static-export.md):
+  FastAPI is `app`'s framework, and `app` is its adapter boundary. The
+  ADR also states npm equivalents of the six conditions.
+- `layout`, by
+  [ADR 0021](0021-draw-the-whole-graph-with-d3-or-deckgl-by-size.md):
+  the force-layout library sits behind an adapter there.
 **Date:** 2026-10-04
 **Deciders:** Liam Lee (session 2026-10-04)
 

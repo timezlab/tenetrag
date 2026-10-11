@@ -3,7 +3,12 @@
 **Status:** accepted; refined by
 [ADR 0018](0018-name-credential-sources-in-the-profile.md) (2026-10-06):
 the profile may name a credential's source, and the official SDKs' own
-environment reads are accepted with a warning.
+environment reads are accepted with a warning. Read per store in the
+app by
+[ADR 0020](0020-ship-the-app-as-fastapi-with-a-nextjs-static-export.md)
+(2026-10-11): the profile sets each store's identity, a store in OBO
+mode never uses another identity's pool, and Neo4j, which cannot take an
+OBO token, uses a named credential that every viewer shares.
 **Date:** 2026-10-02
 **Deciders:** Liam Lee (brainstorm session, 2026-10-02)
 
