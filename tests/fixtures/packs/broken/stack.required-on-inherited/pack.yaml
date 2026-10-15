@@ -1,0 +1,6 @@
+pack: required-on-inherited
+version: 1
+extends: core
+entities:
+  Person:
+    required: [email]

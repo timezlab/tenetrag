@@ -13,7 +13,21 @@ FINANCE_DRAFT = REPO_ROOT / "docs" / "product" / "packs" / "finance.yaml"
 
 # One error line of a pack ConfigError (data-model §1). A path holds no
 # space, so the first ": " after it ends the path, whatever the message holds.
-_PROBLEM_LINE = re.compile(r"  - (?P<file>.+?): (?P<path>\S*): .* \[(?P<rule>[a-z0-9.-]+)\]")
+_PROBLEM_LINE = re.compile(
+    r"  - (?P<file>.+?): (?P<path>\S*): (?P<message>.*) \[(?P<rule>[a-z0-9.-]+)\]"
+)
+
+# Every Tripwire built, so a test can show that a pack load built none.
+BUILT: list[object] = []
+
+
+class Tripwire:
+    """A class a `!!python/object` tag in a test pack names."""
+
+    def __new__(cls) -> Tripwire:
+        instance = super().__new__(cls)
+        BUILT.append(instance)
+        return instance
 
 
 def write_pack(directory: Path, name: str, text: str) -> Path:
@@ -30,13 +44,22 @@ def problem_lines(exc: BaseException) -> list[tuple[str, str, str]]:
     A line that does not parse fails the test, so that a changed format can
     never make an assertion pass on an empty list.
     """
+    return [(match["file"], match["path"], match["rule"]) for match in _matches(exc)]
+
+
+def problem_messages(exc: BaseException) -> list[str]:
+    """The message of each error line, in order, parsed as strictly as `problem_lines`."""
+    return [match["message"] for match in _matches(exc)]
+
+
+def _matches(exc: BaseException) -> list[re.Match[str]]:
     first, *lines = str(exc).split("\n")
     count = re.fullmatch(r"The pack stack has (\d+) problems?:", first)
     assert count, f"not a pack stack error: {first!r}"
     assert int(count[1]) == len(lines), f"{first!r} over {len(lines)} lines"
-    parsed = []
+    matches = []
     for line in lines:
         match = _PROBLEM_LINE.fullmatch(line)
         assert match, f"not a pack problem line: {line!r}"
-        parsed.append((match["file"], match["path"], match["rule"]))
-    return parsed
+        matches.append(match)
+    return matches

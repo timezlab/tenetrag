@@ -1,0 +1,5 @@
+pack: unknown-type
+version: 1
+extends: core
+relations:
+  SUPPLIES: {from: [Organization], to: [Organisation], time: interval}

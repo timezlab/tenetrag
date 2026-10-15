@@ -1,0 +1,6 @@
+pack: not-utf8
+version: 1
+extends: core
+entities:
+  Vendor:
+    description: A café supplier.

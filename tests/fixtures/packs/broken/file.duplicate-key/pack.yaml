@@ -1,0 +1,8 @@
+pack: duplicate-key
+version: 1
+extends: core
+entities:
+  Vendor:
+    description: A company that supplies goods or services.
+  Vendor:
+    description: A company that supplies goods or services.

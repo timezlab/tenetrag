@@ -1,0 +1,7 @@
+pack: desk
+version: 1
+extends: core
+entities:
+  Desk:
+    description: A named service desk inside an organization.
+    names: versioned

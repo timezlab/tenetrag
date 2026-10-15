@@ -1,0 +1,3 @@
+pack: parents-conflict
+version: 1
+extends: [left.yaml, right.yaml]

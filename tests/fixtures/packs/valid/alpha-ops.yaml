@@ -1,0 +1,21 @@
+# packs/alpha-ops.yaml, named in the profile as  pack: packs/alpha-ops.yaml
+pack: alpha-ops
+version: 1
+extends: enterprise-docs
+entities:
+  Vendor:
+    description: A company that supplies goods or services to the organization under a contract.
+    examples: [Công ty TNHH Gamma]
+    attributes:
+      tax_code: {range: str, compare: digits, unique: global}
+    identity: [[tax_code]]
+    vetoes: [tax_code]
+relations:
+  SUPPLIES:
+    from: [Vendor]
+    to: [Organization]
+    time: interval
+enums:
+  OrgCategory: [vendor_desk]          # adds one value to core's enum
+competency_questions:
+  - {id: alpha-ops-1, text: "Which vendors supplied unit U in year Y?", needs: [Vendor, SUPPLIES]}

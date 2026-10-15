@@ -10,6 +10,8 @@ Behaviours:
    around it, which may hold a secret.
 7. An error with no position, such as a character YAML refuses, gets a fixed text.
 8. DuplicateKeyLoader is PyYAML's safe loader.
+9. Each duplicate carries the key, both lines and the dotted path of its
+   mapping: "" at the top level, `entities.Vendor` nested, `qs[0]` in a list.
 """
 
 import re
@@ -17,7 +19,7 @@ import re
 import pytest
 import yaml
 
-from tenetrag._yaml import DuplicateKeyLoader, parse_yaml, yaml_problem
+from tenetrag._yaml import DuplicateKey, DuplicateKeyLoader, parse_yaml, yaml_problem
 from tests.support.secrets import PLANTED, assert_no_secret
 
 BUILT: list[object] = []
@@ -45,17 +47,43 @@ def test_clean_document_parses():
 
 def test_repeated_top_level_key_names_both_lines():
     _, duplicates = parse_yaml("a: 1\nb: 2\na: 3\n")
-    assert duplicates == ["'a' at line 3 (first at line 1)"]
+    assert [str(duplicate) for duplicate in duplicates] == ["'a' at line 3 (first at line 1)"]
 
 
 def test_repeated_nested_key_names_both_lines():
     _, duplicates = parse_yaml("outer:\n  x: 1\n  x: 2\n")
-    assert duplicates == ["'x' at line 3 (first at line 2)"]
+    assert [str(duplicate) for duplicate in duplicates] == ["'x' at line 3 (first at line 2)"]
 
 
 def test_every_repeated_key_is_listed():
     _, duplicates = parse_yaml("a: 1\na: 2\nb: 1\nb: 2\n")
-    assert duplicates == ["'a' at line 2 (first at line 1)", "'b' at line 4 (first at line 3)"]
+    assert [str(duplicate) for duplicate in duplicates] == [
+        "'a' at line 2 (first at line 1)",
+        "'b' at line 4 (first at line 3)",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("a: 1\na: 2\n", DuplicateKey(path="", key="a", line=2, first_line=1)),
+        (
+            "entities:\n  Vendor:\n    code: 1\n    code: 2\n",
+            DuplicateKey(path="entities.Vendor", key="code", line=4, first_line=3),
+        ),
+        (
+            "qs:\n  - {id: a}\n  - {id: b, id: c}\n",
+            DuplicateKey(path="qs[1]", key="id", line=3, first_line=3),
+        ),
+        (
+            "a:\n  - [x, {k: 1, k: 2}]\n",
+            DuplicateKey(path="a[0][1]", key="k", line=2, first_line=2),
+        ),
+    ],
+    ids=["top-level", "nested", "in-a-list", "in-a-nested-list"],
+)
+def test_duplicate_names_its_mapping_path(text, expected):
+    assert parse_yaml(text)[1] == [expected]
 
 
 def test_merge_key_override_is_not_a_duplicate():

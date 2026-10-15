@@ -1,0 +1,7 @@
+pack: changed-range
+version: 1
+extends: core
+entities:
+  Person:
+    attributes:
+      email: {range: int}

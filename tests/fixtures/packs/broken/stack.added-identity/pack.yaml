@@ -1,0 +1,6 @@
+pack: added-identity
+version: 1
+extends: core
+entities:
+  Organization:
+    corroborate: [PART_OF]

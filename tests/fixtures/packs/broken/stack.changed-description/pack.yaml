@@ -1,0 +1,6 @@
+pack: changed-description
+version: 1
+extends: core
+entities:
+  Person:
+    description: A human being.

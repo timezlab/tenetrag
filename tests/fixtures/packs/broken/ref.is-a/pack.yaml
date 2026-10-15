@@ -1,0 +1,7 @@
+pack: bad-is-a
+version: 1
+extends: core
+events:
+  Audit:
+    is_a: Organization
+    description: A review of an organization's accounts by an auditor.

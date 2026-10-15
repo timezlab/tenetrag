@@ -1,0 +1,8 @@
+# One of two parents that add the same attribute to Organization.
+pack: left
+version: 1
+extends: core
+entities:
+  Organization:
+    attributes:
+      tax_code: {range: str}

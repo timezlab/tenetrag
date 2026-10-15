@@ -1,0 +1,7 @@
+pack: kind-clash
+version: 1
+extends: enterprise-docs
+facts:
+  Policy:
+    description: A rule that an organization states in a document.
+    roles: {source: [Organization]}

@@ -1,0 +1,6 @@
+pack: bad-name
+version: 1
+extends: core
+entities:
+  vendor:
+    description: A company that supplies goods or services.

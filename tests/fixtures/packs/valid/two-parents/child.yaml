@@ -1,0 +1,4 @@
+# Both parents add tax_code identically, so the child loads.
+pack: child
+version: 1
+extends: [left.yaml, right.yaml]

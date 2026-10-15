@@ -1,0 +1,9 @@
+pack: where-not-enum
+version: 1
+extends: core
+relations:
+  REGISTERED_WITH:
+    from: [Organization]
+    to: [Organization]
+    time: interval
+    where: {to: {registration_id: [national]}}

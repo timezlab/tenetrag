@@ -25,7 +25,7 @@ edits to `packs/__init__.py`, `packs/problems.py` and `test_shipped.py`.
 - **[P]**: can run in parallel (different files, no dependency on an unfinished task)
 - **[Story]**: the user story the task belongs to (US1–US5)
 - Paths are from the repository root. Layout: `src/tenetrag/`, `tests/`
-- Each task is one committable unit. A test task leaves the suite failing
+- Each task is one reviewable unit. A test task leaves the suite failing
   only on its new tests; the implementation task after it turns them green.
 
 ---
@@ -157,7 +157,7 @@ broken pack that fails with that id.
 
 ### Tests for User Story 1
 
-- [ ] T007 [P] [US1] Add the valid test packs under
+- [X] T007 [P] [US1] Add the valid test packs under
   `tests/fixtures/packs/valid/`:
   - `alpha-ops.yaml`: the user pack of
     [contracts/packs.md](contracts/packs.md#example-a-user-pack-on-enterprise-docs),
@@ -168,7 +168,7 @@ broken pack that fails with that id.
     `[left.yaml, right.yaml]`;
   - `shared-ancestor.yaml`, which extends
     `[enterprise-docs, ../../../../docs/product/packs/finance.yaml]`.
-- [ ] T008 [P] [US1] Add the broken test packs for the reference and file
+- [X] T008 [P] [US1] Add the broken test packs for the reference and file
   phases, one directory per rule id under `tests/fixtures/packs/broken/`.
   Each holds `pack.yaml`, the file `load_pack` is given, and
   `expected.yaml`, naming the `file` (relative to the directory) and the
@@ -191,7 +191,7 @@ broken pack that fails with that id.
   | `file.invalid-value` | `version: 0` |
   | `file.bad-name` | an entity type named `vendor` |
   | `file.reserved-name` | an entity attribute named `scope` |
-- [ ] T009 [P] [US1] Add the broken test packs for the stack phase, in the
+- [X] T009 [P] [US1] Add the broken test packs for the stack phase, in the
   form of T008, each a user pack on `core` or `enterprise-docs`:
   - `stack.missing-description`: a new entity type with no description;
   - `stack.changed-range`: `Person.attributes.email` with `range: int`
@@ -208,7 +208,7 @@ broken pack that fails with that id.
     `Organization`, one as `str` and one as `int`;
   - `stack.duplicate-question`: a question with a `core` question's id and
     another text.
-- [ ] T010 [P] [US1] Add the broken test packs for the check phase and
+- [X] T010 [P] [US1] Add the broken test packs for the check phase and
   the two load warnings, in the form of T008:
   - `ref.unknown`: `SUPPLIES.to: [Organisation]`;
   - `ref.is-a`: an event type with `is_a: Organization`;
@@ -225,7 +225,7 @@ broken pack that fails with that id.
   - `identity.evidence-without-corroborate` and `text.instruction`, whose
     `expected.yaml` adds `severity: warning`. The `text.instruction` pack
     sets `mode: discovery`, so it loads with the warning.
-- [ ] T011 [P] [US1] Write `tests/unit/packs/test_format.py`, calling
+- [X] T011 [P] [US1] Write `tests/unit/packs/test_format.py`, calling
   `load_pack` on files written with `write_pack`:
   - the contract tests `test_yaml_tag_refused` (the tag names a class in
     `tests/support/packs.py` that records any instance built, and none
@@ -243,7 +243,7 @@ broken pack that fails with that id.
   - strict types: `version: "1"` and `version: 0` fail with
     `file.invalid-value`;
   - `file.duplicate-key` names both lines.
-- [ ] T012 [P] [US1] Write `tests/unit/packs/test_stacking.py`:
+- [X] T012 [P] [US1] Write `tests/unit/packs/test_stacking.py`:
   - the contract tests `test_enterprise_docs_merged`,
     `test_user_pack_additions`, `test_conflict_names_both_packs`,
     `test_parents_identical_merge`, `test_parents_conflict`,
@@ -265,7 +265,7 @@ broken pack that fails with that id.
     value that two packs add merges into one;
   - a path in `extends` resolves against the file that holds it, and a
     relative `load_pack` path against `base_dir`.
-- [ ] T013 [P] [US1] Write `tests/unit/packs/test_checks.py`:
+- [X] T013 [P] [US1] Write `tests/unit/packs/test_checks.py`:
   - `test_broken_pack`, parametrized over the directories of
     `tests/fixtures/packs/broken/`, which reads each `expected.yaml`
     through `problem_lines`. A warning rule's pack loads, and the
@@ -288,7 +288,7 @@ broken pack that fails with that id.
     do not;
   - each warning is logged once at WARNING by the `tenetrag.packs`
     logger.
-- [ ] T014 [P] [US1] Write `tests/unit/packs/test_shipped.py`, part 1,
+- [X] T014 [P] [US1] Write `tests/unit/packs/test_shipped.py`, part 1,
   with the contract tests `test_shipped_listed`, `test_shipped_load_clean`
   and `test_no_draft_copies`.
 
@@ -902,10 +902,11 @@ Task: "Implement src/tenetrag/packs/format.py"
 
 ## Notes
 
-- Commit only when the author asks, on `main`, after the `git status`
-  check for adopter material. Push only at a checkpoint, with
-  `make check` green, since a test task leaves its new tests failing
-  until the next task.
+- One commit per phase, on `main`, made and pushed at the phase's
+  checkpoint with `make check` green, after the `git status` check for
+  adopter material. Phases 1 and 2 were committed task by task, before
+  this was settled. The red run of each test task is recorded in the
+  phase's Result, since no test commit shows it.
 - No dependency is added (plan.md). Any that turns out to be needed goes
   through M0's dependency gate (M0 T005) first.
 - A task that changes a module boundary updates `ARCHITECTURE.md` in the

@@ -1,0 +1,6 @@
+pack: alias-clash
+version: 1
+extends: core
+glossary:
+  - {name: Alpha Holdings, type: Organization, aliases: [Alpha]}
+  - {name: Alpha Logistics, type: Organization, aliases: [Alpha]}

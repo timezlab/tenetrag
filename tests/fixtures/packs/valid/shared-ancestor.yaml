@@ -1,0 +1,4 @@
+# core is an ancestor of both parents and is loaded once.
+pack: shared-ancestor
+version: 1
+extends: [enterprise-docs, ../../../../docs/product/packs/finance.yaml]

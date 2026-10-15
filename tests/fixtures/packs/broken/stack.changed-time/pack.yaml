@@ -1,0 +1,5 @@
+pack: changed-time
+version: 1
+extends: core
+relations:
+  MEMBER_OF: {time: point}

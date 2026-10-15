@@ -1,8 +1,16 @@
 """The pack test helpers must read and write what they claim to, or the pack tests prove nothing."""
 
 import pytest
+import yaml
 
-from tests.support.packs import FINANCE_DRAFT, REPO_ROOT, problem_lines, write_pack
+from tests.support.packs import (
+    BUILT,
+    FINANCE_DRAFT,
+    REPO_ROOT,
+    problem_lines,
+    problem_messages,
+    write_pack,
+)
 
 
 def test_paths_are_absolute_and_exist():
@@ -39,6 +47,7 @@ def test_problem_lines_reads_an_empty_path_and_a_colon_in_the_message():
         ("packs/empty.yaml", "", "file.empty"),
         ("core", "entities.Person.identity[scope+employee_id]", "stack.changed-identity"),
     ]
+    assert problem_messages(error) == ["the file is empty: write `pack` and `version`", "see [x]"]
 
 
 @pytest.mark.parametrize(
@@ -53,3 +62,14 @@ def test_problem_lines_reads_an_empty_path_and_a_colon_in_the_message():
 def test_problem_lines_fails_on_another_format(text):
     with pytest.raises(AssertionError):
         problem_lines(ValueError(text))
+    with pytest.raises(AssertionError):
+        problem_messages(ValueError(text))
+
+
+def test_tripwire_records_an_unsafe_load():
+    # Control for test_yaml_tag_refused: without it, "nothing built" could pass vacuously.
+    BUILT.clear()
+    text = "a: !!python/object:tests.support.packs.Tripwire {}\n"
+    yaml.load(text, Loader=yaml.UnsafeLoader)  # noqa: S506 -- a constant from this file
+    assert len(BUILT) == 1
+    BUILT.clear()

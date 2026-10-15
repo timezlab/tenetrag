@@ -1,0 +1,7 @@
+pack: missing-description
+version: 1
+extends: core
+entities:
+  Vendor:
+    attributes:
+      tax_code: {range: str}

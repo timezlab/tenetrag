@@ -1,0 +1,6 @@
+pack: yaml-tag
+version: 1
+extends: core
+entities:
+  Vendor:
+    description: !!python/object:builtins.object {}

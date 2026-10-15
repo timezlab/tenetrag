@@ -1,0 +1,6 @@
+pack: removed
+version: 1
+extends: core
+entities:
+  Organization:
+    vetoes: []

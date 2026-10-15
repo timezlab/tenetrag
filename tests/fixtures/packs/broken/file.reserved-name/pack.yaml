@@ -1,0 +1,8 @@
+pack: reserved-name
+version: 1
+extends: core
+entities:
+  Vendor:
+    description: A company that supplies goods or services.
+    attributes:
+      scope: {range: str}

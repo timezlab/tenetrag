@@ -1,0 +1,5 @@
+pack: duplicate-question
+version: 1
+extends: core
+competency_questions:
+  - {id: core-1, text: "Who leads organization O?", needs: [HOLDS_POSITION]}

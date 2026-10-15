@@ -1,0 +1,3 @@
+pack: enterprise-docs
+version: 1
+extends: core

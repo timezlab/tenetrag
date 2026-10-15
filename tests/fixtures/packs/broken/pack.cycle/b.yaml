@@ -1,0 +1,3 @@
+pack: b
+version: 1
+extends: pack.yaml

@@ -1,0 +1,10 @@
+pack: desk
+version: 1
+extends: core
+entities:
+  Desk:
+    description: A named service desk inside an organization.
+    scope: {role: parent, to: [Organization]}
+    identity: [[code]]
+    attributes:
+      code: {range: str}

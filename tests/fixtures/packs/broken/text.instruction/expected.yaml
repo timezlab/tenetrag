@@ -1,0 +1,3 @@
+file: pack.yaml
+path: "entities.Vendor.description"
+severity: warning

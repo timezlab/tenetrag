@@ -1,0 +1,6 @@
+pack: changed-identity
+version: 1
+extends: core
+entities:
+  Person:
+    names: key

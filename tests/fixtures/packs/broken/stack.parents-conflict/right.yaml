@@ -1,0 +1,7 @@
+pack: right
+version: 1
+extends: core
+entities:
+  Organization:
+    attributes:
+      tax_code: {range: int}
