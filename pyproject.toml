@@ -112,7 +112,7 @@ layers = [
     "llm | storage",
     "auth",
     "config",
-    "protocols | _retry",
+    "protocols | _retry | _yaml",
 ]
 exhaustive = true
 
