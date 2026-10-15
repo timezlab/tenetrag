@@ -35,7 +35,7 @@ edits to `packs/__init__.py`, `packs/problems.py` and `test_shipped.py`.
 **Purpose**: the shared YAML loader, the import rules and the empty
 `packs` package
 
-- [ ] T001 Write `tests/unit/test_yaml.py` (contracts/config.md
+- [X] T001 Write `tests/unit/test_yaml.py` (contracts/config.md
   `test_yaml_moved`). It tests `tenetrag._yaml` directly:
   - `parse_yaml` returns the data and an empty list for a clean document;
   - a repeated key, at the top level and nested, is reported with both
@@ -50,7 +50,7 @@ edits to `packs/__init__.py`, `packs/problems.py` and `test_shipped.py`.
   - `DuplicateKeyLoader` is a `yaml.SafeLoader` subclass.
 
   Red: `ModuleNotFoundError` for `tenetrag._yaml`.
-- [ ] T002 Create `src/tenetrag/_yaml.py` by moving code unchanged out of
+- [X] T002 Create `src/tenetrag/_yaml.py` by moving code unchanged out of
   `src/tenetrag/config/loading.py` (contracts/config.md §3, research R1):
   - `_ProfileLoader` becomes `DuplicateKeyLoader`, `_parse` becomes
     `parse_yaml`, and `_yaml_problem` becomes `yaml_problem`;
@@ -60,7 +60,7 @@ edits to `packs/__init__.py`, `packs/problems.py` and `test_shipped.py`.
 
   T001 passes, and `tests/unit/config/test_loading.py` passes unchanged,
   which shows the move changed no behaviour. Depends on T001.
-- [ ] T003 Create the `packs` package:
+- [X] T003 Create the `packs` package:
   - `src/tenetrag/packs/__init__.py` with a module docstring that links
     `specs/002-packs-and-corpus/contracts/packs.md`;
   - `tests/unit/packs/__init__.py`;
@@ -71,6 +71,19 @@ edits to `packs/__init__.py`, `packs/problems.py` and `test_shipped.py`.
 
   `shipped/` is created with its files in T020, not empty now. Run
   `uv run lint-imports` and `make check`. Depends on T002.
+
+  Result (2026-10-15): `make check` passes with 683 unit tests, 13 of
+  them in `tests/unit/test_yaml.py`. Before T002 they failed with
+  `ModuleNotFoundError: No module named 'tenetrag._yaml'`.
+  `tests/unit/config/test_loading.py` passed unchanged after the move.
+  Faults tried:
+  - both no-echo texts put the planted secret in PyYAML's own
+    `str(exc)`, so a `yaml_problem` that returned it would fail;
+  - `test_tripwire_detects_an_unsafe_load` shows that the tripwire
+    records an object that `yaml.UnsafeLoader` builds;
+  - a probe `import tenetrag.config` in `tenetrag.packs` broke the
+    layers contract ("tenetrag.packs is not allowed to import
+    tenetrag.config").
 
 ---
 
@@ -328,7 +341,11 @@ broken pack that fails with that id.
   - **Files:** `file.unreadable`, `file.not-utf8`, then
     `_yaml.parse_yaml`, with `_yaml.yaml_problem` for `file.yaml`, the
     duplicates as `file.duplicate-key`, and `file.empty` and
-    `file.not-mapping`.
+    `file.not-mapping`. `parse_yaml` gives only the key and both lines,
+    while `file.duplicate-key` needs the path of the mapping
+    (`entities`, contracts/packs.md). So `DuplicateKeyLoader` also
+    records that path, test first in `tests/unit/test_yaml.py`, and
+    `config`'s message stays as it is (found in T002).
   - **Order:** depth-first over `extends`, post-order, each pack once. A
     pack met again on the current path is `pack.cycle`, listing the path.
     Also `pack.no-extends` and `pack.shadows-shipped`.

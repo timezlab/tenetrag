@@ -111,15 +111,15 @@ containers = ["tenetrag"]
 layers = [
     "llm | storage",
     "auth",
-    "config",
+    "config | packs",
     "protocols | _retry | _yaml",
 ]
 exhaustive = true
 
 [[tool.importlinter.contracts]]
-name = "protocols and config import no optional SDK"
+name = "protocols, config and packs import no optional SDK"
 type = "forbidden"
-source_modules = ["tenetrag.protocols", "tenetrag.config"]
+source_modules = ["tenetrag.protocols", "tenetrag.config", "tenetrag.packs"]
 forbidden_modules = ["openai", "databricks", "neo4j", "psycopg", "psycopg_pool"]
 
 [[tool.importlinter.contracts]]
