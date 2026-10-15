@@ -94,7 +94,7 @@ uses, and the test helpers for packs
 
 **⚠️ CRITICAL**: no story work begins until this phase is complete
 
-- [ ] T004 [P] Write `tests/unit/packs/test_problems.py`. It asserts:
+- [X] T004 [P] Write `tests/unit/packs/test_problems.py`. It asserts:
   - `PackProblem` is frozen, with `rule`, `file`, `path`, `message` and
     `severity` (`"error"` or `"warning"`);
   - `config_error(problems)` builds one `ConfigError` whose first line
@@ -104,7 +104,7 @@ uses, and the test helpers for packs
   - every id in `RULES` matches `^[a-z]+\.[a-z]+(-[a-z0-9]+)*$`;
   - `problem_lines` of T006, applied to `config_error(problems)`, gives
     back each error's file, path and rule.
-- [ ] T005 Implement `src/tenetrag/packs/problems.py`, standard library
+- [X] T005 Implement `src/tenetrag/packs/problems.py`, standard library
   and `tenetrag.protocols` only:
   - `PackProblem` as a frozen dataclass with `slots=True`;
   - `RULES`, a frozenset of the rule ids of data-model §1 that US1 raises:
@@ -114,7 +114,7 @@ uses, and the test helpers for packs
   - `config_error(problems) -> ConfigError`.
 
   T004 passes. Depends on T004 and T006.
-- [ ] T006 [P] Create `tests/support/packs.py`:
+- [X] T006 [P] Create `tests/support/packs.py`:
   - `REPO_ROOT`, `PACK_FIXTURES` (`tests/fixtures/packs`) and
     `FINANCE_DRAFT` (`docs/product/packs/finance.yaml`), as absolute
     paths;
@@ -123,6 +123,20 @@ uses, and the test helpers for packs
   - `problem_lines(exc) -> list[tuple[str, str, str]]`, which parses the
     `(file, path, rule)` of each line of a pack `ConfigError` in the
     format of data-model §1.
+
+  Result (2026-10-15): `make check` passes with 698 unit tests.
+  - `tests/unit/packs/test_problems.py` (9 tests) failed with
+    `ModuleNotFoundError` before T005.
+  - `RULES` holds 39 ids, the same set as data-model §1 without
+    `coverage.unmet`, compared by script.
+  - `config_error` with no error raises `ValueError`, a caller bug.
+  - `problem_lines` fails on a line that does not parse, or when the
+    count on the first line differs from the number of lines, so that a
+    changed format cannot pass on an empty list.
+    `tests/unit/test_support_packs.py` (6 tests) pins this, `write_pack`
+    and the paths.
+  - Five deliberate faults in `config_error` were each caught: warnings
+    kept, always plural, no guard, reversed order, path dropped.
 
 **Checkpoint**: problems, the error text and the pack test helpers are
 ready
