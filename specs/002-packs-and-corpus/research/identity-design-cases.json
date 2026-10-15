@@ -1,0 +1,2797 @@
+{
+ "about": "The 60 identity design cases of ADR 0016, recovered on 2026-10-12 by replaying the 2026-10-05/06 throwaway script (suite.py) from the session record. Entities, cases and each case's outcome under rule set R2 (the decision). Case titles are the original Vietnamese. Also the R2 rule set (rules_r2), the ablations (each rule element removed, and the cases that get worse) and the additions (a changeable attribute added as a veto, and the cases it breaks). Input for the identity case fixtures of feature 002; not maintained. Emails were moved from the original domain to the reserved .example domain (RFC 2606); nothing else was changed.",
+ "tally": {
+  "R0": {
+   "đúng": 23,
+   "LLM quyết, có ứng viên đúng": 7,
+   "tách mềm (same_as)": 0,
+   "tách cứng": 2,
+   "LLM gặp ca phải tách": 3,
+   "gộp sai": 25
+  },
+  "R1": {
+   "đúng": 35,
+   "LLM quyết, có ứng viên đúng": 6,
+   "tách mềm (same_as)": 3,
+   "tách cứng": 5,
+   "LLM gặp ca phải tách": 0,
+   "gộp sai": 11
+  },
+  "R2": {
+   "đúng": 58,
+   "LLM quyết, có ứng viên đúng": 2,
+   "tách mềm (same_as)": 0,
+   "tách cứng": 0,
+   "LLM gặp ca phải tách": 0,
+   "gộp sai": 0
+  }
+ },
+ "entities": {
+  "alpha": {
+   "type": "Company",
+   "names": [
+    "Công ty CP Alpha"
+   ],
+   "scope": null,
+   "attrs": {
+    "registration_id": "0101234567"
+   }
+  },
+  "delta": {
+   "type": "Company",
+   "names": [
+    "Công ty CP Delta"
+   ],
+   "scope": null,
+   "attrs": {
+    "registration_id": "0105550001"
+   }
+  },
+  "alpha.hold": {
+   "type": "Company",
+   "names": [
+    "Alpha Holdings Ltd"
+   ],
+   "scope": null,
+   "attrs": {
+    "lei": "TEST00000000000ALPHA"
+   }
+  },
+  "alpha.cnhn": {
+   "type": "OrgUnit",
+   "names": [
+    "Chi nhánh Hà Nội"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "registration_id": "0101234567-001"
+   }
+  },
+  "alpha.tc": {
+   "type": "OrgUnit",
+   "names": [
+    "Phòng Tài chính"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {}
+  },
+  "beta.tc": {
+   "type": "OrgUnit",
+   "names": [
+    "Phòng Tài chính"
+   ],
+   "scope": [
+    "beta"
+   ],
+   "attrs": {}
+  },
+  "alpha.hn.khdn": {
+   "type": "OrgUnit",
+   "names": [
+    "Phòng Khách hàng doanh nghiệp"
+   ],
+   "scope": [
+    "alpha",
+    "cn-hanoi"
+   ],
+   "attrs": {}
+  },
+  "alpha.dn.khdn": {
+   "type": "OrgUnit",
+   "names": [
+    "Phòng Khách hàng doanh nghiệp"
+   ],
+   "scope": [
+    "alpha",
+    "cn-danang"
+   ],
+   "attrs": {}
+  },
+  "alpha.pc": {
+   "type": "OrgUnit",
+   "names": [
+    "Phòng Pháp chế"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {}
+  },
+  "alpha.dt": {
+   "type": "OrgUnit",
+   "names": [
+    "Phòng Đầu tư"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "established_on": "2019-03-01"
+   }
+  },
+  "an.alpha": {
+   "type": "Person",
+   "names": [
+    "Nguyễn Văn An"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "unit_at": "Phòng Tài chính",
+    "title_at": "Trưởng phòng"
+   }
+  },
+  "an.beta": {
+   "type": "Person",
+   "names": [
+    "Nguyễn Văn An"
+   ],
+   "scope": [
+    "beta"
+   ],
+   "attrs": {
+    "unit_at": "Phòng Tài chính"
+   }
+  },
+  "binh": {
+   "type": "Person",
+   "names": [
+    "Trần Thị Bình"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "unit_at": "Phòng Tài chính",
+    "title_at": "Phó phòng",
+    "email": "binh.tt@alpha.example"
+   }
+  },
+  "minh": {
+   "type": "Person",
+   "names": [
+    "Lê Minh"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "email": "minh.le@alpha.example"
+   }
+  },
+  "hung": {
+   "type": "Person",
+   "names": [
+    "Phạm Hùng"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "employee_id": "A0123",
+    "unit_at": "Phòng Công nghệ thông tin"
+   }
+  },
+  "pol.a1": {
+   "type": "Policy",
+   "names": [
+    "Quy chế công tác phí"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "version_label": "1",
+    "issued_on": "2025-01-10",
+    "effective_from": "2025-02-01",
+    "title": "Quy chế công tác phí"
+   }
+  },
+  "pol.a2": {
+   "type": "Policy",
+   "names": [
+    "Quy chế công tác phí"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "version_label": "2",
+    "issued_on": "2026-01-05",
+    "effective_from": "2026-01-15",
+    "title": "Quy chế công tác phí"
+   }
+  },
+  "pol.untagged": {
+   "type": "Policy",
+   "names": [
+    "Quy chế công tác phí"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "title": "Quy chế công tác phí"
+   }
+  },
+  "pol.ctnb": {
+   "type": "Policy",
+   "names": [
+    "Quy định chi tiêu nội bộ"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "code": "12/2025/QĐ-HĐQT",
+    "issued_on": "2025-05-20",
+    "title": "Quy định chi tiêu nội bộ"
+   }
+  },
+  "pol.remote": {
+   "type": "Policy",
+   "names": [
+    "Quy chế làm việc từ xa"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "version_label": "1",
+    "issued_on": "2025-06-01",
+    "effective_to": "2026-12-31",
+    "title": "Quy chế làm việc từ xa"
+   }
+  },
+  "w.tt39": {
+   "type": "Work",
+   "names": [
+    "Thông tư 39/2016/TT-NHNN"
+   ],
+   "scope": [
+    "nhnn"
+   ],
+   "attrs": {
+    "code": "39/2016/TT-NHNN",
+    "title": "Thông tư 39/2016/TT-NHNN"
+   }
+  },
+  "w.hd.alpha": {
+   "type": "Work",
+   "names": [
+    "Hợp đồng cung cấp dịch vụ"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "code": "01/2025/HĐDV",
+    "title": "Hợp đồng cung cấp dịch vụ"
+   }
+  },
+  "w.ar": {
+   "type": "Work",
+   "names": [
+    "Báo cáo thường niên"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "issued_on": "2025-04-15",
+    "title": "Báo cáo thường niên"
+   }
+  },
+  "prj.cds": {
+   "type": "Project",
+   "names": [
+    "Dự án Chuyển đổi số"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {
+    "code": "PRJ-025"
+   }
+  },
+  "sys.core": {
+   "type": "System",
+   "names": [
+    "Hệ thống Core Banking"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {}
+  },
+  "prd.plat": {
+   "type": "Product",
+   "names": [
+    "Thẻ tín dụng Platinum"
+   ],
+   "scope": [
+    "alpha"
+   ],
+   "attrs": {}
+  },
+  "pl.tanphu": {
+   "type": "Place",
+   "names": [
+    "Xã Tân Phú"
+   ],
+   "scope": [
+    "tinh-x"
+   ],
+   "attrs": {
+    "kind": "commune"
+   }
+  },
+  "ins.abc": {
+   "type": "Instrument",
+   "names": [
+    "ABC"
+   ],
+   "scope": null,
+   "attrs": {
+    "isin": "VNABC0000001",
+    "exchange": "HOSE",
+    "ticker": "ABC",
+    "listed_on": "2010-05-04",
+    "delisted_on": "2018-09-30"
+   }
+  },
+  "ins.xyz": {
+   "type": "Instrument",
+   "names": [
+    "XYZ"
+   ],
+   "scope": null,
+   "attrs": {
+    "isin": "VNXYZ0000001",
+    "exchange": "HOSE",
+    "ticker": "XYZ"
+   }
+  },
+  "met.npl": {
+   "type": "Metric",
+   "names": [
+    "Tỷ lệ nợ xấu"
+   ],
+   "scope": null,
+   "attrs": {}
+  },
+  "con.vip": {
+   "type": "Concept",
+   "names": [
+    "Khách hàng ưu tiên"
+   ],
+   "scope": null,
+   "attrs": {}
+  }
+ },
+ "cases": [
+  {
+   "id": "ORG-1",
+   "class": "apart",
+   "title_vi": "Tên gần giống, khác mã số DN",
+   "existing": [
+    "alpha"
+   ],
+   "mention": {
+    "type": "Company",
+    "name": "Công ty CP Alpha Holdings",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "registration_id": "0109876543"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "ORG-2",
+   "class": "merge",
+   "title_vi": "Đổi tên, cùng mã số DN",
+   "existing": [
+    "delta"
+   ],
+   "mention": {
+    "type": "Company",
+    "name": "Công ty CP Delta Group",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "registration_id": "0105550001"
+    }
+   },
+   "expected_referent": "delta",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "delta"
+    ],
+    "reason_vi": "key registration_id (toàn cục, bỏ qua phạm vi)",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "ORG-3",
+   "class": "merge",
+   "title_vi": "Đổi tên, văn bản ghi tên cũ",
+   "existing": [
+    "delta"
+   ],
+   "mention": {
+    "type": "Company",
+    "name": "Công ty CP Delta Group",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": "Công ty CP Delta",
+    "attrs": {}
+   },
+   "expected_referent": "delta",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "delta"
+    ],
+    "reason_vi": "tên trong cùng phạm vi (bằng chứng đổi tên)",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "ORG-4",
+   "class": "merge",
+   "title_vi": "Mã số DN viết có dấu cách",
+   "existing": [
+    "delta"
+   ],
+   "mention": {
+    "type": "Company",
+    "name": "Công ty CP Delta",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "registration_id": "0105 550 001"
+    }
+   },
+   "expected_referent": "delta",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "delta"
+    ],
+    "reason_vi": "key registration_id (toàn cục, bỏ qua phạm vi)",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "ORG-5",
+   "class": "apart",
+   "title_vi": "Cùng tên tiếng Anh, khác LEI",
+   "existing": [
+    "alpha.hold"
+   ],
+   "mention": {
+    "type": "Company",
+    "name": "Alpha Holdings Ltd",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "lei": "TEST0000000000BETA01"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "ORG-6",
+   "class": "merge",
+   "title_vi": "Tên viết khác, cùng LEI",
+   "existing": [
+    "alpha.hold"
+   ],
+   "mention": {
+    "type": "Company",
+    "name": "Alpha Holdings Limited",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "lei": "TEST00000000000ALPHA"
+    }
+   },
+   "expected_referent": "alpha.hold",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "alpha.hold"
+    ],
+    "reason_vi": "key lei (toàn cục, bỏ qua phạm vi)",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "ORG-7",
+   "class": "apart",
+   "title_vi": "Cùng tên đầy đủ, khác mã số DN (vd. công ty cùng tên ở nước khác)",
+   "existing": [
+    "delta"
+   ],
+   "mention": {
+    "type": "Company",
+    "name": "Công ty CP Delta",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "registration_id": "0312345678"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-1",
+   "class": "apart",
+   "title_vi": "Cùng tên phòng, khác công ty",
+   "existing": [
+    "alpha.tc"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Phòng Tài chính",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-2",
+   "class": "apart",
+   "title_vi": "Cùng tên phòng, khác chi nhánh",
+   "existing": [
+    "alpha.hn.khdn"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Phòng Khách hàng doanh nghiệp",
+    "scope": [
+     "alpha",
+     "cn-danang"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-3",
+   "class": "apart",
+   "title_vi": "Chỉ biết công ty, có 2 chi nhánh cùng tên phòng",
+   "existing": [
+    "alpha.hn.khdn",
+    "alpha.dn.khdn"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Phòng Khách hàng doanh nghiệp",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": false,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "LINK",
+    "candidates": [
+     "alpha.hn.khdn",
+     "alpha.dn.khdn"
+    ],
+    "reason_vi": "tên trúng 2 → mới + same_as",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-4",
+   "class": "merge",
+   "title_vi": "Không rõ công ty, chỉ 1 ứng viên",
+   "existing": [
+    "alpha.pc",
+    "beta.tc"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Phòng Pháp chế",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "alpha.pc",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "alpha.pc"
+    ],
+    "reason_vi": "tên, phạm vi chưa rõ, 1 ứng viên",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-5",
+   "class": "apart",
+   "title_vi": "Không rõ công ty, 2 ứng viên",
+   "existing": [
+    "alpha.tc",
+    "beta.tc"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Phòng Tài chính",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "LINK",
+    "candidates": [
+     "alpha.tc",
+     "beta.tc"
+    ],
+    "reason_vi": "tên trúng 2 → mới + same_as",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-6",
+   "class": "merge",
+   "title_vi": "Phòng đổi tên, văn bản ghi tên cũ",
+   "existing": [
+    "alpha.tc"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Phòng Tài chính – Kế toán",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": "Phòng Tài chính",
+    "attrs": {}
+   },
+   "expected_referent": "alpha.tc",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "alpha.tc"
+    ],
+    "reason_vi": "tên trong cùng phạm vi (bằng chứng đổi tên)",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-7",
+   "class": "apart",
+   "title_vi": "Phòng giải thể rồi lập lại cùng tên",
+   "existing": [
+    "alpha.dt"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Phòng Đầu tư",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-03-01",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "established_on": "2025-02-01"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-8",
+   "class": "merge",
+   "title_vi": "Cùng công ty, có phòng trùng tên ở công ty khác",
+   "existing": [
+    "alpha.tc",
+    "beta.tc"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Phòng Tài chính",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "alpha.tc",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "alpha.tc"
+    ],
+    "reason_vi": "tên trong cùng phạm vi; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-9",
+   "class": "merge",
+   "title_vi": "Tên tiếng Anh, cùng công ty",
+   "existing": [
+    "alpha.tc"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Finance Department",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": "Phòng Tài chính",
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "alpha.tc",
+   "r2": {
+    "outcome": "ASK",
+    "candidates": [
+     "alpha.tc"
+    ],
+    "reason_vi": "gần đúng, cùng phạm vi → LLM",
+    "grade_vi": "LLM quyết, có ứng viên đúng"
+   }
+  },
+  {
+   "id": "UNIT-10",
+   "class": "apart",
+   "title_vi": "Tên tiếng Anh, khác công ty",
+   "existing": [
+    "alpha.tc"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Finance Department",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": "Phòng Tài chính",
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-11",
+   "class": "merge",
+   "title_vi": "Chi nhánh đổi tên, cùng mã số chi nhánh",
+   "existing": [
+    "alpha.cnhn"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Chi nhánh Thăng Long",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "registration_id": "0101234567-001"
+    }
+   },
+   "expected_referent": "alpha.cnhn",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "alpha.cnhn"
+    ],
+    "reason_vi": "key registration_id (toàn cục, bỏ qua phạm vi)",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-12",
+   "class": "apart",
+   "title_vi": "Cùng tên chi nhánh, không rõ công ty, khác mã số",
+   "existing": [
+    "alpha.cnhn"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Chi nhánh Hà Nội",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "registration_id": "0109876543-001"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "UNIT-13",
+   "class": "merge",
+   "title_vi": "Đúng mã số chi nhánh, phạm vi kế thừa nhầm sang công ty khác",
+   "existing": [
+    "alpha.cnhn"
+   ],
+   "mention": {
+    "type": "OrgUnit",
+    "name": "Chi nhánh Hà Nội",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": false,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "registration_id": "0101234567-001"
+    }
+   },
+   "expected_referent": "alpha.cnhn",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "alpha.cnhn"
+    ],
+    "reason_vi": "key registration_id (toàn cục, bỏ qua phạm vi); chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PER-1",
+   "class": "apart",
+   "title_vi": "Trùng họ tên, cùng công ty, khác phòng",
+   "existing": [
+    "an.alpha"
+   ],
+   "mention": {
+    "type": "Person",
+    "name": "Nguyễn Văn An",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "unit_at": "Phòng Công nghệ thông tin",
+     "title_at": "Chuyên viên"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "LINK",
+    "candidates": [
+     "an.alpha"
+    ],
+    "reason_vi": "tên trùng nhưng phòng/chức danh khác → mới + same_as",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PER-2",
+   "class": "merge",
+   "title_vi": "Được thăng chức, cùng phòng",
+   "existing": [
+    "binh"
+   ],
+   "mention": {
+    "type": "Person",
+    "name": "Trần Thị Bình",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2026-02-01",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "unit_at": "Phòng Tài chính",
+     "title_at": "Trưởng phòng"
+    }
+   },
+   "expected_referent": "binh",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "binh"
+    ],
+    "reason_vi": "tên + thông tin đi kèm khớp",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PER-3",
+   "class": "merge",
+   "title_vi": "Chuyển phòng, cùng email",
+   "existing": [
+    "binh"
+   ],
+   "mention": {
+    "type": "Person",
+    "name": "Trần Thị Bình",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2026-02-01",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "unit_at": "Phòng Kế hoạch",
+     "email": "binh.tt@alpha.example"
+    }
+   },
+   "expected_referent": "binh",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "binh"
+    ],
+    "reason_vi": "key email (toàn cục, bỏ qua phạm vi)",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PER-4",
+   "class": "merge",
+   "title_vi": "Tên đầy đủ hơn, cùng email",
+   "existing": [
+    "minh"
+   ],
+   "mention": {
+    "type": "Person",
+    "name": "Lê Văn Minh",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "email": "minh.le@alpha.example"
+    }
+   },
+   "expected_referent": "minh",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "minh"
+    ],
+    "reason_vi": "key email (toàn cục, bỏ qua phạm vi)",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PER-5",
+   "class": "apart",
+   "title_vi": "Trùng họ tên và phòng, khác mã nhân viên",
+   "existing": [
+    "hung"
+   ],
+   "mention": {
+    "type": "Person",
+    "name": "Phạm Hùng",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "employee_id": "A0456",
+     "unit_at": "Phòng Công nghệ thông tin"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PER-6",
+   "class": "apart",
+   "title_vi": "Trùng họ tên, khác công ty",
+   "existing": [
+    "an.beta"
+   ],
+   "mention": {
+    "type": "Person",
+    "name": "Nguyễn Văn An",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "unit_at": "Phòng Tài chính"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PER-7",
+   "class": "merge",
+   "title_vi": "Trùng họ tên, câu văn không có thông tin khác",
+   "existing": [
+    "an.alpha"
+   ],
+   "mention": {
+    "type": "Person",
+    "name": "Nguyễn Văn An",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "an.alpha",
+   "r2": {
+    "outcome": "ASK",
+    "candidates": [
+     "an.alpha"
+    ],
+    "reason_vi": "tên trùng, không có thông tin phân biệt → LLM xem hồ sơ",
+    "grade_vi": "LLM quyết, có ứng viên đúng"
+   }
+  },
+  {
+   "id": "PER-8",
+   "class": "merge",
+   "title_vi": "Tên viết khác, cùng mã nhân viên",
+   "existing": [
+    "hung"
+   ],
+   "mention": {
+    "type": "Person",
+    "name": "Phạm Văn Hùng",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "employee_id": "a0123"
+    }
+   },
+   "expected_referent": "hung",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "hung"
+    ],
+    "reason_vi": "key scope+employee_id",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PER-9",
+   "class": "merge",
+   "title_vi": "Đúng email, văn bản của công ty khác (phạm vi kế thừa sai)",
+   "existing": [
+    "binh"
+   ],
+   "mention": {
+    "type": "Person",
+    "name": "Trần Thị Bình",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "email": "binh.tt@alpha.example"
+    }
+   },
+   "expected_referent": "binh",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "binh"
+    ],
+    "reason_vi": "key email (toàn cục, bỏ qua phạm vi); chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-1",
+   "class": "apart",
+   "title_vi": "Cùng tiêu đề và phiên bản, khác công ty",
+   "existing": [
+    "pol.a1"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy chế công tác phí",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "version_label": "1",
+     "issued_on": "2025-03-01",
+     "title": "Quy chế công tác phí"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-2",
+   "class": "apart",
+   "title_vi": "Phiên bản mới, chỉ mới có v1",
+   "existing": [
+    "pol.a1"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy chế công tác phí",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "version_label": "2",
+     "issued_on": "2026-01-05",
+     "title": "Quy chế công tác phí"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-3",
+   "class": "merge",
+   "title_vi": "Nhắc tên không kèm phiên bản, văn bản ngày 10/06/2025",
+   "existing": [
+    "pol.a1",
+    "pol.a2"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy chế công tác phí",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "title": "Quy chế công tác phí"
+    }
+   },
+   "expected_referent": "pol.a1",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "pol.a1"
+    ],
+    "reason_vi": "không ghi phiên bản → bản có hiệu lực ngày 2025-06-10",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-4",
+   "class": "merge",
+   "title_vi": "Nhắc tên không kèm phiên bản, văn bản ngày 01/03/2026",
+   "existing": [
+    "pol.a1",
+    "pol.a2"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy chế công tác phí",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2026-03-01",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "title": "Quy chế công tác phí"
+    }
+   },
+   "expected_referent": "pol.a2",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "pol.a2"
+    ],
+    "reason_vi": "không ghi phiên bản → bản có hiệu lực ngày 2026-03-01",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-5",
+   "class": "apart",
+   "title_vi": "Cùng số hiệu, khác công ty",
+   "existing": [
+    "pol.ctnb"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy định chi tiêu nội bộ",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "code": "12/2025/QĐ-HĐQT",
+     "title": "Quy định chi tiêu nội bộ"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-6",
+   "class": "merge",
+   "title_vi": "Số hiệu viết khác, tiêu đề diễn đạt khác",
+   "existing": [
+    "pol.ctnb"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy định về chi tiêu nội bộ",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "code": "Số 12/2025/QD-HDQT",
+     "title": "Quy định về chi tiêu nội bộ"
+    }
+   },
+   "expected_referent": "pol.ctnb",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "pol.ctnb"
+    ],
+    "reason_vi": "key scope+code",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-7",
+   "class": "apart",
+   "title_vi": "Cùng tiêu đề, khác ngày ban hành, không ghi phiên bản",
+   "existing": [
+    "pol.a1"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy chế công tác phí",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "issued_on": "2026-01-05",
+     "title": "Quy chế công tác phí"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-8",
+   "class": "merge",
+   "title_vi": "Gia hạn hiệu lực (effective_to đổi)",
+   "existing": [
+    "pol.remote"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy chế làm việc từ xa",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "version_label": "1",
+     "effective_to": "2027-06-30",
+     "title": "Quy chế làm việc từ xa"
+    }
+   },
+   "expected_referent": "pol.remote",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "pol.remote"
+    ],
+    "reason_vi": "key scope+title+version_label",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-9",
+   "class": "merge",
+   "title_vi": "Có v1 và một bản chưa rõ phiên bản; văn bản ghi v1",
+   "existing": [
+    "pol.untagged",
+    "pol.a1"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy chế công tác phí",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "version_label": "1",
+     "title": "Quy chế công tác phí"
+    }
+   },
+   "expected_referent": "pol.a1",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "pol.a1"
+    ],
+    "reason_vi": "key scope+title+version_label",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-10",
+   "class": "merge",
+   "title_vi": "Có v1 và một bản chưa rõ phiên bản; văn bản ghi ngày ban hành v1",
+   "existing": [
+    "pol.untagged",
+    "pol.a1"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy chế công tác phí",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "issued_on": "2025-01-10",
+     "title": "Quy chế công tác phí"
+    }
+   },
+   "expected_referent": "pol.a1",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "pol.a1"
+    ],
+    "reason_vi": "key scope+title+issued_on",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-11",
+   "class": "apart",
+   "title_vi": "Phiên bản mới, không ghi ngày ban hành",
+   "existing": [
+    "pol.a1"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy chế công tác phí",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "version_label": "2",
+     "title": "Quy chế công tác phí"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "POL-12",
+   "class": "apart",
+   "title_vi": "Cùng tiêu đề, khác số hiệu",
+   "existing": [
+    "pol.ctnb"
+   ],
+   "mention": {
+    "type": "Policy",
+    "name": "Quy định chi tiêu nội bộ",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "code": "05/2026/QĐ-HĐQT",
+     "title": "Quy định chi tiêu nội bộ"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "WRK-1",
+   "class": "merge",
+   "title_vi": "Văn bản pháp luật, có chữ 'số'",
+   "existing": [
+    "w.tt39"
+   ],
+   "mention": {
+    "type": "Work",
+    "name": "Thông tư số 39/2016/TT-NHNN",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "code": "39/2016/TT-NHNN",
+     "title": "Thông tư số 39/2016/TT-NHNN"
+    }
+   },
+   "expected_referent": "w.tt39",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "w.tt39"
+    ],
+    "reason_vi": "key số hiệu tự mang cơ quan ban hành",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "WRK-2",
+   "class": "apart",
+   "title_vi": "Hợp đồng cùng số, khác công ty",
+   "existing": [
+    "w.hd.alpha"
+   ],
+   "mention": {
+    "type": "Work",
+    "name": "Hợp đồng cung cấp dịch vụ",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "code": "01/2025/HĐDV",
+     "title": "Hợp đồng cung cấp dịch vụ"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "WRK-3",
+   "class": "merge",
+   "title_vi": "Văn bản pháp luật, phạm vi bị gán theo công ty của tài liệu",
+   "existing": [
+    "w.tt39"
+   ],
+   "mention": {
+    "type": "Work",
+    "name": "Thông tư 39/2016/TT-NHNN",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "code": "39/2016/TT-NHNN",
+     "title": "Thông tư 39/2016/TT-NHNN"
+    }
+   },
+   "expected_referent": "w.tt39",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "w.tt39"
+    ],
+    "reason_vi": "key số hiệu tự mang cơ quan ban hành; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "WRK-4",
+   "class": "apart",
+   "title_vi": "Hai hợp đồng cùng tiêu đề, khác số",
+   "existing": [
+    "w.hd.alpha"
+   ],
+   "mention": {
+    "type": "Work",
+    "name": "Hợp đồng cung cấp dịch vụ",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "code": "02/2025/HĐDV",
+     "title": "Hợp đồng cung cấp dịch vụ"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "WRK-5",
+   "class": "apart",
+   "title_vi": "Báo cáo thường niên của năm khác",
+   "existing": [
+    "w.ar"
+   ],
+   "mention": {
+    "type": "Work",
+    "name": "Báo cáo thường niên",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "issued_on": "2026-04-10",
+     "title": "Báo cáo thường niên"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "WRK-6",
+   "class": "merge",
+   "title_vi": "Cùng số hợp đồng, tiêu đề viết khác",
+   "existing": [
+    "w.hd.alpha"
+   ],
+   "mention": {
+    "type": "Work",
+    "name": "Hợp đồng dịch vụ CNTT",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "code": "01/2025/HĐDV",
+     "title": "Hợp đồng dịch vụ CNTT"
+    }
+   },
+   "expected_referent": "w.hd.alpha",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "w.hd.alpha"
+    ],
+    "reason_vi": "key scope+code",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PRJ-1",
+   "class": "apart",
+   "title_vi": "Cùng tên dự án, khác công ty",
+   "existing": [
+    "prj.cds"
+   ],
+   "mention": {
+    "type": "Project",
+    "name": "Dự án Chuyển đổi số",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PRJ-2",
+   "class": "merge",
+   "title_vi": "Cùng mã dự án, tên viết khác",
+   "existing": [
+    "prj.cds"
+   ],
+   "mention": {
+    "type": "Project",
+    "name": "Dự án CĐS 2025",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "code": "PRJ-025"
+    }
+   },
+   "expected_referent": "prj.cds",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "prj.cds"
+    ],
+    "reason_vi": "key scope+code",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PRJ-3",
+   "class": "apart",
+   "title_vi": "Cùng tên dự án, cùng công ty, khác mã",
+   "existing": [
+    "prj.cds"
+   ],
+   "mention": {
+    "type": "Project",
+    "name": "Dự án Chuyển đổi số",
+    "scope": [
+     "alpha"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "code": "PRJ-031"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "SYS-1",
+   "class": "apart",
+   "title_vi": "Cùng tên hệ thống, khác công ty",
+   "existing": [
+    "sys.core"
+   ],
+   "mention": {
+    "type": "System",
+    "name": "Hệ thống Core Banking",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PRD-1",
+   "class": "apart",
+   "title_vi": "Cùng tên sản phẩm, khác bên cung cấp",
+   "existing": [
+    "prd.plat"
+   ],
+   "mention": {
+    "type": "Product",
+    "name": "Thẻ tín dụng Platinum",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "PLC-1",
+   "class": "apart",
+   "title_vi": "Cùng tên xã, khác tỉnh",
+   "existing": [
+    "pl.tanphu"
+   ],
+   "mention": {
+    "type": "Place",
+    "name": "Xã Tân Phú",
+    "scope": [
+     "tinh-y"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "kind": "commune"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "không có ứng viên; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "INS-1",
+   "class": "apart",
+   "title_vi": "Mã CK tái sử dụng, ISIN khác",
+   "existing": [
+    "ins.abc"
+   ],
+   "mention": {
+    "type": "Instrument",
+    "name": "ABC",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2024-04-01",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "isin": "VNABC0000009",
+     "exchange": "HOSE",
+     "ticker": "ABC"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "tên không phải định danh; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "INS-2",
+   "class": "apart",
+   "title_vi": "Mã CK tái sử dụng, không có ISIN",
+   "existing": [
+    "ins.abc"
+   ],
+   "mention": {
+    "type": "Instrument",
+    "name": "ABC",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2024-04-01",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "exchange": "HOSE",
+     "ticker": "ABC"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "tên không phải định danh",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "INS-3",
+   "class": "merge",
+   "title_vi": "Cùng mã CK trong thời gian niêm yết",
+   "existing": [
+    "ins.abc"
+   ],
+   "mention": {
+    "type": "Instrument",
+    "name": "ABC",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2015-07-01",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "exchange": "HOSE",
+     "ticker": "ABC"
+    }
+   },
+   "expected_referent": "ins.abc",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "ins.abc"
+    ],
+    "reason_vi": "key exchange+ticker+@listed",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "INS-4",
+   "class": "merge",
+   "title_vi": "Cùng ISIN, không có mã CK",
+   "existing": [
+    "ins.abc"
+   ],
+   "mention": {
+    "type": "Instrument",
+    "name": "Cổ phiếu Công ty CP ABC",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2015-07-01",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "isin": "VNABC0000001"
+    }
+   },
+   "expected_referent": "ins.abc",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "ins.abc"
+    ],
+    "reason_vi": "key isin (toàn cục, bỏ qua phạm vi)",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "INS-5",
+   "class": "apart",
+   "title_vi": "Không biết thời gian niêm yết, cùng mã CK, khác ISIN",
+   "existing": [
+    "ins.xyz"
+   ],
+   "mention": {
+    "type": "Instrument",
+    "name": "XYZ",
+    "scope": null,
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {
+     "isin": "VNXYZ0000009",
+     "exchange": "HOSE",
+     "ticker": "XYZ"
+    }
+   },
+   "expected_referent": "new",
+   "r2": {
+    "outcome": "NEW",
+    "candidates": [],
+    "reason_vi": "tên không phải định danh; chặn 1",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "MET-1",
+   "class": "merge",
+   "title_vi": "Chỉ tiêu cùng tên ở công ty khác",
+   "existing": [
+    "met.npl"
+   ],
+   "mention": {
+    "type": "Metric",
+    "name": "Tỷ lệ nợ xấu",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "met.npl",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "met.npl"
+    ],
+    "reason_vi": "tên trong cùng phạm vi",
+    "grade_vi": "đúng"
+   }
+  },
+  {
+   "id": "CON-1",
+   "class": "merge",
+   "title_vi": "Thuật ngữ cùng tên ở công ty khác",
+   "existing": [
+    "con.vip"
+   ],
+   "mention": {
+    "type": "Concept",
+    "name": "Khách hàng ưu tiên",
+    "scope": [
+     "beta"
+    ],
+    "scope_exact": true,
+    "date": "2025-06-10",
+    "proposed": null,
+    "renamed_from": null,
+    "attrs": {}
+   },
+   "expected_referent": "con.vip",
+   "r2": {
+    "outcome": "MERGE",
+    "candidates": [
+     "con.vip"
+    ],
+    "reason_vi": "tên trong cùng phạm vi",
+    "grade_vi": "đúng"
+   }
+  }
+ ],
+ "rules_r2": {
+  "Company": {
+   "scope": null,
+   "keys": [
+    [
+     "registration_id"
+    ],
+    [
+     "lei"
+    ]
+   ],
+   "veto": [
+    "registration_id",
+    "lei"
+   ],
+   "name": "key"
+  },
+  "OrgUnit": {
+   "scope": "parent",
+   "keys": [
+    [
+     "registration_id"
+    ]
+   ],
+   "veto": [
+    "registration_id",
+    "established_on"
+   ],
+   "name": "key"
+  },
+  "Person": {
+   "scope": "employer",
+   "keys": [
+    [
+     "scope",
+     "employee_id"
+    ],
+    [
+     "email"
+    ]
+   ],
+   "veto": [
+    "employee_id"
+   ],
+   "name": "evidence",
+   "corroborate": [
+    "unit_at",
+    "title_at"
+   ]
+  },
+  "Policy": {
+   "scope": "issuer",
+   "keys": [
+    [
+     "scope",
+     "code"
+    ],
+    [
+     "scope",
+     "title",
+     "version_label"
+    ],
+    [
+     "scope",
+     "title",
+     "issued_on"
+    ]
+   ],
+   "veto": [
+    "code",
+    "version_label",
+    "issued_on"
+   ],
+   "name": "versioned"
+  },
+  "Work": {
+   "scope": "issuer",
+   "keys": [
+    [
+     "code!"
+    ],
+    [
+     "scope",
+     "code"
+    ]
+   ],
+   "veto": [
+    "code",
+    "issued_on"
+   ],
+   "name": "key"
+  },
+  "Project": {
+   "scope": "owner",
+   "keys": [
+    [
+     "scope",
+     "code"
+    ]
+   ],
+   "veto": [
+    "code"
+   ],
+   "name": "key"
+  },
+  "System": {
+   "scope": "owner",
+   "keys": [],
+   "veto": [],
+   "name": "key"
+  },
+  "Product": {
+   "scope": "provider",
+   "keys": [],
+   "veto": [],
+   "name": "key"
+  },
+  "Place": {
+   "scope": "parent",
+   "keys": [],
+   "veto": [],
+   "name": "key"
+  },
+  "Instrument": {
+   "scope": null,
+   "keys": [
+    [
+     "isin"
+    ],
+    [
+     "exchange",
+     "ticker",
+     "@listed"
+    ]
+   ],
+   "veto": [
+    "isin"
+   ],
+   "name": "none"
+  },
+  "Metric": {
+   "scope": null,
+   "keys": [],
+   "veto": [],
+   "name": "key"
+  },
+  "Concept": {
+   "scope": null,
+   "keys": [],
+   "veto": [],
+   "name": "key"
+  }
+ },
+ "ablations": [
+  {
+   "change": "Company: bỏ key registration_id",
+   "worse": [
+    [
+     "ORG-2",
+     "đúng",
+     "LLM quyết, có ứng viên đúng"
+    ]
+   ]
+  },
+  {
+   "change": "Company: bỏ key lei",
+   "worse": [
+    [
+     "ORG-6",
+     "đúng",
+     "LLM quyết, có ứng viên đúng"
+    ]
+   ]
+  },
+  {
+   "change": "Company: bỏ veto registration_id",
+   "worse": [
+    [
+     "ORG-1",
+     "đúng",
+     "LLM gặp ca phải tách"
+    ],
+    [
+     "ORG-7",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Company: bỏ veto lei",
+   "worse": [
+    [
+     "ORG-5",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "OrgUnit: bỏ scope",
+   "worse": [
+    [
+     "UNIT-1",
+     "đúng",
+     "gộp sai"
+    ],
+    [
+     "UNIT-2",
+     "đúng",
+     "gộp sai"
+    ],
+    [
+     "UNIT-8",
+     "đúng",
+     "tách mềm (same_as)"
+    ],
+    [
+     "UNIT-10",
+     "đúng",
+     "LLM gặp ca phải tách"
+    ]
+   ]
+  },
+  {
+   "change": "OrgUnit: bỏ key registration_id",
+   "worse": [
+    [
+     "UNIT-11",
+     "đúng",
+     "tách cứng"
+    ],
+    [
+     "UNIT-13",
+     "đúng",
+     "tách cứng"
+    ]
+   ]
+  },
+  {
+   "change": "OrgUnit: bỏ veto registration_id",
+   "worse": [
+    [
+     "UNIT-12",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "OrgUnit: bỏ veto established_on",
+   "worse": [
+    [
+     "UNIT-7",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Person: bỏ scope",
+   "worse": [
+    [
+     "PER-6",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Person: bỏ key scope+employee_id",
+   "worse": [
+    [
+     "PER-8",
+     "đúng",
+     "LLM quyết, có ứng viên đúng"
+    ]
+   ]
+  },
+  {
+   "change": "Person: bỏ key email",
+   "worse": [
+    [
+     "PER-3",
+     "đúng",
+     "tách mềm (same_as)"
+    ],
+    [
+     "PER-4",
+     "đúng",
+     "LLM quyết, có ứng viên đúng"
+    ],
+    [
+     "PER-9",
+     "đúng",
+     "tách cứng"
+    ]
+   ]
+  },
+  {
+   "change": "Person: bỏ veto employee_id",
+   "worse": [
+    [
+     "PER-5",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Person: coi tên là key (như R1)",
+   "worse": [
+    [
+     "PER-1",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Policy: bỏ scope",
+   "worse": [
+    [
+     "POL-5",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Policy: bỏ key scope+code",
+   "worse": [
+    [
+     "POL-6",
+     "đúng",
+     "LLM quyết, có ứng viên đúng"
+    ]
+   ]
+  },
+  {
+   "change": "Policy: bỏ key scope+title+version_label",
+   "worse": [
+    [
+     "POL-9",
+     "đúng",
+     "tách mềm (same_as)"
+    ]
+   ]
+  },
+  {
+   "change": "Policy: bỏ key scope+title+issued_on",
+   "worse": [
+    [
+     "POL-10",
+     "đúng",
+     "tách mềm (same_as)"
+    ]
+   ]
+  },
+  {
+   "change": "Policy: bỏ veto code",
+   "worse": [
+    [
+     "POL-12",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Policy: bỏ veto version_label",
+   "worse": [
+    [
+     "POL-11",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Policy: bỏ veto issued_on",
+   "worse": [
+    [
+     "POL-7",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Policy: bỏ luật phiên bản theo ngày",
+   "worse": [
+    [
+     "POL-3",
+     "đúng",
+     "tách mềm (same_as)"
+    ],
+    [
+     "POL-4",
+     "đúng",
+     "tách mềm (same_as)"
+    ]
+   ]
+  },
+  {
+   "change": "Work: bỏ scope",
+   "worse": [
+    [
+     "WRK-2",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Work: bỏ key code!",
+   "worse": [
+    [
+     "WRK-3",
+     "đúng",
+     "tách cứng"
+    ]
+   ]
+  },
+  {
+   "change": "Work: bỏ key scope+code",
+   "worse": [
+    [
+     "WRK-6",
+     "đúng",
+     "LLM quyết, có ứng viên đúng"
+    ]
+   ]
+  },
+  {
+   "change": "Work: bỏ veto code",
+   "worse": [
+    [
+     "WRK-4",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Work: bỏ veto issued_on",
+   "worse": [
+    [
+     "WRK-5",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Project: bỏ scope",
+   "worse": [
+    [
+     "PRJ-1",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Project: bỏ key scope+code",
+   "worse": [
+    [
+     "PRJ-2",
+     "đúng",
+     "tách cứng"
+    ]
+   ]
+  },
+  {
+   "change": "Project: bỏ veto code",
+   "worse": [
+    [
+     "PRJ-3",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "System: bỏ scope",
+   "worse": [
+    [
+     "SYS-1",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Product: bỏ scope",
+   "worse": [
+    [
+     "PRD-1",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Place: bỏ scope",
+   "worse": [
+    [
+     "PLC-1",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "Instrument: bỏ key isin",
+   "worse": [
+    [
+     "INS-4",
+     "đúng",
+     "tách cứng"
+    ]
+   ]
+  },
+  {
+   "change": "Instrument: bỏ key exchange+ticker+@listed",
+   "worse": [
+    [
+     "INS-3",
+     "đúng",
+     "tách cứng"
+    ]
+   ]
+  },
+  {
+   "change": "Instrument: bỏ veto isin",
+   "worse": [
+    [
+     "INS-5",
+     "đúng",
+     "gộp sai"
+    ]
+   ]
+  },
+  {
+   "change": "key toàn cục cũng bị lọc theo phạm vi",
+   "worse": [
+    [
+     "UNIT-13",
+     "đúng",
+     "tách cứng"
+    ],
+    [
+     "PER-9",
+     "đúng",
+     "tách cứng"
+    ]
+   ]
+  }
+ ],
+ "additions": [
+  {
+   "change": "Person: thêm veto unit_at",
+   "why": "người chuyển phòng",
+   "broke": [
+    [
+     "PER-3",
+     "đúng",
+     "tách cứng"
+    ]
+   ]
+  },
+  {
+   "change": "Person: thêm veto title_at",
+   "why": "người được thăng chức",
+   "broke": [
+    [
+     "PER-2",
+     "đúng",
+     "tách cứng"
+    ]
+   ]
+  },
+  {
+   "change": "Policy: thêm veto effective_to",
+   "why": "văn bản được gia hạn",
+   "broke": [
+    [
+     "POL-8",
+     "đúng",
+     "tách cứng"
+    ]
+   ]
+  },
+  {
+   "change": "Company: thêm veto name",
+   "why": "công ty đổi tên",
+   "broke": [
+    [
+     "ORG-2",
+     "đúng",
+     "tách cứng"
+    ],
+    [
+     "ORG-3",
+     "đúng",
+     "tách cứng"
+    ],
+    [
+     "ORG-6",
+     "đúng",
+     "tách cứng"
+    ]
+   ]
+  }
+ ]
+}
