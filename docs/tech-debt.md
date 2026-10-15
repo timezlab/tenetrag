@@ -42,6 +42,6 @@ item. Remove an entry in the change that fixes it.
 - **Why deferred:** psycopg-pool only logs its workers' errors, so the
   real cause needs a hook into the pool's connect step
   ([research R12](../specs/001-sdk-foundation/research.md), As built).
-- **Trigger to fix:** when Lakebase tokens expire under load in M1, or
+- **Trigger to fix:** M2, when Lakebase tokens expire under load, or
   when a user reports a misleading "unavailable".
 - **Created:** 2026-10-07
