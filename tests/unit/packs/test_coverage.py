@@ -117,7 +117,7 @@ entities:
     extract: false
 """
         + questions(
-            "{id: user-1, text: Which notes name unit U?, "
+            '{id: user-1, text: "Which notes name unit U?", '
             "needs: [ZONED_IN, Statement, AUDITED, Memo, Person, Audit, AUDITED]}",
         ),
     )
@@ -131,7 +131,7 @@ def test_coverage_every_kind_counts(tmp_path):
         tmp_path,
         HEADER
         + questions(
-            "{id: user-1, text: Who met whom?, needs: [Person, MEMBER_OF, Event, Definition]}"
+            '{id: user-1, text: "Who met whom?", needs: [Person, MEMBER_OF, Event, Definition]}'
         ),
     )
     report = check_coverage(stack)
@@ -166,7 +166,7 @@ def test_load_warns_once_per_unmet_question(tmp_path):
         HEADER
         + questions(
             f'{{id: user-1, text: "{AUDIT_QUESTION}", needs: [Organization, AUDITED]}}',
-            "{id: user-2, text: Who works where?, needs: [Person, MEMBER_OF]}",
+            '{id: user-2, text: "Who works where?", needs: [Person, MEMBER_OF]}',
             f'{{id: user-3, text: "{STATEMENT_QUESTION}", needs: [Statement, ZONED_IN]}}',
         ),
     )
@@ -198,7 +198,7 @@ def test_question_warns_at_its_own_file(tmp_path):
         tmp_path,
         "pack: top\nversion: 1\nextends: base.yaml\n"
         "relations:\n  HOLDS_POSITION: {extract: false}\n"
-        + questions("{id: top-1, text: Who works where?, needs: [Person, MEMBER_OF]}"),
+        + questions('{id: top-1, text: "Who works where?", needs: [Person, MEMBER_OF]}'),
     )
     assert [(w.file, w.path) for w in stack.warnings] == [
         ("core", "competency_questions[core-1]"),
