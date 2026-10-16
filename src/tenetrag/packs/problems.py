@@ -64,6 +64,7 @@ RULES: frozenset[str] = frozenset(
         # Warnings; text.instruction is an error in strict mode
         "identity.evidence-without-corroborate",
         "text.instruction",
+        "coverage.unmet",
     }
 )
 

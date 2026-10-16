@@ -52,7 +52,8 @@ class CoverageReport: ...
 The names above are exported from `tenetrag.packs`. The parts of a
 stack (`EntityType`, `Attribute`, `Key`, `Scope`, `RelationType`,
 `EventType`, `FactType` and the others of data model §3) are exported
-too, so that the engine can type its arguments. The pydantic models of a
+too, as is `QuestionCoverage`, the part of a `CoverageReport` (data
+model §6), so that the engine can type its arguments. The pydantic models of a
 pack file stay private to `tenetrag.packs.format`.
 
 ## Example: a user pack on `enterprise-docs`

@@ -7,6 +7,7 @@ optional SDK. A sibling of `tenetrag.config`, so neither imports the other
 """
 
 from tenetrag.packs.compile import CompiledSchema, compile_schema
+from tenetrag.packs.coverage import CoverageReport, QuestionCoverage, check_coverage
 from tenetrag.packs.loading import load_pack, shipped_packs
 from tenetrag.packs.problems import PackProblem
 from tenetrag.packs.stack import (
@@ -32,6 +33,7 @@ __all__ = [
     "Attribute",
     "CompetencyQuestion",
     "CompiledSchema",
+    "CoverageReport",
     "EntityType",
     "EventType",
     "FactType",
@@ -42,11 +44,13 @@ __all__ = [
     "PackInfo",
     "PackProblem",
     "PackStack",
+    "QuestionCoverage",
     "RelationType",
     "Retrieval",
     "Scope",
     "ShippedPack",
     "Stamp",
+    "check_coverage",
     "compile_schema",
     "load_pack",
     "shipped_packs",

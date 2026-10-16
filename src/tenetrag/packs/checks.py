@@ -13,10 +13,11 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from collections.abc import Collection, Iterator, Mapping, Sequence
+from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
 
 from pydantic import BaseModel
 
+from tenetrag.packs.coverage import check_coverage
 from tenetrag.packs.format import (
     BUILTIN_RANGES,
     AttributeDef,
@@ -28,7 +29,7 @@ from tenetrag.packs.format import (
 )
 from tenetrag.packs.problems import PackProblem, Severity
 from tenetrag.packs.stack import Attribute, EventType, Mode, NameRule
-from tenetrag.packs.stacking import KINDS, PackFile, Stacked, owner_of
+from tenetrag.packs.stacking import KINDS, PackFile, Stacked, owner_of, question_path
 
 # Text that reads like an instruction to the model (research R5), matched
 # after NFC and case folding. Whole words only, and no generic call syntax,
@@ -62,6 +63,7 @@ def check_stack(stacked: Stacked, files: Sequence[PackFile]) -> list[PackProblem
     checker.is_a()
     checker.identity()
     checker.glossary()
+    checker.coverage()
     return checker.problems
 
 
@@ -401,6 +403,36 @@ class _Checker:
                             "keep it on one entry",
                             label=file.label,
                         )
+
+    def coverage(self) -> None:
+        """A competency question the stack cannot answer warns once (FR-026, research R9).
+
+        The warning sits at the question, in the file that holds it, and names
+        what it lacks but not its text, as no message repeats a file's text.
+        """
+        for question in check_coverage(self.stack).questions:
+            if question.passed:
+                continue
+            lacks, fixes = [], []
+            if question.missing:
+                lacks.append(f"no pack defines {_listed(question.missing)}")
+                fixes.append("define the missing names")
+            if question.not_extracted:
+                lacks.append(f"`extract: false` on {_listed(question.not_extracted)}")
+                fixes.append("set `extract: true` in a child pack")
+            path = question_path(question.id)
+            self.problem(
+                "coverage.unmet",
+                path,
+                f"the stack cannot answer this question: {'; '.join(lacks)}; "
+                f"{' or '.join(fixes)}, or change its `needs`",
+                label=self.label_of(path),
+                severity="warning",
+            )
+
+
+def _listed(names: Iterable[str]) -> str:
+    return ", ".join(f"`{name}`" for name in names)
 
 
 def _loops(name: str, events: Mapping[str, EventType]) -> bool:

@@ -231,7 +231,8 @@ it:
 `entities.Person.vetoes[employee_id]`,
 `entities.Organization.scope.inherit`,
 `entities.Organization.scope.when.category[branch]`,
-`relations.OWNER_OF.to[System]`, `enums.OrgCategory[branch]`.
+`relations.OWNER_OF.to[System]`, `enums.OrgCategory[branch]`,
+`competency_questions[core-1]` (a question by its id).
 
 ## 4. Stacking
 

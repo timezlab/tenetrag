@@ -148,6 +148,11 @@ def stack_files(files: Sequence[PackFile]) -> Stacked:
     return Stacked(merger.freeze(), MappingProxyType(dict(merger.owners)), merger.problems)
 
 
+def question_path(question_id: str) -> str:
+    """A competency question's element path, keyed by id as `origins` and warnings give it."""
+    return f"competency_questions[{question_id}]"
+
+
 def owner_of(owners: Mapping[str, int], path: str) -> int:
     """The file that added the element at `path`, or its nearest enclosing element."""
     while path not in owners:
@@ -601,6 +606,7 @@ class _Merger:
         known = self.questions.get(question_id)
         if known is None:
             self.questions[question_id] = (question, self.index)
+            self.own(question_path(question_id))
         elif known[0] != question:
             pack = self.files[known[1]].info.name
             self.problem(

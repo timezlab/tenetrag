@@ -626,7 +626,7 @@ passes.
 
 ### Tests for User Story 3
 
-- [ ] T030 [P] [US3] Write the coverage tests:
+- [X] T030 [P] [US3] Write the coverage tests:
   - `tests/unit/packs/test_coverage.py`: the contract tests
     `test_coverage_shipped`, `test_coverage_missing_relation`,
     `test_coverage_not_extracted` and `test_load_warns_unmet_question`.
@@ -640,13 +640,61 @@ passes.
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `src/tenetrag/packs/coverage.py` with
+- [X] T031 [US3] Implement `src/tenetrag/packs/coverage.py` with
   `check_coverage`, `CoverageReport` and `QuestionCoverage` (data-model
   §6, research R9). Add `coverage.unmet` to `RULES`. `load_pack` adds one
   warning per unmet question, at `competency_questions[<id>]`. Export
   `check_coverage` and `CoverageReport`. Depends on T030.
-- [ ] T032 [US3] Run `uv run pytest tests/unit/packs -q`, quickstart §3
+- [X] T032 [US3] Run `uv run pytest tests/unit/packs -q`, quickstart §3
   with its negative check, and `make check`. Record the results here.
+
+  Result (2026-10-16): `make check` passes with 1058 unit tests.
+  - Red, the tests of dc46c2b on the code before T031:
+    `uv run pytest tests/unit/packs -q` stopped with 2 collection errors,
+    an `ImportError` for `check_coverage` from `tenetrag.packs`. The
+    other files: 2 failed (`test_broken_pack[coverage.unmet]` with no
+    warning, `test_every_rule_has_a_broken_pack`), 303 passed. Green:
+    331 passed, also under `PYTHONHASHSEED` 0, 1 and 2.
+  - A wrong test, fixed in its own commit (fbe5000): four test packs left
+    a question text ending in `?` unquoted inside a YAML flow mapping,
+    which fails as `file.yaml`. The collection error hid it in the red
+    run. Only the quoting changed.
+  - Quickstart §3: `enterprise-docs` gives `(True, 14)`; the alpha-ops
+    copy passes with 15 questions, loaded and checked in 0.098 s with
+    `enterprise-docs`. The negative check, `alpha-ops-2` needing
+    `AUDITED`, loads with one `coverage.unmet` warning at
+    `competency_questions[alpha-ops-2]`, and the report lists
+    `("AUDITED",)` missing for it.
+  - Deliberate faults, one at a time: of 27, 23 were caught at once (in
+    `coverage.py` duplicate names, `is True` for `is False`, `passed`
+    ignoring `not_extracted`, `any` for `all`, the top pack for the
+    question's pack, events and facts not counted, the id for the text,
+    either type not frozen, a list for the tuple, questions sorted by id
+    or reversed; in stacking no question origin or the last file's; in
+    checks no coverage step, warning on passed questions, the top file's
+    label, `error` severity, the text in the message, either cause left
+    out, a path by position; the rule left out of `RULES`). Four
+    survived:
+    - `missing` unsorted: with three names, the set sometimes iterates
+      them in order. `test_coverage_names_sorted_whatever_the_set_order`
+      sorts 10 and 7 names; it caught this fault, and a new one leaving
+      `not_extracted` unsorted, on three runs out of three;
+    - advice that omits `extract: true`, or gives it for a missing name:
+      no test read the advice. `test_warning_advice_fits_the_cause` now
+      catches both;
+    - `() or tuple(...)` for no `not_extracted`: a no-op, since `()` is
+      falsy. Rewritten as `() and tuple(...)`, `test_coverage_not_extracted`
+      catches it.
+  - Design notes. Stacking records each question's origin at
+    `competency_questions[<id>]` (`stacking.question_path`), as the first
+    file that adds the id; data-model §3 lists the path. `origins` is not
+    hashed, so every hash pin held. The warnings come from a coverage
+    step that `check_stack` runs last, through `check_coverage`, and sit
+    in the file that holds the question, which for a shipped question is
+    the shipped pack: a child that sets `extract: false` on
+    `HOLDS_POSITION` gets a warning at `core`'s `core-1` that names
+    `HOLDS_POSITION`. `QuestionCoverage` is exported with
+    `CoverageReport`, as a part the engine can type.
 
 **Checkpoint**: a pack author learns what a question lacks before any
 index run
