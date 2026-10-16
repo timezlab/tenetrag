@@ -155,14 +155,14 @@ NOT_INDEXED = ("retrieval", "glossary")
 # commit: a change to a shipped pack also bumps its version (test_shipped_pins).
 GOLDEN = {
     "core": {
-        "content": "sha256:pending",
-        "index": "sha256:pending",
-        "glossary": "sha256:pending",
+        "content": "sha256:804db204dd0ea9bbb091c43dac5222392edf62e71ec011072fbde814deabd4e0",
+        "index": "sha256:8f5397f02ecbec6c793e9ec7552eeaa9145e970ee4239c7c935d4e00fd4479a5",
+        "glossary": "sha256:f41818a804870491347c7369035af03ed3ce3edd7468e15dae3b0ba4f85c3191",
     },
     "enterprise-docs": {
-        "content": "sha256:pending",
-        "index": "sha256:pending",
-        "glossary": "sha256:pending",
+        "content": "sha256:92431e5c8887fb7fc947bd34ced7db1fff14202baa0c643cecf63b98fbd63150",
+        "index": "sha256:ccd491d783501b10a00fca206bbbf0723ddd9a1ccd8900d0c749b9e89a46870e",
+        "glossary": "sha256:f41818a804870491347c7369035af03ed3ce3edd7468e15dae3b0ba4f85c3191",
     },
 }
 

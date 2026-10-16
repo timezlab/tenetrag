@@ -47,19 +47,21 @@ USER_PACK = """\
 # format or of the index-time field set, and needs a reason in the commit.
 # Changed in M0 phase 6: three request-check capability fields left the
 # index-time set (T038).
+# Changed in 002 phase 4: extract and resolve hold the pack's index hash, here
+# that of `core`, the default pack (002 contracts/config.md §2).
 GOLDEN = {
     "selfhosted": {
         Stage.CHUNK: "sha256:e72a5a7b71ba5db66ef0080ca76119a05e659d9352a883461b587ed8cc12cd47",
-        Stage.EXTRACT: "sha256:7efe7333d88b6b0b3803f2c2082114de15c2e2df975c36de4244cb0b9691fcaa",
-        Stage.RESOLVE: "sha256:af9279ee7fff762692097bad083c2278bed82bf9d84cf7b3dbdf2ab789859a38",
+        Stage.EXTRACT: "sha256:ed4364bc17b0e5ee407c3204497d9d22a8e849e9d870a80d387207dae66cddb3",
+        Stage.RESOLVE: "sha256:ab4ca86d9c3ce68184a4b46ccf48f66b5eb99e94a1b3e7429dd068ec35c99156",
         Stage.EMBED: "sha256:a4849b4634d4a777cdf6a2851265d518a9a166af28a9ba65c56f6293150c6981",
         Stage.CLUSTER: "sha256:0888af2dead1f985b5c81b551d3ff2559307afecac5c98b3830863b4a305d061",
         Stage.REPORTS: "sha256:5f774d41c2a014c20f214e9ae4160410dbf2479402f0c3241c3478fa23d76f2a",
     },
     "databricks": {
         Stage.CHUNK: "sha256:e72a5a7b71ba5db66ef0080ca76119a05e659d9352a883461b587ed8cc12cd47",
-        Stage.EXTRACT: "sha256:7693dc4cb7bc18fcb4fc6f53749cf63832a602e7a4cc94602ee023b2147f2014",
-        Stage.RESOLVE: "sha256:af9279ee7fff762692097bad083c2278bed82bf9d84cf7b3dbdf2ab789859a38",
+        Stage.EXTRACT: "sha256:672d0d48132cec17df2301c6692631ba93f25f03e65a1695d64a93ae646b0893",
+        Stage.RESOLVE: "sha256:ab4ca86d9c3ce68184a4b46ccf48f66b5eb99e94a1b3e7429dd068ec35c99156",
         Stage.EMBED: "sha256:59e8aa17e178a1f7979ba5462149f21b67588ea8540b99f2018e866a40d5c973",
         Stage.CLUSTER: "sha256:0888af2dead1f985b5c81b551d3ff2559307afecac5c98b3830863b4a305d061",
         Stage.REPORTS: "sha256:5f774d41c2a014c20f214e9ae4160410dbf2479402f0c3241c3478fa23d76f2a",

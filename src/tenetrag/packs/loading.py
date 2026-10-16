@@ -23,6 +23,7 @@ import yaml
 from tenetrag._yaml import parse_yaml, yaml_problem
 from tenetrag.packs.checks import check_stack
 from tenetrag.packs.format import PACK_NAME, ParsedPack, parse_pack
+from tenetrag.packs.hashing import file_hash, stamped
 from tenetrag.packs.problems import PackProblem, config_error
 from tenetrag.packs.stack import PackInfo, PackStack, ShippedPack
 from tenetrag.packs.stacking import PackFile, stack_files
@@ -79,7 +80,7 @@ def load_pack(
         logger.warning(
             "Pack %s: %s: %s [%s]", warning.file, warning.path, warning.message, warning.rule
         )
-    return dataclasses.replace(stacked.stack, warnings=tuple(problems))
+    return stamped(dataclasses.replace(stacked.stack, warnings=tuple(problems)))
 
 
 @dataclass(frozen=True, slots=True)
@@ -266,7 +267,8 @@ class _Loader:
             ancestors[key] = frozenset(inherited)
             target = node.target
             source = _SHIPPED if target.shipped is not None else target.key
-            info = PackInfo(node.parsed.name or "", node.parsed.version or 0, source)
+            parsed = node.parsed
+            info = PackInfo(parsed.name or "", parsed.version or 0, source, file_hash(parsed))
             files.append(PackFile(target.label, node.parsed, info, ancestors[key]))
         return files
 

@@ -22,8 +22,11 @@ from tests.support.packs import FINANCE_DRAFT, PACK_FIXTURES, REPO_ROOT
 # ever added: a changed file gets a new version and a new pin, so a stamp
 # names one pack content for good.
 PINS = {
-    ("core", 1): "sha256:pending",
-    ("enterprise-docs", 1): "sha256:pending",
+    ("core", 1): "sha256:3fc4df56d935b28c0b358b5ee91f6eaeda18adb61a2f0780f1319ed7dc651eba",
+    (
+        "enterprise-docs",
+        1,
+    ): "sha256:cda4cad092e242501f38f90be353529b715dbd784f823c2173de17f83c9f705e",
 }
 
 

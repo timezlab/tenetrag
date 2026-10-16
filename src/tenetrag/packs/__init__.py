@@ -6,6 +6,7 @@ optional SDK. A sibling of `tenetrag.config`, so neither imports the other
 (research R1).
 """
 
+from tenetrag.packs.compile import CompiledSchema, compile_schema
 from tenetrag.packs.loading import load_pack, shipped_packs
 from tenetrag.packs.problems import PackProblem
 from tenetrag.packs.stack import (
@@ -24,11 +25,13 @@ from tenetrag.packs.stack import (
     Retrieval,
     Scope,
     ShippedPack,
+    Stamp,
 )
 
 __all__ = [
     "Attribute",
     "CompetencyQuestion",
+    "CompiledSchema",
     "EntityType",
     "EventType",
     "FactType",
@@ -43,6 +46,8 @@ __all__ = [
     "Retrieval",
     "Scope",
     "ShippedPack",
+    "Stamp",
+    "compile_schema",
     "load_pack",
     "shipped_packs",
 ]

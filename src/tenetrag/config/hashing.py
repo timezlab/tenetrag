@@ -2,7 +2,8 @@
 
 Each stage's hash covers that stage's index-time leaves only, after defaults
 are filled in, so changing a query-time field changes no hash and changing the
-embedding model changes only the `embed` hash.
+embedding model changes only the `embed` hash. The pack enters as its index
+hash, computed by tenetrag.packs (002 contracts/config.md §2).
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ from __future__ import annotations
 import enum
 import hashlib
 import json
+import re
 import unicodedata
 from collections.abc import Iterator, Mapping
 from typing import TypeAlias
@@ -24,15 +26,31 @@ _Json: TypeAlias = bool | int | float | str | list["_Json"] | dict[str, "_Json"]
 # Bump with any change to the canonical form below, so old and new hashes never collide.
 _FORMAT = 1
 
+_PACK_HASH = re.compile(r"sha256:[0-9a-f]{64}")
+# The stages whose output the pack's types, attributes and identity rules shape.
+_PACK_STAGES = (Stage.EXTRACT, Stage.RESOLVE)
 
-def stage_hashes(profile: Profile) -> dict[Stage, str]:
-    """`{stage: "sha256:<hex>"}` for every stage; a stage with no fields hashes an empty set."""
+
+def stage_hashes(profile: Profile, *, pack_hash: str) -> dict[Stage, str]:
+    """`{stage: "sha256:<hex>"}` for every stage; a stage with no fields hashes an empty set.
+
+    `pack_hash` is the `index_hash` of the pack the profile names. It enters
+    the extract and resolve stages as `pack`.
+    """
+    # fullmatch, not match: `$` would let a trailing newline through.
+    if not _PACK_HASH.fullmatch(pack_hash):
+        raise ValueError(
+            'pack_hash must be "sha256:" and 64 lowercase hex digits; pass the '
+            "index_hash of the loaded pack, load_pack(profile.pack).index_hash"
+        )
     phases = field_phases(type(profile))
     fields: dict[Stage, dict[str, _Json]] = {stage: {} for stage in Stage}
     for pattern, path, value in _leaves(profile, phases, "", ""):
         phase, stage = phases[pattern]
         if phase is Phase.INDEX and stage is not None:
             fields[stage][path] = _canonical(value)
+    for stage in _PACK_STAGES:
+        fields[stage]["pack"] = pack_hash
     return {stage: _digest(stage, stage_fields) for stage, stage_fields in fields.items()}
 
 

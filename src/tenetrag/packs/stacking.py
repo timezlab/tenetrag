@@ -50,6 +50,7 @@ from tenetrag.packs.stack import (
     RelationType,
     Retrieval,
     Scope,
+    Stamp,
 )
 
 KINDS = ("entities", "relations", "events", "facts")
@@ -664,6 +665,10 @@ class _Merger:
             name=top.name,
             version=top.version,
             mode=self.mode,
+            # load_pack hashes the stack once it is checked (hashing.stamped).
+            stamp=Stamp(top.name, top.version, ""),
+            index_hash="",
+            glossary_hash="",
             packs=tuple(file.info for file in self.files),
             entities=_frozen_map(self.definitions["entities"], _entity),
             relations=_frozen_map(self.definitions["relations"], _relation),

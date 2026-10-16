@@ -449,7 +449,7 @@ tests/unit/config -q -k "hash or compile or pack"` passes.
 
 ### Tests for User Story 2
 
-- [ ] T022 [P] [US2] Write `tests/unit/packs/test_hashing.py`:
+- [X] T022 [P] [US2] Write `tests/unit/packs/test_hashing.py`:
   - the contract tests `test_hash_ignores_layout`,
     `test_hash_description_change`, `test_hash_set_order`,
     `test_hash_retrieval_only`, `test_hash_glossary_only` and
@@ -464,7 +464,7 @@ tests/unit/config -q -k "hash or compile or pack"` passes.
     stacks with the same content under different top names have equal
     content hashes;
   - each `PackInfo` carries its file hash.
-- [ ] T023 [P] [US2] Write `tests/unit/packs/test_compile.py`:
+- [X] T023 [P] [US2] Write `tests/unit/packs/test_compile.py`:
   - the contract tests `test_compiled_fits_providers` (with
     `check_schema` from `tenetrag.llm.structured` and
     `capability_profile("databricks", "databricks-claude-sonnet-5")`),
@@ -476,11 +476,11 @@ tests/unit/config -q -k "hash or compile or pack"` passes.
     `tests/fixtures/packs/compiled/core.json`, which T029 writes;
   - `property_count` equals the count `check_schema` makes, `types` is
     sorted, every enum is sorted, and two calls give equal bytes.
-- [ ] T024 [P] [US2] Extend `tests/unit/packs/test_shipped.py` with part 2:
+- [X] T024 [P] [US2] Extend `tests/unit/packs/test_shipped.py` with part 2:
   `test_shipped_pins` (the pins dict of data-model §5, filled after the
   first green run; a mismatch says to bump `version` and add a pin) and
   `test_finance_draft_stacks` (FR-019).
-- [ ] T025 [P] [US2] Extend the config tests with the contract tests of
+- [X] T025 [P] [US2] Extend the config tests with the contract tests of
   [contracts/config.md](contracts/config.md#behaviour-pinned-by-tests):
   - `tests/unit/config/test_profile.py`: `test_pack_default`,
     `test_pack_name_or_path`, and a test that the pack name pattern in
@@ -505,7 +505,7 @@ tests/unit/config -q -k "hash or compile or pack"` passes.
 
 ### Implementation for User Story 2
 
-- [ ] T026 [P] [US2] Implement `src/tenetrag/packs/hashing.py`, following
+- [X] T026 [P] [US2] Implement `src/tenetrag/packs/hashing.py`, following
   data-model §5 and research R7:
   - the content, index, glossary and file hashes;
   - the canonical JSON recipe of `config/hashing.py`'s `_digest`, with
@@ -516,7 +516,7 @@ tests/unit/config -q -k "hash or compile or pack"` passes.
     `PackInfo` gains `file_hash`. `loading.py` fills them in.
 
   Export `Stamp`. Depends on T019.
-- [ ] T027 [P] [US2] Implement `src/tenetrag/packs/compile.py`, following
+- [X] T027 [P] [US2] Implement `src/tenetrag/packs/compile.py`, following
   research R6 and data-model §6:
   - the fixed 52-property shape, with sorted enums, every property
     required, `additionalProperties: false`, and `""` for an absent
@@ -532,7 +532,7 @@ tests/unit/config -q -k "hash or compile or pack"` passes.
   `schema` returns a fresh deep copy in plain dicts and lists on each
   read, since `check_schema` refuses a `MappingProxyType` (data-model §6).
   Export `compile_schema` and `CompiledSchema`. Depends on T019.
-- [ ] T028 [US2] Change `tenetrag.config` (contracts/config.md §1 and §2,
+- [X] T028 [US2] Change `tenetrag.config` (contracts/config.md §1 and §2,
   research R8):
   - `src/tenetrag/config/profile.py`:
     `pack: Annotated[PackReference, Operational()] = "core"`. A value
@@ -547,7 +547,7 @@ tests/unit/config -q -k "hash or compile or pack"` passes.
     `_FORMAT` stays 1.
 
   The T025 tests that load a pack need T026.
-- [ ] T029 [US2] Pin and run:
+- [X] T029 [US2] Pin and run:
   1. Write `tests/fixtures/packs/compiled/core.json` from
      `compile_schema(load_pack("core")).to_json()` plus one final
      newline. Review it by hand against data-model §6 and the R6 table:
@@ -561,6 +561,53 @@ tests/unit/config -q -k "hash or compile or pack"` passes.
      survives gets a test.
 
   Record the results here.
+
+  Result (2026-10-16): `make check` passes with 1041 unit tests.
+  - Red, the tests of 54e55e7 on the code before T026:
+    `uv run pytest tests/unit/packs tests/unit/config -q` stopped with 3
+    collection errors, an `ImportError` for `CompiledSchema`,
+    `compile_schema` and `Stamp` from `tenetrag.packs`. With
+    `--continue-on-collection-errors`: 73 failed, 419 passed, 3 errors.
+    Green: 552 passed, also under `PYTHONHASHSEED` 0, 1 and 2.
+  - `core.json` reviewed by hand: 52 properties, `Statement` absent,
+    every enum sorted, no `null`. Its entity attribute enum holds
+    `born_on`, which data-model §6 lacked; the excerpt now has it.
+  - Pinned: the file hashes of `core` 1 and `enterprise-docs` 1, their
+    content, index and glossary hashes (both glossaries are empty, so
+    both glossary hashes are the hash of `[]`), and the config golden
+    values. Only `extract` and `resolve` moved, in both golden profiles;
+    the other four stages kept their M0 values.
+  - Quickstart §2: the stack `[core, enterprise-docs, finance, largest]`
+    loads and compiles in 0.065 s (SC-006: under 1 s; first of five
+    runs, median 0.063 s), with 52 properties, 39 types, no warning, and
+    `check_schema` raising nothing for `databricks-claude-sonnet-5`. The
+    negative check, `max_properties=40`, raises `ConfigError` with 52,
+    40 and the 12 parts by size, from `entity (10)` to `fact role (2)`.
+  - Deliberate faults, one at a time: of 37, 33 were caught at once
+    (index or content field sets, sorted keys, ASCII escapes, `_FORMAT`,
+    the glossary hash kind, the stamp version, `exclude_unset`, aliases,
+    each part of the file hash; in `compile.py` the `required` sort,
+    `additionalProperties`, enum sort, relation `value`, empty attribute
+    parts kept, `>=` at the limit, parts in ascending order, `extract:
+    false` kept or allowed, unknown names or an empty selection allowed,
+    events without `id`, unsorted `types`, the root left out of the
+    count). Four survived:
+    - an empty roles part kept: event and fact roles are optional, and
+      no test compiled a type without them.
+      `test_compile_roleless_types_have_no_roles_part` now catches it;
+    - no NFC for values, or for keys, in `hashing._canonical`: the loader
+      already gives NFC strings, so each layer covers the other.
+      `test_hash_ignores_layout` fails when both are dropped. The step
+      stays so the recipe matches `config/hashing.py`;
+    - ASCII escapes in `to_json`: every string in a compiled schema is a
+      name matching an ASCII pattern, so the output cannot change.
+  - Design notes. `load_pack` computes the stack hashes once the checks
+    pass (`hashing.stamped`); `freeze` leaves empty placeholders that
+    never leave `load_pack`. `PackInfo` gained `file_hash`, so two
+    stacking and shipped tests compare `(name, version, source)` instead
+    of whole `PackInfo` values. `load_profile` uses `abspath` and
+    `normpath`, not `resolve`, so a pack path keeps its links and only
+    `..` is folded.
 
 **Checkpoint**: stacks compile within the limits, and a pack change moves
 the right stage hashes. Both P1 stories are done.

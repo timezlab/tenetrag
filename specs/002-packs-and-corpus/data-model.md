@@ -302,7 +302,7 @@ Excerpt for `core` (whitespace added here only):
       "type": {"type": "string", "enum": ["Concept", "Metric", "Organization", "Person", "Place", "Product", "Work"]},
       "attributes": {"type": "array", "items": {"type": "object", "additionalProperties": false,
         "required": ["name", "quote", "value"],
-        "properties": {"name": {"type": "string", "enum": ["category", "code", "email", "established_on", "issued_on", "kind", "registration_id", "title", "unit"]},
+        "properties": {"name": {"type": "string", "enum": ["born_on", "category", "code", "email", "established_on", "issued_on", "kind", "registration_id", "title", "unit"]},
                        "value": {"type": "string"}, "quote": {"type": "string"}}}},
       "…": "id, surface, is_name, name, translation, ref, scope, former_names"}}},
   "relations": "…", "events": "…", "facts": "… Definition and ReportedFigure; Statement is extract: false"}}

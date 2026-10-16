@@ -49,6 +49,14 @@ class ShippedPack(NamedTuple):
     version: int
 
 
+class Stamp(NamedTuple):
+    """What every extracted item records: the top pack and the stack's content hash."""
+
+    name: str
+    version: int
+    content_hash: str
+
+
 @dataclass(frozen=True, slots=True)
 class PackInfo:
     """One pack of the stack. `source` is "shipped" or the file's absolute path."""
@@ -56,6 +64,7 @@ class PackInfo:
     name: str
     version: int
     source: str
+    file_hash: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -198,11 +207,17 @@ class CompetencyQuestion:
 
 @dataclass(frozen=True, slots=True)
 class PackStack:
-    """The merged stack. `origins` maps each element path to the pack that added it."""
+    """The merged stack. `origins` maps each element path to the pack that added it.
+
+    The hashes are those of data-model §5; `stamp.content_hash` is the content hash.
+    """
 
     name: str
     version: int
     mode: Mode
+    stamp: Stamp
+    index_hash: str
+    glossary_hash: str
     packs: tuple[PackInfo, ...]
     entities: Mapping[str, EntityType]
     relations: Mapping[str, RelationType]

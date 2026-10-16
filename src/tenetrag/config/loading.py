@@ -18,7 +18,7 @@ from pydantic import ValidationError
 from pydantic_core import ErrorDetails
 
 from tenetrag._yaml import DuplicateKey, parse_yaml, yaml_problem
-from tenetrag.config.profile import Profile
+from tenetrag.config.profile import PACK_FILE_SUFFIXES, Profile
 from tenetrag.protocols.errors import ConfigError
 
 _SECRET_WORDS = ("password", "passwd", "secret", "token", "api_key", "apikey")
@@ -26,7 +26,11 @@ _CREDENTIAL_HINT = "credentials are passed in code, or named as a source under `
 
 
 def load_profile(path: str | os.PathLike[str]) -> Profile:
-    """Load a profile file. An unreadable or non-UTF-8 file raises `ConfigError` naming it."""
+    """Load a profile file. An unreadable or non-UTF-8 file raises `ConfigError` naming it.
+
+    A relative pack path becomes absolute against the file's directory, so a
+    profile and its pack can move together.
+    """
     source = os.fspath(path)
     try:
         data = Path(path).read_bytes()
@@ -41,10 +45,20 @@ def load_profile(path: str | os.PathLike[str]) -> Profile:
     except UnicodeDecodeError as exc:
         position = exc.start
     else:
-        return _from_yaml(text, f" in {source}")
+        return _pack_beside(_from_yaml(text, f" in {source}"), source)
     raise ConfigError(
         f"The profile file {source} is not UTF-8 text (byte {position}). Save it as UTF-8."
     )
+
+
+def _pack_beside(profile: Profile, source: str) -> Profile:
+    pack = profile.pack
+    if not pack.endswith(PACK_FILE_SUFFIXES) or os.path.isabs(pack):
+        return profile
+    # abspath and normpath, not resolve: the path stays as the caller wrote it,
+    # links and all, with only `..` folded.
+    directory = os.path.dirname(os.path.abspath(source))
+    return profile.model_copy(update={"pack": os.path.normpath(os.path.join(directory, pack))})
 
 
 def profile_from_yaml(text: str) -> Profile:

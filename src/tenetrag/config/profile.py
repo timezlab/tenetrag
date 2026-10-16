@@ -8,6 +8,7 @@ their leaves say Operational() themselves. No field holds a secret (FR-014).
 from __future__ import annotations
 
 import enum
+import re
 from collections.abc import Callable, Mapping
 from typing import Annotated, Literal, Self
 from urllib.parse import urlsplit
@@ -234,6 +235,27 @@ class ModelsSettings(_Settings):
     embedding: Annotated[EmbeddingModelSettings | None, IndexTime(Stage.EMBED)] = None
 
 
+# The pack (002 data-model §7)
+
+# The pack name pattern of tenetrag/packs/format.py, written again because config
+# cannot import packs (research R1); a test keeps the two equal.
+PACK_NAME = re.compile(r"[a-z][a-z0-9]*(-[a-z0-9]+)*")
+PACK_FILE_SUFFIXES = (".yaml", ".yml")
+
+
+def _pack_reference(value: str) -> str:
+    # Syntax only: whether a named pack exists is for tenetrag.packs.load_pack.
+    if value.endswith(PACK_FILE_SUFFIXES) or PACK_NAME.fullmatch(value):
+        return value
+    raise ValueError(
+        "use a shipped pack name such as `enterprise-docs`, or the path of a pack "
+        "file ending in .yaml or .yml"
+    )
+
+
+PackReference = Annotated[str, AfterValidator(_pack_reference)]
+
+
 # The profile
 
 
@@ -243,3 +265,6 @@ class Profile(_Settings):
     language: Annotated[
         str, Field(pattern=r"^[a-z]{2,3}(-[A-Z]{2})?$"), IndexTime(Stage.EXTRACT)
     ] = "en"
+    # Operational: the pack's content enters the stage hashes through
+    # `stage_hashes(profile, pack_hash=...)`, so a moved file changes none.
+    pack: Annotated[PackReference, Operational()] = "core"
