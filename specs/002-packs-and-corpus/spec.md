@@ -496,7 +496,8 @@ every competency question has golden questions.
   files.
 - **FR-041**: The corpus and the identity cases MUST hold only fictional
   organizations, people and identifiers. The one exception is the codes
-  of public legal documents, such as "39/2016/TT-NHNN".
+  of public legal documents, such as "39/2016/TT-NHNN", and the public
+  authority that issues them, which a code's scope names.
 
 **Architecture and docs**
 

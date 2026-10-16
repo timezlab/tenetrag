@@ -713,7 +713,7 @@ passes.
 
 ### Tests for User Story 4
 
-- [ ] T033 [P] [US4] Write `tests/unit/packs/test_cases.py`:
+- [X] T033 [P] [US4] Write `tests/unit/packs/test_cases.py`:
   - the 13 contract tests of
     [contracts/identity-cases.md](contracts/identity-cases.md#behaviour-pinned-by-tests).
     `test_design_cases_match_snapshot` reads
@@ -725,7 +725,7 @@ passes.
 
 ### Implementation for User Story 4
 
-- [ ] T034 [US4] Implement `src/tenetrag/packs/cases.py`, following
+- [X] T034 [US4] Implement `src/tenetrag/packs/cases.py`, following
   data-model §8:
   - pydantic models `CaseFile`, `CaseEntity`, `Case`, `Mention` and
     `Outcome`, with the rules of a pack file, read through the file
@@ -744,7 +744,7 @@ passes.
   - `CASE_RULES`, the `case.*` ids.
 
   Depends on T033.
-- [ ] T035 [US4] Convert the 60 design cases:
+- [X] T035 [US4] Convert the 60 design cases:
   - A throwaway script in the session scratchpad, never committed, reads
     `research/identity-design-cases.json` and applies the conversion
     rules of research R11.
@@ -759,14 +759,81 @@ passes.
     that T036 fills.
 
   Depends on T034.
-- [ ] T036 [US4] Write the 17 added cases of research R11's table by
+- [X] T036 [US4] Write the 17 added cases of research R11's table by
   hand (PLC-2, PRD-2 to PRD-4, WRK-7, SYS-2, PROC-1 to PROC-7, and
   PER-10 to PER-13 of ADR 0023), with fictional names and `.example`
   emails. `check_cases(*shipped_cases(),
   finance_cases)` then returns no problem. Depends on T035.
-- [ ] T037 [US4] Run `uv run pytest tests/unit/packs/test_cases.py -q`,
+- [X] T037 [US4] Run `uv run pytest tests/unit/packs/test_cases.py -q`,
   quickstart §4 with its negative check, and `make check`. Record the
   case counts per file here.
+
+  Result (2026-10-16): `make check` passes with 1146 unit tests.
+  - Red, the tests of 53c8e80 on the code before T034:
+    `uv run pytest tests/unit/packs -q` stopped with 1 collection error,
+    an `ImportError` for `CaseSet` from `tenetrag.packs`. With
+    `--continue-on-collection-errors`: 331 passed, 1 error. That commit
+    also carried one ruff `I001` in `test_cases.py`, since the import of
+    `tenetrag.packs.cases` sorts as third-party until the module exists;
+    it cleared with T034. Green: 419 passed, also under `PYTHONHASHSEED`
+    0, 1 and 2.
+  - Case counts: `core.cases.yaml` 27 (22 design, 5 added, 23
+    entities), `enterprise-docs.cases.yaml` 43 (31 design, 12 added, 25
+    entities), `tests/fixtures/identity/finance.cases.yaml` 7 (7 design,
+    3 entities): 77 cases, 60 of them the design cases. With the design
+    cases only, `check_cases` gives 13 problems, all `case.coverage-*`:
+    `Place`, `Product` and the `born_on` veto in `core`; `Procedure` (the
+    type, its 3 keys and 3 vetoes), `Product`, `System` and `Work` in
+    `enterprise-docs`. The added cases close each of them; PER-11 to
+    PER-13 are the ADR 0023 cases, not gaps.
+  - Quickstart §4: `test_case_counts`, `check_cases` on all three files
+    with no problem, and `test_design_cases_match_snapshot` pass. The
+    negative check, `test_missing_veto_case`, gives one
+    `case.coverage-element` at `entities.Person.vetoes[employee_id]`
+    naming `veto:employee_id`.
+  - FR-041: the case files name one real organization, `nhnn`, the
+    State Bank of Vietnam, as the scope of the public code
+    39/2016/TT-NHNN that the design case WRK-1 needs. FR-041 now admits
+    the authority that issues a public legal code, beside the code.
+    Every email is on `alpha.example`.
+  - Deliberate faults, one at a time: of 56, 42 were caught at once (in
+    `cases.py` coverage on user tops, coverage ignoring the owner, a veto
+    counted as a key, changed parts, identity-free types, `expect`
+    ignored, element coverage across types; `blocked_by` both ways;
+    duplicate ids skipped or per file; `right`, `existing` membership,
+    outcome fields, the `same_as`, `confirm` and `expect` fits; enum
+    values, relation ends and attributes, `existing` ids, key order,
+    default `unique`, `names`, `corroborate`, vetoes, the scope target
+    type, a scopeless type's scope, unknown types and attributes; a
+    mutable `entities`, the pack path, the case file header, unquoted
+    document dates, empty `depends_on` or `cases`, the `scope_source`
+    default, lower-case case ids, the shipped suffix and order; in
+    `loading.py` a `.cases.yaml` file taken for a pack). Fourteen
+    survived, and each now has a test:
+    - the duplicate-id message for one file, an unknown issuer, `scope`
+      for a type without one, the grammar advice for `veto:` or
+      `veto:Born_On`, and an unknown scope entity:
+      `test_duplicate_id_in_one_file`, `test_issuer_is_an_entity`,
+      `test_scope_element_needs_a_scope`,
+      `test_bad_element_names_the_grammar`, `test_scope_is_an_entity`;
+    - no NFC, and unquoted attribute dates:
+      `test_case_text_read_as_nfc`, `test_attribute_dates_read_either_way`;
+    - an empty value, the basic date form `20250610` (which
+      `date.fromisoformat` accepts), an empty `existing`, a language
+      other than `vi` or `en`, lax types (a `!!binary` value reads as
+      bytes, which lax mode turns into text), and an upper-case entity
+      id: six new rows of `test_case_shape`;
+    - mutable case models: `test_cases_frozen`.
+  - Design notes. The file phase of `loading.py` is now `read_mapping`,
+    shared by packs and case files with a `FileKind` for the two
+    file-specific messages; `format.py` exposes `name_checker`,
+    `normalized` and `validation_problems` for the same reason.
+    `config_error` takes a `subject`, so a case file error opens with
+    "The case file has". `shipped_pack_names` skips `.cases.yaml`, and
+    the wheel carries both case files beside the packs. The case files
+    were written by a throwaway script, not committed, that checked its
+    YAML round-trip; digit-only values such as registration ids are
+    quoted, so a YAML 1.2 reader keeps them as text.
 
 **Checkpoint**: every shipped pack carries identity cases, checked
 against its stack
