@@ -1,0 +1,132 @@
+# Identity cases for the `finance` draft (data-model §8, research R11): the 7
+# design cases of ADR 0016 that need its LEI and Instrument, converted from
+# specs/002-packs-and-corpus/research/identity-design-cases.json. The draft is
+# not shipped, so these cases live with the test fixtures and load the draft
+# itself. Edited by hand from here on. Fictional identifiers only (FR-041).
+pack: ../../../docs/product/packs/finance.yaml
+entities:
+  alpha.hold:
+    type: Organization
+    name: Alpha Holdings Ltd
+    attributes:
+      category: {value: company, quote: Alpha Holdings Ltd}
+      lei: {value: TEST00000000000ALPHA, quote: mã LEI TEST00000000000ALPHA}
+  ins.abc:
+    type: Instrument
+    name: ABC
+    attributes:
+      isin: {value: VNABC0000001, quote: mã ISIN VNABC0000001}
+      exchange: {value: HOSE, quote: sàn HOSE}
+      ticker: {value: ABC, quote: mã chứng khoán ABC}
+      listed_on: {value: "2010-05-04", quote: niêm yết ngày 04/05/2010}
+      delisted_on: {value: "2018-09-30", quote: hủy niêm yết ngày 30/09/2018}
+  ins.xyz:
+    type: Instrument
+    name: XYZ
+    attributes:
+      isin: {value: VNXYZ0000001, quote: mã ISIN VNXYZ0000001}
+      exchange: {value: HOSE, quote: sàn HOSE}
+      ticker: {value: XYZ, quote: mã chứng khoán XYZ}
+cases:
+  - id: ORG-5
+    origin: design
+    expect: apart
+    title: Cùng tên tiếng Anh, khác LEI
+    existing: [alpha.hold]
+    mention:
+      type: Organization
+      name: Alpha Holdings Ltd
+      attributes:
+        category: {value: company, quote: Alpha Holdings Ltd}
+        lei: {value: TEST0000000000BETA01, quote: LEI TEST0000000000BETA01}
+      document: {date: "2025-06-10", language: en}
+    outcome: {kind: new}
+    depends_on: [veto:lei]
+    blocked_by: lei
+  - id: ORG-6
+    origin: design
+    expect: merge
+    title: Tên viết khác, cùng LEI
+    existing: [alpha.hold]
+    mention:
+      type: Organization
+      name: Alpha Holdings Limited
+      attributes:
+        category: {value: company, quote: Alpha Holdings Limited}
+        lei: {value: TEST00000000000ALPHA, quote: LEI TEST00000000000ALPHA}
+      document: {date: "2025-06-10", language: en}
+    outcome: {kind: merge, into: alpha.hold}
+    depends_on: [key:lei]
+  - id: INS-1
+    origin: design
+    expect: apart
+    title: Mã CK tái sử dụng, ISIN khác
+    existing: [ins.abc]
+    mention:
+      type: Instrument
+      name: ABC
+      attributes:
+        isin: {value: VNABC0000009, quote: mã ISIN VNABC0000009}
+        exchange: {value: HOSE, quote: sàn HOSE}
+        ticker: {value: ABC, quote: mã chứng khoán ABC}
+      document: {date: "2024-04-01", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:isin]
+    blocked_by: isin
+  - id: INS-2
+    origin: design
+    expect: apart
+    title: Mã CK tái sử dụng, không có ISIN
+    existing: [ins.abc]
+    mention:
+      type: Instrument
+      name: ABC
+      attributes:
+        exchange: {value: HOSE, quote: sàn HOSE}
+        ticker: {value: ABC, quote: mã chứng khoán ABC}
+      document: {date: "2024-04-01", language: vi}
+    outcome: {kind: new}
+    depends_on: [key:exchange+ticker, names:none]
+  - id: INS-3
+    origin: design
+    expect: merge
+    title: Cùng mã CK trong thời gian niêm yết
+    existing: [ins.abc]
+    mention:
+      type: Instrument
+      name: ABC
+      attributes:
+        exchange: {value: HOSE, quote: sàn HOSE}
+        ticker: {value: ABC, quote: mã chứng khoán ABC}
+      document: {date: "2015-07-01", language: vi}
+    outcome: {kind: merge, into: ins.abc}
+    depends_on: [key:exchange+ticker]
+  - id: INS-4
+    origin: design
+    expect: merge
+    title: Cùng ISIN, không có mã CK
+    existing: [ins.abc]
+    mention:
+      type: Instrument
+      name: Cổ phiếu Công ty CP ABC
+      attributes:
+        isin: {value: VNABC0000001, quote: mã ISIN VNABC0000001}
+      document: {date: "2015-07-01", language: vi}
+    outcome: {kind: merge, into: ins.abc}
+    depends_on: [key:isin]
+  - id: INS-5
+    origin: design
+    expect: apart
+    title: Không biết thời gian niêm yết, cùng mã CK, khác ISIN
+    existing: [ins.xyz]
+    mention:
+      type: Instrument
+      name: XYZ
+      attributes:
+        isin: {value: VNXYZ0000009, quote: mã ISIN VNXYZ0000009}
+        exchange: {value: HOSE, quote: sàn HOSE}
+        ticker: {value: XYZ, quote: mã chứng khoán XYZ}
+      document: {date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:isin]
+    blocked_by: isin

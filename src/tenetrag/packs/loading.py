@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from importlib import resources
 from importlib.resources.abc import Traversable
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -81,6 +82,75 @@ def load_pack(
             "Pack %s: %s: %s [%s]", warning.file, warning.path, warning.message, warning.rule
         )
     return stamped(dataclasses.replace(stacked.stack, warnings=tuple(problems)))
+
+
+@dataclass(frozen=True, slots=True)
+class FileKind:
+    """The messages a file problem gives for one kind of YAML file: a pack or a case file."""
+
+    empty: str
+    not_mapping: str
+
+
+PACK_FILE = FileKind(
+    empty="the file is empty; write a pack in it",
+    not_mapping="a pack is a mapping of fields such as `pack:` and `entities:`",
+)
+
+
+def read_mapping(
+    source: Path | Traversable, label: str, kind: FileKind
+) -> tuple[dict[Any, Any] | None, list[PackProblem]]:
+    """A file's top mapping, read safely, with its file.* problems; None when it has no mapping.
+
+    A repeated key is a problem, yet the mapping is still returned, so that
+    the rest of the file is checked in the same pass. `label` names the file.
+    """
+    problems: list[PackProblem] = []
+
+    def problem(rule: str, path: str, message: str) -> None:
+        problems.append(PackProblem(rule, label, path, message, "error"))
+
+    try:
+        raw = source.read_bytes()
+    except OSError as exc:
+        reason = exc.strerror or type(exc).__name__
+        problem(
+            "file.unreadable",
+            "",
+            f"cannot read the file: {reason}; check that the path names a readable file",
+        )
+        return None, problems
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        problem(
+            "file.not-utf8", "", f"the file is not UTF-8 text (byte {exc.start}); save it as UTF-8"
+        )
+        return None, problems
+    try:
+        data, duplicates = parse_yaml(text)
+    except yaml.YAMLError as exc:
+        problem(
+            "file.yaml",
+            "",
+            f"{yaml_problem(exc)}; fix the syntax, and use no tag that builds a Python object",
+        )
+        return None, problems
+    for duplicate in duplicates:
+        problem(
+            "file.duplicate-key",
+            duplicate.path,
+            f"`{duplicate.key}` appears twice, at line {duplicate.line} "
+            f"(first at line {duplicate.first_line})",
+        )
+    if data is None:
+        problem("file.empty", "", kind.empty)
+        return None, problems
+    if not isinstance(data, dict):
+        problem("file.not-mapping", "", kind.not_mapping)
+        return None, problems
+    return data, problems
 
 
 @dataclass(frozen=True, slots=True)
@@ -179,58 +249,10 @@ class _Loader:
     def read(self, target: _Target) -> ParsedPack | None:
         """One file's content, or None with a problem when it has none to stack."""
         label = target.label
-        if target.path is None:
-            text = _shipped_file(label).read_text(encoding="utf-8")
-        else:
-            try:
-                raw = target.path.read_bytes()
-            except OSError as exc:
-                reason = exc.strerror or type(exc).__name__
-                self.problem(
-                    "file.unreadable",
-                    label,
-                    "",
-                    f"cannot read the file: {reason}; check that the path names a readable file",
-                )
-                return None
-            try:
-                text = raw.decode("utf-8")
-            except UnicodeDecodeError as exc:
-                self.problem(
-                    "file.not-utf8",
-                    label,
-                    "",
-                    f"the file is not UTF-8 text (byte {exc.start}); save it as UTF-8",
-                )
-                return None
-        try:
-            data, duplicates = parse_yaml(text)
-        except yaml.YAMLError as exc:
-            self.problem(
-                "file.yaml",
-                label,
-                "",
-                f"{yaml_problem(exc)}; fix the syntax, and use no tag that builds a Python object",
-            )
-            return None
-        for duplicate in duplicates:
-            self.problem(
-                "file.duplicate-key",
-                label,
-                duplicate.path,
-                f"`{duplicate.key}` appears twice, at line {duplicate.line} "
-                f"(first at line {duplicate.first_line})",
-            )
+        source = _shipped_file(label) if target.path is None else target.path
+        data, problems = read_mapping(source, label, PACK_FILE)
+        self.problems.extend(problems)
         if data is None:
-            self.problem("file.empty", label, "", "the file is empty; write a pack in it")
-            return None
-        if not isinstance(data, dict):
-            self.problem(
-                "file.not-mapping",
-                label,
-                "",
-                "a pack is a mapping of fields such as `pack:` and `entities:`",
-            )
             return None
         parsed, problems = parse_pack(data, label)
         self.problems.extend(problems)
@@ -273,19 +295,20 @@ class _Loader:
         return files
 
 
-def _shipped_directory() -> Traversable:
+def shipped_directory() -> Traversable:
+    """The package data holding the shipped packs and their identity case files."""
     return resources.files("tenetrag.packs") / _SHIPPED
 
 
 def _shipped_file(name: str) -> Traversable:
-    return _shipped_directory() / f"{name}.yaml"
+    return shipped_directory() / f"{name}.yaml"
 
 
 def _shipped_names() -> Sequence[str]:
     """The shipped pack names, sorted; a `.cases.yaml` file holds identity cases, not a pack."""
     names = (
         entry.name.removesuffix(".yaml")
-        for entry in _shipped_directory().iterdir()
+        for entry in shipped_directory().iterdir()
         if entry.name.endswith(".yaml") and not entry.name.endswith(".cases.yaml")
     )
     return sorted(names)

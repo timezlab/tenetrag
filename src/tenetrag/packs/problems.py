@@ -86,13 +86,18 @@ class PackProblem:
     severity: Severity
 
 
-def config_error(problems: Iterable[PackProblem]) -> ConfigError:
-    """One `ConfigError` listing every error in the order found, without the warnings."""
+def config_error(
+    problems: Iterable[PackProblem], *, subject: str = "The pack stack"
+) -> ConfigError:
+    """One `ConfigError` listing every error in the order found, without the warnings.
+
+    `subject` names what was read: a pack stack, or an identity case file.
+    """
     errors = [problem for problem in problems if problem.severity == "error"]
     if not errors:
         raise ValueError("config_error needs at least one error problem; this is a caller bug")
     noun = "problem" if len(errors) == 1 else "problems"
-    lines = [f"The pack stack has {len(errors)} {noun}:"]
+    lines = [f"{subject} has {len(errors)} {noun}:"]
     lines.extend(
         f"  - {error.file}: {error.path}: {error.message} [{error.rule}]" for error in errors
     )

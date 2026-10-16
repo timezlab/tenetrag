@@ -44,7 +44,9 @@ BUILTIN_RANGES = frozenset({"str", "date", "money", "percentage", "int", "float"
 UNKNOWN_FIELD = "unknown field; remove it or use a field of the pack format"
 
 
-def _name(pattern: re.Pattern[str], example: str) -> Callable[[str], str]:
+def name_checker(pattern: re.Pattern[str], example: str) -> Callable[[str], str]:
+    """A validator refusing a name `pattern` does not match, with `example` for the message."""
+
     def check(value: str) -> str:
         if pattern.fullmatch(value) is None:
             raise PydanticCustomError("bad_name", "not a valid name", {"example": example})
@@ -65,11 +67,11 @@ def _range(value: str) -> str:
     return value
 
 
-PackName = Annotated[str, AfterValidator(_name(PACK_NAME, "alpha-ops"))]
-QuestionId = Annotated[str, AfterValidator(_name(PACK_NAME, "alpha-ops-1"))]
-TypeName = Annotated[str, AfterValidator(_name(TYPE_NAME, "VendorDesk"))]
-RelationName = Annotated[str, AfterValidator(_name(RELATION_NAME, "REPORTS_TO"))]
-LowerName = Annotated[str, AfterValidator(_name(LOWER_NAME, "tax_code"))]
+PackName = Annotated[str, AfterValidator(name_checker(PACK_NAME, "alpha-ops"))]
+QuestionId = Annotated[str, AfterValidator(name_checker(PACK_NAME, "alpha-ops-1"))]
+TypeName = Annotated[str, AfterValidator(name_checker(TYPE_NAME, "VendorDesk"))]
+RelationName = Annotated[str, AfterValidator(name_checker(RELATION_NAME, "REPORTS_TO"))]
+LowerName = Annotated[str, AfterValidator(name_checker(LOWER_NAME, "tax_code"))]
 Needed = Annotated[str, AfterValidator(_needed)]
 Range = Annotated[str, AfterValidator(_range)]
 Text = Annotated[str, Field(min_length=1)]
@@ -271,16 +273,35 @@ def parse_pack(data: Mapping[object, object], label: str) -> tuple[ParsedPack, l
     """Validate one file's data. `label` names the file in the problems."""
     parser = _Parser(label)
     try:
-        normalized = _nfc(data, {})
-    except _RecursiveDataError:
-        parser.problem("file.yaml", "", "an alias refers to itself; remove the loop")
+        nfc_data = normalized(data)
+    except RecursiveDataError:
+        parser.problem("file.yaml", "", RECURSIVE_ALIAS)
         return ParsedPack(None, None, [], True, None), parser.problems
-    # _nfc returns a dict for a dict.
-    return parser.parse(cast("dict[Any, Any]", normalized)), parser.problems
+    # normalized returns a dict for a dict.
+    return parser.parse(cast("dict[Any, Any]", nfc_data)), parser.problems
 
 
-class _RecursiveDataError(Exception):
-    """An alias that contains itself, which no pack field can hold."""
+class RecursiveDataError(Exception):
+    """An alias that contains itself, which no pack or case field can hold."""
+
+
+RECURSIVE_ALIAS = "an alias refers to itself; remove the loop"
+
+
+def normalized(data: object) -> object:
+    """`data` with every string in NFC. Raises `RecursiveDataError` for an alias holding itself."""
+    return _nfc(data, {})
+
+
+def validation_problems(
+    exc: ValidationError, label: str, path: str, raw: object
+) -> list[PackProblem]:
+    """One file.* problem for each pydantic error, at its path under `path` in `raw`."""
+    problems = []
+    for detail in exc.errors(include_url=False, include_input=False):
+        rule, message = _describe(detail)
+        problems.append(PackProblem(rule, label, _path(path, detail["loc"], raw), message, "error"))
+    return problems
 
 
 _IN_PROGRESS = object()
@@ -298,7 +319,7 @@ def _nfc(value: object, done: dict[int, object]) -> object:
         return value
     seen = done.get(id(value))
     if seen is _IN_PROGRESS:
-        raise _RecursiveDataError
+        raise RecursiveDataError
     if seen is not None:
         return seen
     done[id(value)] = _IN_PROGRESS
@@ -481,9 +502,7 @@ class _Parser:
             return None
 
     def _report(self, exc: ValidationError, path: str, value: object) -> None:
-        for detail in exc.errors(include_url=False, include_input=False):
-            rule, message = _describe(detail)
-            self.problem(rule, _path(path, detail["loc"], value), message)
+        self.problems.extend(validation_problems(exc, self.label, path, value))
 
 
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
@@ -515,6 +534,8 @@ def _describe(detail: ErrorDetails) -> tuple[str, str]:
         message = "not a range; use str, date, money, percentage, int, float, bool or an enum name"
     elif kind == "bad_key":
         message = "expected a list of attributes, or a mapping with `key` and `during`"
+    elif kind == "bad_date":
+        message = "expected an ISO date such as 2025-06-10"
     elif kind == "literal_error":
         message = f"not one of the allowed values; use {context['expected']}"
     elif kind == "string_too_short":

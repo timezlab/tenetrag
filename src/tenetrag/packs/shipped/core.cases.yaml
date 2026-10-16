@@ -1,0 +1,540 @@
+# Identity cases for the shipped `core` pack (data-model §8, research R11).
+# The 22 design cases of ADR 0016, converted from
+# specs/002-packs-and-corpus/research/identity-design-cases.json, and 5 added
+# so that every key, veto and scoped type of `core` is tested (FR-031).
+# Edited by hand from here on; test_design_cases_match_snapshot keeps the
+# design cases true to the snapshot. Fictional names and .example emails
+# only (FR-041); the one real name is the public issuer of a legal code.
+pack: core
+entities:
+  alpha:
+    type: Organization
+    name: Công ty CP Alpha
+    attributes:
+      category: {value: company, quote: Công ty CP Alpha}
+      registration_id: {value: "0101234567", quote: mã số doanh nghiệp 0101234567}
+  delta:
+    type: Organization
+    name: Công ty CP Delta
+    attributes:
+      category: {value: company, quote: Công ty CP Delta}
+      registration_id: {value: "0105550001", quote: mã số doanh nghiệp 0105550001}
+  beta:
+    type: Organization
+    name: Công ty CP Beta
+    attributes:
+      category: {value: company, quote: Công ty CP Beta}
+  nhnn:
+    type: Organization
+    name: Ngân hàng Nhà nước Việt Nam
+    attributes:
+      category: {value: government_agency, quote: Ngân hàng Nhà nước Việt Nam}
+  alpha.cnhn:
+    type: Organization
+    name: Chi nhánh Hà Nội
+    scope: alpha
+    attributes:
+      category: {value: unit, quote: Chi nhánh Hà Nội}
+      registration_id: {value: 0101234567-001, quote: mã số doanh nghiệp 0101234567-001}
+  alpha.tc:
+    type: Organization
+    name: Phòng Tài chính
+    scope: alpha
+    attributes:
+      category: {value: unit, quote: Phòng Tài chính}
+  alpha.dt:
+    type: Organization
+    name: Phòng Đầu tư
+    scope: alpha
+    attributes:
+      category: {value: unit, quote: Phòng Đầu tư}
+      established_on: {value: "2019-03-01", quote: thành lập ngày 01/03/2019}
+  alpha.cntt:
+    type: Organization
+    name: Phòng Công nghệ thông tin
+    scope: alpha
+    attributes:
+      category: {value: unit, quote: Phòng Công nghệ thông tin}
+  alpha.kh:
+    type: Organization
+    name: Phòng Kế hoạch
+    scope: alpha
+    attributes:
+      category: {value: unit, quote: Phòng Kế hoạch}
+  an.alpha:
+    type: Person
+    name: Nguyễn Văn An
+    relations:
+      - {type: MEMBER_OF, to: alpha.tc}
+      - type: HOLDS_POSITION
+        to: alpha.tc
+        attributes:
+          title: {value: Trưởng phòng, quote: Trưởng phòng Nguyễn Văn An}
+  binh:
+    type: Person
+    name: Trần Thị Bình
+    attributes:
+      email: {value: binh.tt@alpha.example, quote: email binh.tt@alpha.example}
+    relations:
+      - {type: MEMBER_OF, to: alpha.tc}
+      - type: HOLDS_POSITION
+        to: alpha.tc
+        attributes:
+          title: {value: Phó phòng, quote: Phó phòng Trần Thị Bình}
+  minh:
+    type: Person
+    name: Lê Minh
+    attributes:
+      email: {value: minh.le@alpha.example, quote: email minh.le@alpha.example}
+    relations:
+      - {type: MEMBER_OF, to: alpha}
+  ha:
+    type: Person
+    name: Đỗ Thị Hà
+    attributes:
+      born_on: {value: "1980-05-20", quote: sinh ngày 20/05/1980}
+    relations:
+      - {type: MEMBER_OF, to: alpha.tc}
+  thu:
+    type: Person
+    name: Vũ Minh Thư
+    attributes:
+      email: {value: taichinh@alpha.example, quote: email taichinh@alpha.example}
+    relations:
+      - {type: MEMBER_OF, to: alpha.tc}
+  w.tt39:
+    type: Work
+    name: Thông tư 39/2016/TT-NHNN
+    scope: nhnn
+    attributes:
+      code: {value: 39/2016/TT-NHNN, quote: số 39/2016/TT-NHNN}
+      title: {value: Thông tư 39/2016/TT-NHNN, quote: Thông tư 39/2016/TT-NHNN}
+  w.hd.alpha:
+    type: Work
+    name: Hợp đồng cung cấp dịch vụ
+    scope: alpha
+    attributes:
+      code: {value: 01/2025/HĐDV, quote: số 01/2025/HĐDV}
+      title: {value: Hợp đồng cung cấp dịch vụ, quote: Hợp đồng cung cấp dịch vụ}
+  w.ar:
+    type: Work
+    name: Báo cáo thường niên
+    scope: alpha
+    attributes:
+      issued_on: {value: "2025-04-15", quote: ban hành ngày 15/04/2025}
+      title: {value: Báo cáo thường niên, quote: Báo cáo thường niên}
+  prd.plat:
+    type: Product
+    name: Thẻ tín dụng Platinum
+    scope: alpha
+  tinh-x:
+    type: Place
+    name: Tỉnh X
+    attributes:
+      kind: {value: region, quote: Tỉnh X}
+  tinh-y:
+    type: Place
+    name: Tỉnh Y
+    attributes:
+      kind: {value: region, quote: Tỉnh Y}
+  pl.tanphu:
+    type: Place
+    name: Xã Tân Phú
+    scope: tinh-x
+    attributes:
+      kind: {value: other, quote: Xã Tân Phú}
+  met.npl:
+    type: Metric
+    name: Tỷ lệ nợ xấu
+  con.vip:
+    type: Concept
+    name: Khách hàng ưu tiên
+cases:
+  - id: ORG-1
+    origin: design
+    expect: apart
+    title: Tên gần giống, khác mã số DN
+    existing: [alpha]
+    mention:
+      type: Organization
+      name: Công ty CP Alpha Holdings
+      attributes:
+        category: {value: company, quote: Công ty CP Alpha Holdings}
+        registration_id: {value: "0109876543", quote: mã số doanh nghiệp 0109876543}
+      document: {date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:registration_id]
+    blocked_by: registration_id
+  - id: ORG-2
+    origin: design
+    expect: merge
+    title: Đổi tên, cùng mã số DN
+    existing: [delta]
+    mention:
+      type: Organization
+      name: Công ty CP Delta Group
+      attributes:
+        category: {value: company, quote: Công ty CP Delta Group}
+        registration_id: {value: "0105550001", quote: mã số doanh nghiệp 0105550001}
+      document: {date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: delta}
+    depends_on: [key:registration_id]
+  - id: ORG-3
+    origin: design
+    expect: merge
+    title: Đổi tên, văn bản ghi tên cũ
+    existing: [delta]
+    mention:
+      type: Organization
+      name: Công ty CP Delta Group
+      attributes:
+        category: {value: company, quote: Công ty CP Delta Group}
+      former_names:
+        - {name: Công ty CP Delta, quote: trước đây là Công ty CP Delta}
+      document: {date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: delta}
+    depends_on: [names:key]
+  - id: ORG-4
+    origin: design
+    expect: merge
+    title: Mã số DN viết có dấu cách
+    existing: [delta]
+    mention:
+      type: Organization
+      name: Công ty CP Delta
+      attributes:
+        category: {value: company, quote: Công ty CP Delta}
+        registration_id: {value: 0105 550 001, quote: mã số doanh nghiệp 0105 550 001}
+      document: {date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: delta}
+    depends_on: [key:registration_id]
+  - id: ORG-7
+    origin: design
+    expect: apart
+    title: Cùng tên đầy đủ, khác mã số DN (vd. công ty cùng tên ở nước khác)
+    existing: [delta]
+    mention:
+      type: Organization
+      name: Công ty CP Delta
+      attributes:
+        category: {value: company, quote: Công ty CP Delta}
+        registration_id: {value: "0312345678", quote: mã số doanh nghiệp 0312345678}
+      document: {date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:registration_id]
+    blocked_by: registration_id
+  - id: UNIT-7
+    origin: design
+    expect: apart
+    title: Phòng giải thể rồi lập lại cùng tên
+    existing: [alpha.dt]
+    mention:
+      type: Organization
+      name: Phòng Đầu tư
+      scope: alpha
+      attributes:
+        category: {value: unit, quote: Phòng Đầu tư}
+        established_on: {value: "2025-02-01", quote: thành lập ngày 01/02/2025}
+      document: {issuer: alpha, date: "2025-03-01", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:established_on]
+    blocked_by: established_on
+  - id: UNIT-11
+    origin: design
+    expect: merge
+    title: Chi nhánh đổi tên, cùng mã số chi nhánh
+    existing: [alpha.cnhn]
+    mention:
+      type: Organization
+      name: Chi nhánh Thăng Long
+      scope: alpha
+      attributes:
+        category: {value: unit, quote: Chi nhánh Thăng Long}
+        registration_id: {value: 0101234567-001, quote: mã số doanh nghiệp 0101234567-001}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: alpha.cnhn}
+    depends_on: [key:registration_id]
+  - id: UNIT-12
+    origin: design
+    expect: apart
+    title: Cùng tên chi nhánh, không rõ công ty, khác mã số
+    existing: [alpha.cnhn]
+    mention:
+      type: Organization
+      name: Chi nhánh Hà Nội
+      attributes:
+        category: {value: unit, quote: Chi nhánh Hà Nội}
+        registration_id: {value: 0109876543-001, quote: mã số doanh nghiệp 0109876543-001}
+      document: {date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:registration_id]
+    blocked_by: registration_id
+  - id: PER-1
+    origin: design
+    expect: apart
+    title: Trùng họ tên, cùng công ty, khác phòng
+    existing: [an.alpha]
+    mention:
+      type: Person
+      name: Nguyễn Văn An
+      relations:
+        - {type: MEMBER_OF, to: alpha.cntt}
+        - type: HOLDS_POSITION
+          to: alpha.cntt
+          attributes:
+            title: {value: Chuyên viên, quote: Chuyên viên Nguyễn Văn An}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: same_as, links: [an.alpha]}
+    depends_on: [names:evidence]
+  - id: PER-2
+    origin: design
+    expect: merge
+    title: Được thăng chức, cùng phòng
+    existing: [binh]
+    mention:
+      type: Person
+      name: Trần Thị Bình
+      relations:
+        - {type: MEMBER_OF, to: alpha.tc}
+        - type: HOLDS_POSITION
+          to: alpha.tc
+          attributes:
+            title: {value: Trưởng phòng, quote: Trưởng phòng Trần Thị Bình}
+      document: {issuer: alpha, date: "2026-02-01", language: vi}
+    outcome: {kind: merge, into: binh}
+    depends_on: [names:evidence, corroborate:MEMBER_OF]
+  - id: PER-3
+    origin: design
+    expect: merge
+    title: Chuyển phòng, cùng email
+    existing: [binh]
+    mention:
+      type: Person
+      name: Trần Thị Bình
+      attributes:
+        email: {value: binh.tt@alpha.example, quote: email binh.tt@alpha.example}
+      relations:
+        - {type: MEMBER_OF, to: alpha.kh}
+      document: {issuer: alpha, date: "2026-02-01", language: vi}
+    outcome: {kind: merge, into: binh}
+    depends_on: [key:email]
+  - id: PER-4
+    origin: design
+    expect: merge
+    title: Tên đầy đủ hơn, cùng email
+    existing: [minh]
+    mention:
+      type: Person
+      name: Lê Văn Minh
+      attributes:
+        email: {value: minh.le@alpha.example, quote: email minh.le@alpha.example}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: minh}
+    depends_on: [key:email]
+  - id: PER-7
+    origin: design
+    expect: merge
+    title: Trùng họ tên, câu văn không có thông tin khác
+    existing: [an.alpha]
+    mention:
+      type: Person
+      name: Nguyễn Văn An
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: confirm, candidates: [an.alpha], right: an.alpha}
+    depends_on: [names:evidence]
+  - id: WRK-1
+    origin: design
+    expect: merge
+    title: Văn bản pháp luật, có chữ 'số'
+    existing: [w.tt39]
+    mention:
+      type: Work
+      name: Thông tư số 39/2016/TT-NHNN
+      attributes:
+        code: {value: 39/2016/TT-NHNN, quote: số 39/2016/TT-NHNN}
+        title: {value: Thông tư số 39/2016/TT-NHNN, quote: Thông tư số 39/2016/TT-NHNN}
+      document: {date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: w.tt39}
+    depends_on: [key:scope+code, unique:code]
+  - id: WRK-2
+    origin: design
+    expect: apart
+    title: Hợp đồng cùng số, khác công ty
+    existing: [w.hd.alpha]
+    mention:
+      type: Work
+      name: Hợp đồng cung cấp dịch vụ
+      scope: beta
+      attributes:
+        code: {value: 01/2025/HĐDV, quote: số 01/2025/HĐDV}
+        title: {value: Hợp đồng cung cấp dịch vụ, quote: Hợp đồng cung cấp dịch vụ}
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: WRK-4
+    origin: design
+    expect: apart
+    title: Hai hợp đồng cùng tiêu đề, khác số
+    existing: [w.hd.alpha]
+    mention:
+      type: Work
+      name: Hợp đồng cung cấp dịch vụ
+      scope: alpha
+      attributes:
+        code: {value: 02/2025/HĐDV, quote: số 02/2025/HĐDV}
+        title: {value: Hợp đồng cung cấp dịch vụ, quote: Hợp đồng cung cấp dịch vụ}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:code]
+    blocked_by: code
+  - id: WRK-5
+    origin: design
+    expect: apart
+    title: Báo cáo thường niên của năm khác
+    existing: [w.ar]
+    mention:
+      type: Work
+      name: Báo cáo thường niên
+      scope: alpha
+      attributes:
+        issued_on: {value: "2026-04-10", quote: ban hành ngày 10/04/2026}
+        title: {value: Báo cáo thường niên, quote: Báo cáo thường niên}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:issued_on]
+    blocked_by: issued_on
+  - id: WRK-6
+    origin: design
+    expect: merge
+    title: Cùng số hợp đồng, tiêu đề viết khác
+    existing: [w.hd.alpha]
+    mention:
+      type: Work
+      name: Hợp đồng dịch vụ CNTT
+      scope: alpha
+      attributes:
+        code: {value: 01/2025/HĐDV, quote: số 01/2025/HĐDV}
+        title: {value: Hợp đồng dịch vụ CNTT, quote: Hợp đồng dịch vụ CNTT}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: w.hd.alpha}
+    depends_on: [key:scope+code]
+  - id: PRD-1
+    origin: design
+    expect: apart
+    title: Cùng tên sản phẩm, khác bên cung cấp
+    existing: [prd.plat]
+    mention:
+      type: Product
+      name: Thẻ tín dụng Platinum
+      scope: beta
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: PLC-1
+    origin: design
+    expect: apart
+    title: Cùng tên xã, khác tỉnh
+    existing: [pl.tanphu]
+    mention:
+      type: Place
+      name: Xã Tân Phú
+      scope: tinh-y
+      attributes:
+        kind: {value: other, quote: Xã Tân Phú}
+      document: {date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: MET-1
+    origin: design
+    expect: merge
+    title: Chỉ tiêu cùng tên ở công ty khác
+    existing: [met.npl]
+    mention:
+      type: Metric
+      name: Tỷ lệ nợ xấu
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: met.npl}
+    depends_on: [names:key]
+  - id: CON-1
+    origin: design
+    expect: merge
+    title: Thuật ngữ cùng tên ở công ty khác
+    existing: [con.vip]
+    mention:
+      type: Concept
+      name: Khách hàng ưu tiên
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: con.vip}
+    depends_on: [names:key]
+  - id: PLC-2
+    origin: added
+    expect: merge
+    title: Cùng tên xã, cùng tỉnh
+    existing: [pl.tanphu]
+    mention:
+      type: Place
+      name: Xã Tân Phú
+      scope: tinh-x
+      attributes:
+        kind: {value: other, quote: Xã Tân Phú}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: pl.tanphu}
+    depends_on: [scope, names:key]
+  - id: PRD-2
+    origin: added
+    expect: merge
+    title: Cùng tên sản phẩm, cùng bên cung cấp
+    existing: [prd.plat]
+    mention:
+      type: Product
+      name: Thẻ tín dụng Platinum
+      scope: alpha
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: prd.plat}
+    depends_on: [scope, names:key]
+  - id: PER-10
+    origin: added
+    expect: apart
+    title: Trùng họ tên và phòng, khác ngày sinh
+    existing: [ha]
+    mention:
+      type: Person
+      name: Đỗ Thị Hà
+      attributes:
+        born_on: {value: "1992-03-14", quote: sinh ngày 14/03/1992}
+      relations:
+        - {type: MEMBER_OF, to: alpha.tc}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:born_on]
+    blocked_by: born_on
+  - id: PER-11
+    origin: added
+    expect: merge
+    title: "Chuyển công ty: Lê Minh của Alpha, nay là Giám đốc ở Beta"
+    existing: [minh]
+    mention:
+      type: Person
+      name: Lê Văn Minh
+      relations:
+        - type: HOLDS_POSITION
+          to: beta
+          attributes:
+            title: {value: Giám đốc, quote: Giám đốc Lê Văn Minh}
+          valid_from: "2026-01-01"
+      document: {issuer: beta, date: "2026-03-01", language: vi}
+    outcome: {kind: same_as, links: [minh]}
+    depends_on: [names:evidence]
+  - id: PER-12
+    origin: added
+    expect: apart
+    title: Hai người ký từ một hộp thư chung
+    existing: [thu]
+    mention:
+      type: Person
+      name: Hoàng Văn Nam
+      attributes:
+        email: {value: taichinh@alpha.example, quote: email taichinh@alpha.example}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: same_as, links: [thu]}
+    depends_on: [key:email, names:evidence]

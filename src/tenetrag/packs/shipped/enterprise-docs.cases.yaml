@@ -1,0 +1,814 @@
+# Identity cases for the shipped `enterprise-docs` pack (data-model §8,
+# research R11). The 31 design cases of ADR 0016, converted from
+# specs/002-packs-and-corpus/research/identity-design-cases.json, and 12
+# added so that every key, veto and scope `enterprise-docs` gives is tested
+# (FR-031). Edited by hand from here on; test_design_cases_match_snapshot
+# keeps the design cases true to the snapshot. Fictional names and .example
+# emails only (FR-041); the one real name is the public issuer of a legal code.
+pack: enterprise-docs
+entities:
+  alpha:
+    type: Organization
+    name: Công ty CP Alpha
+    attributes:
+      category: {value: company, quote: Công ty CP Alpha}
+      registration_id: {value: "0101234567", quote: mã số doanh nghiệp 0101234567}
+  beta:
+    type: Organization
+    name: Công ty CP Beta
+    attributes:
+      category: {value: company, quote: Công ty CP Beta}
+  nhnn:
+    type: Organization
+    name: Ngân hàng Nhà nước Việt Nam
+    attributes:
+      category: {value: government_agency, quote: Ngân hàng Nhà nước Việt Nam}
+  alpha.cnhn:
+    type: Organization
+    name: Chi nhánh Hà Nội
+    scope: alpha
+    attributes:
+      category: {value: branch, quote: Chi nhánh Hà Nội}
+      registration_id: {value: 0101234567-001, quote: mã số doanh nghiệp 0101234567-001}
+  alpha.tc:
+    type: Organization
+    name: Phòng Tài chính
+    scope: alpha
+    attributes:
+      category: {value: department, quote: Phòng Tài chính}
+  beta.tc:
+    type: Organization
+    name: Phòng Tài chính
+    scope: beta
+    attributes:
+      category: {value: department, quote: Phòng Tài chính}
+  alpha.pc:
+    type: Organization
+    name: Phòng Pháp chế
+    scope: alpha
+    attributes:
+      category: {value: department, quote: Phòng Pháp chế}
+  alpha.cndn:
+    type: Organization
+    name: Chi nhánh Đà Nẵng
+    scope: alpha
+    attributes:
+      category: {value: branch, quote: Chi nhánh Đà Nẵng}
+  alpha.cntt:
+    type: Organization
+    name: Phòng Công nghệ thông tin
+    scope: alpha
+    attributes:
+      category: {value: department, quote: Phòng Công nghệ thông tin}
+  alpha.hn.khdn:
+    type: Organization
+    name: Phòng Khách hàng doanh nghiệp
+    scope: alpha.cnhn
+    attributes:
+      category: {value: department, quote: Phòng Khách hàng doanh nghiệp}
+  alpha.dn.khdn:
+    type: Organization
+    name: Phòng Khách hàng doanh nghiệp
+    scope: alpha.cndn
+    attributes:
+      category: {value: department, quote: Phòng Khách hàng doanh nghiệp}
+  an.beta:
+    type: Person
+    name: Nguyễn Văn An
+    scope: beta
+    relations:
+      - {type: MEMBER_OF, to: beta.tc}
+  binh:
+    type: Person
+    name: Trần Thị Bình
+    scope: alpha
+    attributes:
+      email: {value: binh.tt@alpha.example, quote: email binh.tt@alpha.example}
+    relations:
+      - {type: MEMBER_OF, to: alpha.tc}
+      - type: HOLDS_POSITION
+        to: alpha.tc
+        attributes:
+          title: {value: Phó phòng, quote: Phó phòng Trần Thị Bình}
+  hung:
+    type: Person
+    name: Phạm Hùng
+    scope: alpha
+    attributes:
+      employee_id: {value: A0123, quote: mã nhân viên A0123}
+    relations:
+      - {type: MEMBER_OF, to: alpha.cntt}
+  w.tt39:
+    type: Work
+    name: Thông tư 39/2016/TT-NHNN
+    scope: nhnn
+    attributes:
+      code: {value: 39/2016/TT-NHNN, quote: số 39/2016/TT-NHNN}
+      title: {value: Thông tư 39/2016/TT-NHNN, quote: Thông tư 39/2016/TT-NHNN}
+  w.hd.alpha:
+    type: Work
+    name: Hợp đồng cung cấp dịch vụ
+    scope: alpha
+    attributes:
+      code: {value: 01/2025/HĐDV, quote: số 01/2025/HĐDV}
+      title: {value: Hợp đồng cung cấp dịch vụ, quote: Hợp đồng cung cấp dịch vụ}
+  pol.a1:
+    type: Policy
+    name: Quy chế công tác phí
+    scope: alpha
+    attributes:
+      version_label: {value: "1", quote: phiên bản 1}
+      issued_on: {value: "2025-01-10", quote: ban hành ngày 10/01/2025}
+      effective_from: {value: "2025-02-01", quote: có hiệu lực từ ngày 01/02/2025}
+      title: {value: Quy chế công tác phí, quote: Quy chế công tác phí}
+  pol.a2:
+    type: Policy
+    name: Quy chế công tác phí
+    scope: alpha
+    attributes:
+      version_label: {value: "2", quote: phiên bản 2}
+      issued_on: {value: "2026-01-05", quote: ban hành ngày 05/01/2026}
+      effective_from: {value: "2026-01-15", quote: có hiệu lực từ ngày 15/01/2026}
+      title: {value: Quy chế công tác phí, quote: Quy chế công tác phí}
+  pol.untagged:
+    type: Policy
+    name: Quy chế công tác phí
+    scope: alpha
+    attributes:
+      title: {value: Quy chế công tác phí, quote: Quy chế công tác phí}
+  pol.ctnb:
+    type: Policy
+    name: Quy định chi tiêu nội bộ
+    scope: alpha
+    attributes:
+      code: {value: 12/2025/QĐ-HĐQT, quote: số 12/2025/QĐ-HĐQT}
+      issued_on: {value: "2025-05-20", quote: ban hành ngày 20/05/2025}
+      title: {value: Quy định chi tiêu nội bộ, quote: Quy định chi tiêu nội bộ}
+  pol.remote:
+    type: Policy
+    name: Quy chế làm việc từ xa
+    scope: alpha
+    attributes:
+      version_label: {value: "1", quote: phiên bản 1}
+      issued_on: {value: "2025-06-01", quote: ban hành ngày 01/06/2025}
+      effective_to: {value: "2026-12-31", quote: có hiệu lực đến hết ngày 31/12/2026}
+      title: {value: Quy chế làm việc từ xa, quote: Quy chế làm việc từ xa}
+  proc.onb:
+    type: Procedure
+    name: Quy trình tiếp nhận nhân viên mới
+    scope: alpha
+    attributes:
+      code: {value: QT-05/NS, quote: số QT-05/NS}
+      title: {value: Quy trình tiếp nhận nhân viên mới, quote: Quy trình tiếp nhận nhân viên mới}
+      version_label: {value: "2", quote: phiên bản 2}
+      issued_on: {value: "2025-08-01", quote: ban hành ngày 01/08/2025}
+      effective_from: {value: "2025-08-15", quote: có hiệu lực từ ngày 15/08/2025}
+  prj.cds:
+    type: Project
+    name: Dự án Chuyển đổi số
+    scope: alpha
+    attributes:
+      code: {value: PRJ-025, quote: số PRJ-025}
+  sys.core:
+    type: System
+    name: Hệ thống Core Banking
+    scope: alpha
+  prd.plat:
+    type: Product
+    name: Thẻ tín dụng Platinum
+    scope: alpha
+cases:
+  - id: UNIT-1
+    origin: design
+    expect: apart
+    title: Cùng tên phòng, khác công ty
+    existing: [alpha.tc]
+    mention:
+      type: Organization
+      name: Phòng Tài chính
+      scope: beta
+      attributes:
+        category: {value: department, quote: Phòng Tài chính}
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: UNIT-2
+    origin: design
+    expect: apart
+    title: Cùng tên phòng, khác chi nhánh
+    existing: [alpha.hn.khdn]
+    mention:
+      type: Organization
+      name: Phòng Khách hàng doanh nghiệp
+      scope: alpha.cndn
+      attributes:
+        category: {value: department, quote: Phòng Khách hàng doanh nghiệp}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: UNIT-3
+    origin: design
+    expect: apart
+    title: Chỉ biết công ty, có 2 chi nhánh cùng tên phòng
+    existing: [alpha.hn.khdn, alpha.dn.khdn]
+    mention:
+      type: Organization
+      name: Phòng Khách hàng doanh nghiệp
+      scope: alpha
+      attributes:
+        category: {value: department, quote: Phòng Khách hàng doanh nghiệp}
+      scope_source: document
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: same_as, links: [alpha.hn.khdn, alpha.dn.khdn]}
+    depends_on: [scope, names:key]
+  - id: UNIT-4
+    origin: design
+    expect: merge
+    title: Không rõ công ty, chỉ 1 ứng viên
+    existing: [alpha.pc, beta.tc]
+    mention:
+      type: Organization
+      name: Phòng Pháp chế
+      attributes:
+        category: {value: department, quote: Phòng Pháp chế}
+      document: {date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: alpha.pc}
+    depends_on: [names:key]
+  - id: UNIT-5
+    origin: design
+    expect: apart
+    title: Không rõ công ty, 2 ứng viên
+    existing: [alpha.tc, beta.tc]
+    mention:
+      type: Organization
+      name: Phòng Tài chính
+      attributes:
+        category: {value: department, quote: Phòng Tài chính}
+      document: {date: "2025-06-10", language: vi}
+    outcome: {kind: same_as, links: [alpha.tc, beta.tc]}
+    depends_on: [names:key]
+  - id: UNIT-6
+    origin: design
+    expect: merge
+    title: Phòng đổi tên, văn bản ghi tên cũ
+    existing: [alpha.tc]
+    mention:
+      type: Organization
+      name: Phòng Tài chính – Kế toán
+      scope: alpha
+      attributes:
+        category: {value: department, quote: Phòng Tài chính – Kế toán}
+      former_names:
+        - {name: Phòng Tài chính, quote: trước đây là Phòng Tài chính}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: alpha.tc}
+    depends_on: [names:key]
+  - id: UNIT-8
+    origin: design
+    expect: merge
+    title: Cùng công ty, có phòng trùng tên ở công ty khác
+    existing: [alpha.tc, beta.tc]
+    mention:
+      type: Organization
+      name: Phòng Tài chính
+      scope: alpha
+      attributes:
+        category: {value: department, quote: Phòng Tài chính}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: alpha.tc}
+    depends_on: [scope]
+  - id: UNIT-9
+    origin: design
+    expect: merge
+    title: Tên tiếng Anh, cùng công ty
+    existing: [alpha.tc]
+    mention:
+      type: Organization
+      name: Finance Department
+      scope: alpha
+      attributes:
+        category: {value: department, quote: Finance Department}
+      translation: Phòng Tài chính
+      document: {issuer: alpha, date: "2025-06-10", language: en}
+    outcome: {kind: confirm, candidates: [alpha.tc], right: alpha.tc}
+    depends_on: [names:key]
+  - id: UNIT-10
+    origin: design
+    expect: apart
+    title: Tên tiếng Anh, khác công ty
+    existing: [alpha.tc]
+    mention:
+      type: Organization
+      name: Finance Department
+      scope: beta
+      attributes:
+        category: {value: department, quote: Finance Department}
+      translation: Phòng Tài chính
+      document: {issuer: beta, date: "2025-06-10", language: en}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: UNIT-13
+    origin: design
+    expect: merge
+    title: Đúng mã số chi nhánh, phạm vi kế thừa nhầm sang công ty khác
+    existing: [alpha.cnhn]
+    mention:
+      type: Organization
+      name: Chi nhánh Hà Nội
+      scope: beta
+      attributes:
+        category: {value: branch, quote: Chi nhánh Hà Nội}
+        registration_id: {value: 0101234567-001, quote: mã số doanh nghiệp 0101234567-001}
+      scope_source: document
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: alpha.cnhn}
+    depends_on: [key:registration_id, unique:registration_id]
+  - id: PER-5
+    origin: design
+    expect: apart
+    title: Trùng họ tên và phòng, khác mã nhân viên
+    existing: [hung]
+    mention:
+      type: Person
+      name: Phạm Hùng
+      scope: alpha
+      attributes:
+        employee_id: {value: A0456, quote: mã nhân viên A0456}
+      relations:
+        - {type: MEMBER_OF, to: alpha.cntt}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:employee_id]
+    blocked_by: employee_id
+  - id: PER-6
+    origin: design
+    expect: apart
+    title: Trùng họ tên, khác công ty
+    existing: [an.beta]
+    mention:
+      type: Person
+      name: Nguyễn Văn An
+      scope: alpha
+      relations:
+        - {type: MEMBER_OF, to: alpha.tc}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: PER-8
+    origin: design
+    expect: merge
+    title: Tên viết khác, cùng mã nhân viên
+    existing: [hung]
+    mention:
+      type: Person
+      name: Phạm Văn Hùng
+      scope: alpha
+      attributes:
+        employee_id: {value: a0123, quote: mã nhân viên a0123}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: hung}
+    depends_on: [key:scope+employee_id]
+  - id: PER-9
+    origin: design
+    expect: merge
+    title: Đúng email, văn bản của công ty khác (phạm vi kế thừa sai)
+    existing: [binh]
+    mention:
+      type: Person
+      name: Trần Thị Bình
+      scope: beta
+      attributes:
+        email: {value: binh.tt@alpha.example, quote: email binh.tt@alpha.example}
+      scope_source: document
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: binh}
+    depends_on: [key:email, unique:email]
+  - id: POL-1
+    origin: design
+    expect: apart
+    title: Cùng tiêu đề và phiên bản, khác công ty
+    existing: [pol.a1]
+    mention:
+      type: Policy
+      name: Quy chế công tác phí
+      scope: beta
+      attributes:
+        version_label: {value: "1", quote: phiên bản 1}
+        issued_on: {value: "2025-03-01", quote: ban hành ngày 01/03/2025}
+        title: {value: Quy chế công tác phí, quote: Quy chế công tác phí}
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: POL-2
+    origin: design
+    expect: apart
+    title: Phiên bản mới, chỉ mới có v1
+    existing: [pol.a1]
+    mention:
+      type: Policy
+      name: Quy chế công tác phí
+      scope: alpha
+      attributes:
+        version_label: {value: "2", quote: phiên bản 2}
+        issued_on: {value: "2026-01-05", quote: ban hành ngày 05/01/2026}
+        title: {value: Quy chế công tác phí, quote: Quy chế công tác phí}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:version_label]
+    blocked_by: version_label
+  - id: POL-3
+    origin: design
+    expect: merge
+    title: Nhắc tên không kèm phiên bản, văn bản ngày 10/06/2025
+    existing: [pol.a1, pol.a2]
+    mention:
+      type: Policy
+      name: Quy chế công tác phí
+      scope: alpha
+      attributes:
+        title: {value: Quy chế công tác phí, quote: Quy chế công tác phí}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: pol.a1}
+    depends_on: [names:versioned]
+  - id: POL-4
+    origin: design
+    expect: merge
+    title: Nhắc tên không kèm phiên bản, văn bản ngày 01/03/2026
+    existing: [pol.a1, pol.a2]
+    mention:
+      type: Policy
+      name: Quy chế công tác phí
+      scope: alpha
+      attributes:
+        title: {value: Quy chế công tác phí, quote: Quy chế công tác phí}
+      document: {issuer: alpha, date: "2026-03-01", language: vi}
+    outcome: {kind: merge, into: pol.a2}
+    depends_on: [names:versioned]
+  - id: POL-5
+    origin: design
+    expect: apart
+    title: Cùng số hiệu, khác công ty
+    existing: [pol.ctnb]
+    mention:
+      type: Policy
+      name: Quy định chi tiêu nội bộ
+      scope: beta
+      attributes:
+        code: {value: 12/2025/QĐ-HĐQT, quote: số 12/2025/QĐ-HĐQT}
+        title: {value: Quy định chi tiêu nội bộ, quote: Quy định chi tiêu nội bộ}
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: POL-6
+    origin: design
+    expect: merge
+    title: Số hiệu viết khác, tiêu đề diễn đạt khác
+    existing: [pol.ctnb]
+    mention:
+      type: Policy
+      name: Quy định về chi tiêu nội bộ
+      scope: alpha
+      attributes:
+        code: {value: Số 12/2025/QD-HDQT, quote: Số 12/2025/QD-HDQT}
+        title: {value: Quy định về chi tiêu nội bộ, quote: Quy định về chi tiêu nội bộ}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: pol.ctnb}
+    depends_on: [key:scope+code]
+  - id: POL-7
+    origin: design
+    expect: apart
+    title: Cùng tiêu đề, khác ngày ban hành, không ghi phiên bản
+    existing: [pol.a1]
+    mention:
+      type: Policy
+      name: Quy chế công tác phí
+      scope: alpha
+      attributes:
+        issued_on: {value: "2026-01-05", quote: ban hành ngày 05/01/2026}
+        title: {value: Quy chế công tác phí, quote: Quy chế công tác phí}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:issued_on]
+    blocked_by: issued_on
+  - id: POL-8
+    origin: design
+    expect: merge
+    title: Gia hạn hiệu lực (effective_to đổi)
+    existing: [pol.remote]
+    mention:
+      type: Policy
+      name: Quy chế làm việc từ xa
+      scope: alpha
+      attributes:
+        version_label: {value: "1", quote: phiên bản 1}
+        effective_to: {value: "2027-06-30", quote: có hiệu lực đến hết ngày 30/06/2027}
+        title: {value: Quy chế làm việc từ xa, quote: Quy chế làm việc từ xa}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: pol.remote}
+    depends_on: [key:scope+title+version_label]
+  - id: POL-9
+    origin: design
+    expect: merge
+    title: Có v1 và một bản chưa rõ phiên bản; văn bản ghi v1
+    existing: [pol.untagged, pol.a1]
+    mention:
+      type: Policy
+      name: Quy chế công tác phí
+      scope: alpha
+      attributes:
+        version_label: {value: "1", quote: phiên bản 1}
+        title: {value: Quy chế công tác phí, quote: Quy chế công tác phí}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: pol.a1}
+    depends_on: [key:scope+title+version_label]
+  - id: POL-10
+    origin: design
+    expect: merge
+    title: Có v1 và một bản chưa rõ phiên bản; văn bản ghi ngày ban hành v1
+    existing: [pol.untagged, pol.a1]
+    mention:
+      type: Policy
+      name: Quy chế công tác phí
+      scope: alpha
+      attributes:
+        issued_on: {value: "2025-01-10", quote: ban hành ngày 10/01/2025}
+        title: {value: Quy chế công tác phí, quote: Quy chế công tác phí}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: pol.a1}
+    depends_on: [key:scope+title+issued_on]
+  - id: POL-11
+    origin: design
+    expect: apart
+    title: Phiên bản mới, không ghi ngày ban hành
+    existing: [pol.a1]
+    mention:
+      type: Policy
+      name: Quy chế công tác phí
+      scope: alpha
+      attributes:
+        version_label: {value: "2", quote: phiên bản 2}
+        title: {value: Quy chế công tác phí, quote: Quy chế công tác phí}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:version_label]
+    blocked_by: version_label
+  - id: POL-12
+    origin: design
+    expect: apart
+    title: Cùng tiêu đề, khác số hiệu
+    existing: [pol.ctnb]
+    mention:
+      type: Policy
+      name: Quy định chi tiêu nội bộ
+      scope: alpha
+      attributes:
+        code: {value: 05/2026/QĐ-HĐQT, quote: số 05/2026/QĐ-HĐQT}
+        title: {value: Quy định chi tiêu nội bộ, quote: Quy định chi tiêu nội bộ}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:code]
+    blocked_by: code
+  - id: WRK-3
+    origin: design
+    expect: merge
+    title: Văn bản pháp luật, phạm vi bị gán theo công ty của tài liệu
+    existing: [w.tt39]
+    mention:
+      type: Work
+      name: Thông tư 39/2016/TT-NHNN
+      scope: beta
+      attributes:
+        code: {value: 39/2016/TT-NHNN, quote: số 39/2016/TT-NHNN}
+        title: {value: Thông tư 39/2016/TT-NHNN, quote: Thông tư 39/2016/TT-NHNN}
+      scope_source: document
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: w.tt39}
+    depends_on: [key:scope+code, unique:code]
+  - id: PRJ-1
+    origin: design
+    expect: apart
+    title: Cùng tên dự án, khác công ty
+    existing: [prj.cds]
+    mention:
+      type: Project
+      name: Dự án Chuyển đổi số
+      scope: beta
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: PRJ-2
+    origin: design
+    expect: merge
+    title: Cùng mã dự án, tên viết khác
+    existing: [prj.cds]
+    mention:
+      type: Project
+      name: Dự án CĐS 2025
+      scope: alpha
+      attributes:
+        code: {value: PRJ-025, quote: số PRJ-025}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: prj.cds}
+    depends_on: [key:scope+code]
+  - id: PRJ-3
+    origin: design
+    expect: apart
+    title: Cùng tên dự án, cùng công ty, khác mã
+    existing: [prj.cds]
+    mention:
+      type: Project
+      name: Dự án Chuyển đổi số
+      scope: alpha
+      attributes:
+        code: {value: PRJ-031, quote: số PRJ-031}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:code]
+    blocked_by: code
+  - id: SYS-1
+    origin: design
+    expect: apart
+    title: Cùng tên hệ thống, khác công ty
+    existing: [sys.core]
+    mention:
+      type: System
+      name: Hệ thống Core Banking
+      scope: beta
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: PRD-3
+    origin: added
+    expect: merge
+    title: Bên cung cấp lấy từ văn bản
+    existing: [prd.plat]
+    mention:
+      type: Product
+      name: Thẻ tín dụng Platinum
+      scope: alpha
+      scope_source: document
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: prd.plat}
+    depends_on: [scope]
+  - id: PRD-4
+    origin: added
+    expect: apart
+    title: Bên cung cấp lấy từ văn bản của công ty khác
+    existing: [prd.plat]
+    mention:
+      type: Product
+      name: Thẻ tín dụng Platinum
+      scope: beta
+      scope_source: document
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: WRK-7
+    origin: added
+    expect: apart
+    title: Cùng số hợp đồng, bên ban hành lấy từ văn bản của công ty khác
+    existing: [w.hd.alpha]
+    mention:
+      type: Work
+      name: Hợp đồng cung cấp dịch vụ
+      scope: beta
+      scope_source: document
+      attributes:
+        code: {value: 01/2025/HĐDV, quote: số 01/2025/HĐDV}
+        title: {value: Hợp đồng cung cấp dịch vụ, quote: Hợp đồng cung cấp dịch vụ}
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: SYS-2
+    origin: added
+    expect: merge
+    title: Cùng tên hệ thống, cùng đơn vị sở hữu
+    existing: [sys.core]
+    mention:
+      type: System
+      name: Hệ thống Core Banking
+      scope: alpha
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: sys.core}
+    depends_on: [scope, names:key]
+  - id: PROC-1
+    origin: added
+    expect: apart
+    title: Cùng tên quy trình, khác công ty
+    existing: [proc.onb]
+    mention:
+      type: Procedure
+      name: Quy trình tiếp nhận nhân viên mới
+      scope: beta
+      attributes:
+        title: {value: Quy trình tiếp nhận nhân viên mới, quote: Quy trình tiếp nhận nhân viên mới}
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
+  - id: PROC-2
+    origin: added
+    expect: merge
+    title: Tên viết khác, cùng số hiệu
+    existing: [proc.onb]
+    mention:
+      type: Procedure
+      name: Quy trình onboarding nhân viên
+      scope: alpha
+      attributes:
+        code: {value: QT-05/NS, quote: số QT-05/NS}
+        title: {value: Quy trình onboarding nhân viên, quote: Quy trình onboarding nhân viên}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: proc.onb}
+    depends_on: [key:scope+code]
+  - id: PROC-3
+    origin: added
+    expect: merge
+    title: Cùng tên, cùng phiên bản
+    existing: [proc.onb]
+    mention:
+      type: Procedure
+      name: Quy trình tiếp nhận nhân viên mới
+      scope: alpha
+      attributes:
+        title: {value: Quy trình tiếp nhận nhân viên mới, quote: Quy trình tiếp nhận nhân viên mới}
+        version_label: {value: "2", quote: phiên bản 2}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: proc.onb}
+    depends_on: [key:scope+title+version_label]
+  - id: PROC-4
+    origin: added
+    expect: merge
+    title: Cùng tên, cùng ngày ban hành
+    existing: [proc.onb]
+    mention:
+      type: Procedure
+      name: Quy trình tiếp nhận nhân viên mới
+      scope: alpha
+      attributes:
+        title: {value: Quy trình tiếp nhận nhân viên mới, quote: Quy trình tiếp nhận nhân viên mới}
+        issued_on: {value: "2025-08-01", quote: ban hành ngày 01/08/2025}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: merge, into: proc.onb}
+    depends_on: [key:scope+title+issued_on]
+  - id: PROC-5
+    origin: added
+    expect: apart
+    title: Cùng tên, khác số hiệu
+    existing: [proc.onb]
+    mention:
+      type: Procedure
+      name: Quy trình tiếp nhận nhân viên mới
+      scope: alpha
+      attributes:
+        title: {value: Quy trình tiếp nhận nhân viên mới, quote: Quy trình tiếp nhận nhân viên mới}
+        code: {value: QT-09/NS, quote: số QT-09/NS}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:code]
+    blocked_by: code
+  - id: PROC-6
+    origin: added
+    expect: apart
+    title: Cùng tên, khác ngày ban hành
+    existing: [proc.onb]
+    mention:
+      type: Procedure
+      name: Quy trình tiếp nhận nhân viên mới
+      scope: alpha
+      attributes:
+        title: {value: Quy trình tiếp nhận nhân viên mới, quote: Quy trình tiếp nhận nhân viên mới}
+        issued_on: {value: "2024-02-01", quote: ban hành ngày 01/02/2024}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:issued_on]
+    blocked_by: issued_on
+  - id: PROC-7
+    origin: added
+    expect: apart
+    title: Cùng tên, khác phiên bản
+    existing: [proc.onb]
+    mention:
+      type: Procedure
+      name: Quy trình tiếp nhận nhân viên mới
+      scope: alpha
+      attributes:
+        title: {value: Quy trình tiếp nhận nhân viên mới, quote: Quy trình tiếp nhận nhân viên mới}
+        version_label: {value: "1", quote: phiên bản 1}
+      document: {issuer: alpha, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [veto:version_label]
+    blocked_by: version_label
+  - id: PER-13
+    origin: added
+    expect: apart
+    title: Cùng mã nhân viên A0123 ở Alpha và ở Beta
+    existing: [hung]
+    mention:
+      type: Person
+      name: Phạm Hùng
+      scope: beta
+      attributes:
+        employee_id: {value: A0123, quote: mã nhân viên A0123}
+      document: {issuer: beta, date: "2025-06-10", language: vi}
+    outcome: {kind: new}
+    depends_on: [scope]
