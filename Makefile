@@ -1,7 +1,7 @@
 # Quality gates (specs/001-sdk-foundation, research R2 to R6).
 # `make check` runs the five local gates in order and stops at the first failure.
 
-.PHONY: check format-check lint types imports test integration dev-up dev-down prod-up prod-down
+.PHONY: check format-check lint types imports test integration corpus dev-up dev-down prod-up prod-down
 
 # Keep the gates in order even under `make -j`.
 .NOTPARALLEL:
@@ -27,6 +27,11 @@ test:
 # Needs a Docker daemon; skipped with a reason when there is none.
 integration:
 	uv run pytest -m docker
+
+# Rewrites tests/fixtures/corpus/generated/ from its fact table. Not part of
+# `check`: test_regenerates_same_bytes fails when the committed files are stale.
+corpus:
+	uv run python -m tests.support.corpus
 
 # The local stack (docs/guides/local-stack.md). Compose reads deploy/.env.
 # Data stays in named volumes; add -v to `down` to delete it.
