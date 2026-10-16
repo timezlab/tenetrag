@@ -72,6 +72,9 @@ items:
   - {id: D2.7, kind: relation, type: SUPERSEDES, from: D2.1, to: D2.4, quote: "Quy chế này thay thế phiên bản 1."}
 ```
 
+- Item ids are `<document>.<n>`, numbered from 1 in file order. An
+  item's position compares the numbers, so `D2.10` comes after `D2.9`
+  and `D10.1` after `D9.1`.
 - Refs in `from`, `to` and `roles` are item ids of the same document. A
   role takes one ref or a list. An entity item links across documents
   through its `world` id.
@@ -79,6 +82,31 @@ items:
   here the requirement starts when the policy takes effect.
 - Every attribute is `{value, quote}`, as in the compiled schema. A
   heading's `level` is 1 to 3, default 1.
+- No version group holds two members with equal content: the same ends
+  for a relation, or the same role entities and values for a fact. The
+  engine makes equal content one version backed by several sources
+  (engine brief §3.2), but the generator gives each member its own
+  status, so the statuses it derives would be wrong.
+
+## Fact table: the world
+
+```yaml
+# tests/fixtures/corpus/facts/world.yaml, one entry
+entities:
+  alpha.tc:
+    type: Organization
+    name: Phòng Tài chính
+    scope: alpha
+    aliases: [P.TC, Finance Department]
+    labels: {en: the Finance Department}
+    attributes: {category: department}
+```
+
+- A world id names one real-world entity. `scope` is the world id of
+  the entity it sits in, such as a unit's company. Metrics and places
+  have none.
+- `labels` says how a generated question names the entity in each
+  language. Without one, the question uses `name`.
 
 ## Generated files
 
@@ -107,36 +135,64 @@ Quy chế này thay thế phiên bản 1.
 `graph.json`, excerpt for the running example:
 
 ```json
-{"deletions": {"D2": {"versions": {"Requirement:issuer=alpha;metric=met.luu-tru": [
-    {"closed_at": "", "item": "D1.6", "status": "current"}]}}},
- "entities": {"alpha.tc": ["D1.2", "D2.2"], "beta.tc": ["D5.2"], "met.luu-tru": ["D1.3", "D2.3", "D5.3"]},
- "supersedes": [{"from": "alpha.ctp.v2", "item": "D2.7", "to": "alpha.ctp.v1"}],
- "text_in": [],
+{"deletions": {"D2": {"versions": {
+    "OWNER_OF:object=alpha.ctp.v2": [],
+    "Requirement:issuer=alpha;metric=met.luu-tru": [
+      {"closed_at": "", "item": "D1.6", "status": "current"}]}}, …},
+ "entities": {"alpha.tc": ["D1.2", "D2.2", …], "beta.tc": ["D5.2", …], "met.luu-tru": ["D1.3", "D2.3", "D5.3", …]},
+ "supersedes": [{"from": "alpha.ctp.v2", "item": "D2.7", "to": "alpha.ctp.v1"}, …],
+ "text_in": [{"document": "D1", "entity": "alpha.ctp.v1"}, …],
  "versions": {
   "Requirement:issuer=alpha;metric=met.luu-tru": [
     {"closed_at": "2026-01-15", "item": "D1.6", "status": "superseded"},
     {"closed_at": "", "item": "D2.6", "status": "current"}],
   "Requirement:issuer=beta;metric=met.luu-tru": [
-    {"closed_at": "", "item": "D5.6", "status": "current"}]}}
+    {"closed_at": "", "item": "D5.6", "status": "current"}], …}}
 ```
 
-- A version group's id is the type, then each `version_key` part as
-  `name=value` in key order, joined by `;`. A role's value is the world
-  id of the entity it refers to, `issuer` is the document's issuer, and
-  an absent part is left out.
-- Members are ordered by `valid_from`, then item id. The newest start is
-  `current`, each older one `superseded` with `closed_at` set to the next
-  start, and members that share the newest start are all `conflicting`
+- A relation type with `one_at_a_time` groups by the ends it lists, and
+  a fact type with `version_key` by the parts of that key. A group's id
+  is the type, then each part as `name=value` in key order, joined by
+  `;`. A role's value is the world id of the entity it refers to
+  (several are sorted and joined by `,`), an attribute's value is its
+  value, and an absent part is left out. A relation type without
+  `one_at_a_time`, or a fact with none of its key parts, has no group.
+- `issuer` is the scope of the entity in the fact's `source` role, else
+  the document's issuer (engine brief §3.2). Phòng Tài chính issues D14,
+  but Alpha scopes the guidance in its `source` role, so D14's
+  requirement joins Alpha's group.
+- A member starts at its `valid_from`, else the document's
+  `effective_from`, else `issued_on`, else `held_on`. These document
+  dates stand in for the brief's `observed_at`. A member with no start
+  is a fact table problem.
+- Members are ordered by start, then by position. The newest start is
+  `current`. Each older member is `superseded`, with `closed_at` set to
+  the next later start, or `""` when the item states its own `valid_to`
+  (D35.9). Members that share the newest start are all `conflicting`
   (engine brief §3.2).
-- `deletions` lists, for each document named in `graph.yaml`, only the
-  groups whose statuses change when that document is removed.
-- `text_in` comes from `graph.yaml` unchanged, after checking that each
-  end exists.
+- `deletions` replays each document named in `graph.yaml` as if it were
+  removed. It lists each group whose statuses change, with the statuses
+  of the members left, and maps a group the document empties to `[]`. A
+  group the document does not touch, or whose other members keep their
+  statuses, is not listed. Deleting D41, the newest of three CRM owners,
+  makes D36.6 `current` again.
+- `entities` maps each world id to its entity items, and `supersedes`
+  lists each `SUPERSEDES` relation by world ids.
+- `text_in` comes from `graph.yaml` unchanged, after checking that both
+  ends exist, that the entity's type has a document link, that its title
+  is the document's title, and that its scope is in the company of the
+  document's issuer.
 
-`golden.jsonl`, one question per line, generated questions first in fact
-table order, then hand-written ones in `golden.yaml` order:
+`golden.jsonl`, one question per line. Generated questions come first,
+ordered by the position of the item each one starts from, then by
+`qtype` in the order of the table below, then by `id`. Hand-written ones
+follow in `golden.yaml` order. A generated line, then Q-a:
 
 ```json
+{"expected_answer": "Thời hạn nộp hồ sơ thanh toán công tác phí là 10 ngày làm việc sau chuyến công tác (D14).",
+ "expected_sources": ["D14"],
+ "question": "Hướng dẫn thực hiện Quy chế công tác phí của Công ty CP Alpha quy định gì về thời hạn nộp hồ sơ thanh toán?",
+ "tags": {"as_of": "", "cq": "ed-7", "id": "single_fact:D14.9", "lang": "vi", "origin": "generated", "qtype": "single_fact"}}
 {"expected_answer": "2.000.000 VND/ngày, theo Quy chế công tác phí phiên bản 1 (D1). Phiên bản 2 (D2) nâng mức này lên 2.500.000 VND/ngày từ ngày 15/01/2026.",
  "expected_sources": ["D1", "D2"],
  "question": "Phụ cấp lưu trú theo quy chế công tác phí vào tháng 3/2025 là bao nhiêu?",
@@ -148,25 +204,46 @@ table order, then hand-written ones in `golden.yaml` order:
 Each question type has a template in each language. The generator
 fills it from the fact table, and answers quote the figures verbatim.
 
-| `qtype` | Generated from |
-|---|---|
-| `single_fact` | each `ReportedFigure` and `Requirement` with one source |
-| `entity_all` | each world entity mentioned in three or more documents |
-| `meeting_decision` | each `Decision` made in a `Meeting` |
-| `definition` | each `Definition` |
-| `historical_figure` | each `ReportedFigure` with a `period` |
-| `as_of` | each version group with two or more members, at one date inside each member's interval |
-| `conflicting_versions` | each group with `conflicting` members, and each metric that two sources define differently |
-| `cross_lingual` | each `Definition` and `Requirement`, asked in the other language than its document's |
+| `qtype` | Generated from | `id` |
+|---|---|---|
+| `single_fact` | each `ReportedFigure` and `Requirement` alone in its version group | `single_fact:<item>` |
+| `entity_all` | each world entity mentioned in three or more documents; the answer quotes every relation, event and fact that links a mention, and the sources are the documents that mention it | `entity_all:<world id>` |
+| `meeting_decision` | each `Decision` with a `made_in` meeting | `meeting_decision:<item>` |
+| `definition` | each `Definition` | `definition:<item>` |
+| `historical_figure` | each `current` `ReportedFigure` with a `period` | `historical_figure:<item>` |
+| `as_of` | each member of a group of two or more that is not `conflicting`, dated 30 days after its start, or at its start when it ends sooner; the sources are the documents of every member | `as_of:<item>` |
+| `conflicting_versions` | each group with `conflicting` members, and each term whose `current` definitions differ in text across groups | `conflicting_versions:<first item>` or `conflicting_versions:<term world id>` |
+| `cross_lingual` | each `Definition` and `Requirement`, asked in the other language | `cross_lingual:<item>` |
 
-Vietnamese questions write dates as `15/03/2025` and numbers as
-`2.000.000`; English ones write `15 March 2025` and `2,000,000`. Figures
-inside answers are copied from quotes, never reformatted.
+- A question's language is its document's: English for `en`,
+  Vietnamese for `vi` and `mixed`. A `cross_lingual` question uses the
+  other one.
+- The answer quotes each answer item with its document, as
+  `quote (D1); quote (D2).` Only a quote's final full stop is dropped,
+  so figures stay verbatim. An `entity_all` entity that no statement
+  links says which documents mention it instead.
+- `expected_sources` are document ids sorted as strings, so `D10` comes
+  before `D2`.
+- `cq` lists every competency question whose `needs` are all among the
+  types of the answer items and of the items they link to, plus the
+  entity's own type for `entity_all`.
+- A question names a world entity by its label (`labels`, else `name`).
+  When another world entity shares that label, a version of the same
+  company's document adds its version label (`Information Security
+  Policy (version 1)`), and an entity of another company adds the
+  company's label (`the CRM system of Alpha JSC`). Both can apply:
+  `Quy chế công tác phí phiên bản 2 của Công ty CP Alpha`. A requirement
+  question names its source's version and issuer itself.
+- Vietnamese questions write dates as `15/03/2025`, English ones as
+  `15 March 2025`. Figures inside answers are copied from quotes, never
+  reformatted.
 
 ## Behaviour pinned by tests
 
 All in `tests/unit/packs/test_corpus.py`. Only `test_regenerates_same_bytes`
-runs the generator; the rest read the committed files.
+and the two failure tests run the generator; the rest read the committed
+files. Expected values come from the rules applied to the fact table,
+never from the generator's code.
 
 | Test | Asserts |
 |---|---|
@@ -181,7 +258,14 @@ runs the generator; the rest read the committed files.
 | `test_golden_fields` | every line has exactly the four fields, and `tags` has the six string tags (FR-038) |
 | `test_golden_coverage` | three or more questions per `qtype`, at least one `hand_written` per `qtype`, and every competency question of `core` and `enterprise-docs` in some `cq` (US5-6, SC-009) |
 | `test_golden_running_example` | Q-a, Q-b and Q-c are present with their sources (FR-035) |
+| `test_golden_names_tell_apart` | an `entity_all` question about an entity that shares its label names its version or its company |
 | `test_golden_sources_exist` | every `expected_sources` id is a generated document (edge case) |
-| `test_corpus_plants` | the fact table holds each situation of FR-034: two `OWNER_OF` starts, two equal starts, two definitions of one metric, the two companies' same-titled policy, unit, limit and same-named person |
+| `test_corpus_plants` | the fact table holds each situation of FR-034: a superseded and a conflicting `OWNER_OF`, one term defined by two issuers and a superseded definition, one limit from two issuers, the same-named policy, unit and person in two companies, an actual and a target figure for one metric, subject and period, `TEXT_IN` links, superseded policies and procedures, an entity under three surfaces, and meetings, decisions and action items with their parts |
 | `test_text_form` | every generated file is NFC with LF line endings and ends with one newline |
 | `test_fictional_only` | every email uses `.example`, and every organization in `world.yaml` is a fictional company the test lists, a unit of one, or a public authority the test lists as the issuer of a public legal document (FR-041) |
+| `test_closed_at_next_start` | a superseded member's `closed_at` is the next later start, or `""` when it states `valid_to`; the CRM owners D35.9, D36.6 and D41.4 are pinned |
+| `test_fact_issuer_is_source_scope` | each fact's `issuer` is its source's scope, else the document's issuer, and D14 shows the two differ (engine brief §3.2) |
+| `test_deletions_replay` | a deletion lists each changed group with the members left, an emptied group as `[]`, and no untouched group; deleting D41 leaves two members and makes D36.6 `current` (FR-037) |
+| `test_no_equal_content_in_a_group` | no two members of a group have the same ends, role entities and values |
+| `test_golden_single_and_historical` | `single_fact` covers exactly the figures and requirements alone in their group, and `historical_figure` exactly the current figures with a period |
+| `test_golden_as_of_dates` | `as_of` covers exactly the members of groups of two or more that do not conflict, each dated 30 days after its start or at its start when it ends sooner |

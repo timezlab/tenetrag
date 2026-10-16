@@ -853,7 +853,7 @@ passes.
 
 ### Tests for User Story 5
 
-- [ ] T038 [P] [US5] Write `tests/unit/packs/test_corpus.py` with the 15
+- [X] T038 [P] [US5] Write `tests/unit/packs/test_corpus.py` with the 15
   contract tests of
   [contracts/corpus.md](contracts/corpus.md#behaviour-pinned-by-tests):
   - `test_running_example` and `test_running_example_statuses` hold
@@ -866,7 +866,7 @@ passes.
 
 ### Implementation for User Story 5
 
-- [ ] T039 [P] [US5] Write the running example into the fact table under
+- [X] T039 [P] [US5] Write the running example into the fact table under
   `tests/fixtures/corpus/facts/`:
   - `world.yaml`: Công ty CP Alpha and Công ty CP Beta, their Phòng Tài
     chính, Ủy ban Rủi ro, Nguyễn Văn An, the policies, the metric
@@ -877,7 +877,7 @@ passes.
     word for word. D2 is as in contracts/corpus.md;
   - `graph.yaml`, with the deletion of D2;
   - `golden.yaml`, with Q-a, Q-b and Q-c and their expected answers.
-- [ ] T040 [US5] Write the first part of the generator in
+- [X] T040 [US5] Write the first part of the generator in
   `tests/support/corpus/`:
   - `__init__.py`: `generate(facts_dir, out_dir)` and `CorpusError`;
   - `facts.py`: pydantic models of the fact table (data-model §9), with
@@ -894,7 +894,7 @@ passes.
   `generate` writes `docs/<id>.md` and `documents.jsonl` (in id order by
   number, sorted keys). It collects every problem first and writes
   nothing when there is one (FR-039). Depends on T039.
-- [ ] T041 [US5] Write `tests/support/corpus/derive.py`, which writes
+- [X] T041 [US5] Write `tests/support/corpus/derive.py`, which writes
   `graph.json` as contracts/corpus.md shows:
   - `entities` by world id;
   - version groups, with ids built from the type and its `version_key`
@@ -908,7 +908,7 @@ passes.
     statuses change when it is removed.
 
   Depends on T040.
-- [ ] T042 [US5] Write `tests/support/corpus/golden.py`, which writes
+- [X] T042 [US5] Write `tests/support/corpus/golden.py`, which writes
   `golden.jsonl`:
   - one template per question type and language, per contracts/corpus.md;
   - Vietnamese dates and numbers as `15/03/2025` and `2.000.000`, English
@@ -921,7 +921,7 @@ passes.
     generated document.
 
   Depends on T041.
-- [ ] T043 [US5] Write `tests/support/corpus/__main__.py` and the
+- [X] T043 [US5] Write `tests/support/corpus/__main__.py` and the
   `corpus` target:
   - with no flag, generate into a temporary directory, then replace the
     contents of `tests/fixtures/corpus/generated/`, so stale files go;
@@ -934,7 +934,7 @@ passes.
     it.
 
   Generate the first output from D1 to D5. Depends on T042.
-- [ ] T044 [US5] Batch A, policies and procedures: D6 to D15, 4 `vi`,
+- [X] T044 [US5] Batch A, policies and procedures: D6 to D15, 4 `vi`,
   4 `en`, 2 `mixed`. Plant from FR-034:
   - policy and procedure versions with issued and effective dates,
     supersession statements, and later mentions with no version;
@@ -945,17 +945,17 @@ passes.
 
   Add a hand-written `conflicting_versions` question to `golden.yaml`.
   Run `make corpus`. Depends on T043.
-- [ ] T045 [US5] Batch B, meetings: D16 to D23, 3 `vi`, 4 `en`,
+- [X] T045 [US5] Batch B, meetings: D16 to D23, 3 `vi`, 4 `en`,
   1 `mixed`, with chairs, attendees, decisions, and action items with
   due dates and statuses. Add a hand-written `entity_all` question. Run
   `make corpus`. Depends on T044.
-- [ ] T046 [US5] Batch C, metrics and figures: D24 to D32, 3 `vi`,
+- [X] T046 [US5] Batch C, metrics and figures: D24 to D32, 3 `vi`,
   4 `en`, 2 `mixed`. Plant two sources that define one metric
   differently, a definition that changes over time, and figures with
   periods, units and basis, actual beside target. Add hand-written
   `single_fact` and `historical_figure` questions. Run `make corpus`.
   Depends on T045.
-- [ ] T047 [US5] Batch D, names and people: D33 to D40, 3 `vi`, 3 `en`,
+- [X] T047 [US5] Batch D, names and people: D33 to D40, 3 `vi`, 3 `en`,
   2 `mixed`. Plant:
   - names written several ways: acronyms, both languages, short forms;
   - a person of the same name in two companies;
@@ -965,7 +965,7 @@ passes.
   of `core` and `enterprise-docs` must now appear in some `cq`; add
   hand-written questions for any that do not. Run `make corpus`. Totals:
   40 documents, 17 `vi`, 16 `en`, 7 `mixed`. Depends on T046.
-- [ ] T048 [US5] Run `time make corpus` (record the SC-010 time), check
+- [X] T048 [US5] Run `time make corpus` (record the SC-010 time), check
   `git status --short tests/fixtures/corpus`, run
   `uv run python -m tests.support.corpus --check` (exit 0) and
   `uv run pytest tests/unit/packs/test_corpus.py -q`. Run quickstart §5's
@@ -973,6 +973,73 @@ passes.
   faults in `derive.py`, such as ordering ties by item id only or
   dropping `closed_at`. A fault that survives gets a test. Record the
   results here.
+
+  Result (2026-10-16): `make check` passes with 1168 unit tests.
+  - Red, the tests of 51ee721 at their commit: 1 collection error, a
+    `ModuleNotFoundError` for `tests.support.corpus`. The test of ad7375d
+    (`test_golden_names_tell_apart`) failed on questions such as "Các tài
+    liệu cho biết gì về Nguyễn Văn An?", which two companies' people
+    answer; the label rule below fixed it. Green:
+    `uv run pytest tests/unit/packs/test_corpus.py -q` gives 22 passed.
+  - SC-010: `time make corpus` takes 0.655 s. `git status --short
+    tests/fixtures/corpus` shows no change after it, and `--check` exits
+    0. Quickstart §5's negative check (2.500.000 changed to 2.600.000 in
+    D2) exits 2 with `documents/D2.yaml: items[D2.6].quote: not in the
+    rendered text of D2` and the same for its `threshold` quote; after the
+    revert, `--check` exits 0.
+  - Corpus: 41 documents, 18 `vi`, 16 `en`, 7 `mixed` (25 docx, 10 pdf,
+    5 xlsx, 1 pptx); 335 items (201 entities, 80 relations, 35 facts, 19
+    events); 36 version groups with 35 `current`, 8 `superseded` and 2
+    `conflicting` members. The golden set has 104 questions, 96
+    generated and 8 hand-written, 54 `vi` and 50 `en`: entity_all 29,
+    cross_lingual 17, as_of 16, single_fact 13, meeting_decision 11,
+    historical_figure 9, definition 6, conflicting_versions 3. All 14
+    competency questions appear in some `cq`.
+  - Deliberate faults, one at a time, each regenerating the corpus
+    before the tests ran, so only a behaviour test can catch one
+    (`test_regenerates_same_bytes` then checks determinism only). Of 16,
+    9 were caught at first: ties by item id only (the generator fails),
+    dropping `closed_at`, no `effective_from` fallback, no `conflicting`,
+    `entity_all` needing four documents, no label qualification, no
+    cross-issuer definition conflict, `cq` ignoring linked items, and
+    sources from the first answer item only. Seven survived, because the
+    data never exercised them or no test stated the rule:
+    - a stated end ignored, and the issuer taken from the document: D35.9
+      now states "until 31 December 2025" (`valid_to`), and Phòng Tài
+      chính issues D14 while Alpha scopes its guidance;
+      `test_closed_at_next_start`, `test_fact_issuer_is_source_scope`;
+    - an emptied group left out of a deletion, and deletions that skip
+      groups with two or more members left: D41 makes a third CRM owner
+      and `graph.yaml` deletes it; `test_deletions_replay`;
+    - `as_of` on the start day, and `as_of` for current members only:
+      `test_golden_as_of_dates`;
+    - `single_fact` for requirements that are not alone in their group:
+      `test_golden_single_and_historical`.
+
+    Rerun on the final data, all 16 are caught.
+  - Equal content. D41 first handed the CRM back to the IT Department,
+    which would make it equal to D35.9. The engine treats equal content
+    as one version with several sources (engine brief §3.2); the
+    generator gives each member its own status. `test_no_equal_content_in_a_group`
+    failed on that `OWNER_OF:object=alpha.crm` group, and D41 now names
+    a new unit, Trung tâm Chăm sóc khách hàng.
+  - Departures from the task text, now in contracts/corpus.md:
+    - T038's 15 tests are 22: `test_golden_names_tell_apart` and the six
+      fault tests above;
+    - T047's totals grew by D41: 41 documents, 18 `vi`;
+    - T041: a member starts at `valid_from`, else the document's
+      `effective_from`, `issued_on` or `held_on`, and ties order by
+      position, not item id as text. A member that states `valid_to`
+      keeps `closed_at` empty. A fact's `issuer` is its source's scope,
+      else the document's issuer (engine brief §3.2), and a deletion
+      maps a group it empties to `[]`;
+    - T042: `cq` is derived, not named per template: every competency
+      question whose `needs` are among the types of the answer items and
+      the items they link to. Questions format dates only; figures
+      come from quotes. Ids are `<qtype>:<item>`, or a world id for
+      `entity_all` and for a term's definition conflict. A question
+      qualifies a label another entity shares, with the version or the
+      company.
 
 **Checkpoint**: the engine has a corpus with known answers, and every
 story works

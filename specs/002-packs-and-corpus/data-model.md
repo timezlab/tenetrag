@@ -416,7 +416,7 @@ The two coverage rules run per shipped pack: the identity elements that
 
 | File | Holds |
 |---|---|
-| `world.yaml` | entities by world id: type, name, aliases, scope, attributes. Fictional only |
+| `world.yaml` | entities by world id: type, name, aliases, scope, attributes, and `labels` (how a question names it in each language). Fictional only |
 | `documents/<id>.yaml` | one document: metadata, blocks and items |
 | `graph.yaml` | deletion scenarios and `TEXT_IN` links (research R12) |
 | `golden.yaml` | hand-written golden questions |
@@ -455,7 +455,7 @@ the compiled schema.
 |---|---|
 | `docs/<id>.md` | the rendered document: NFC, LF, Vietnamese formats in the text |
 | `documents.jsonl` | one line per document: metadata, `path`, and its items |
-| `graph.json` | `entities` (world id → item ids), `versions` (group → members with `status` and `closed_at`), `supersedes`, `text_in`, `deletions` (document → changed statuses) |
+| `graph.json` | `entities` (world id → item ids), `versions` (group → members with `status` and `closed_at`), `supersedes`, `text_in`, `deletions` (document → changed statuses, `[]` for a group it empties) |
 | `golden.jsonl` | one question per line (below) |
 
 **Golden question** (the benchmark's fields, SDK brief, Benchmark):
