@@ -16,9 +16,18 @@ Behaviours (FR-033 to FR-041, US5, SC-008 to SC-010):
 7. The fact table plants each situation of FR-034.
 8. Every generated file is NFC with LF endings and one final newline, and
    every name is fictional or a listed public authority.
+9. graph.json follows the version rules: a superseded member closes at the
+   next later start unless it states its own end, a fact's issuer is the
+   scope of its source, and a deletion lists each group it changes, with a
+   group it empties as [].
+10. Generated questions follow their rules: single_fact asks about each
+    figure or requirement alone in its group, historical_figure about each
+    current figure with a period, and as_of about each member of a group
+    that does not conflict, 30 days into its interval.
 
 Only test_regenerates_same_bytes and the failure tests run the generator;
-the rest read the committed files.
+the rest read the committed files. The expected values in 9 and 10 come from
+the rules applied to the fact table, never from the generator's code.
 """
 
 import json
@@ -26,6 +35,7 @@ import re
 import shutil
 import unicodedata
 from collections import Counter
+from datetime import date, timedelta
 from functools import cache
 from pathlib import Path
 
@@ -161,6 +171,34 @@ def _group_parts(group_id: str) -> tuple[str, dict[str, str]]:
     type_name, _, key = group_id.partition(":")
     parts = dict(part.split("=", 1) for part in key.split(";") if part)
     return type_name, parts
+
+
+def _located_items() -> dict[str, tuple[dict, dict]]:
+    """Each item id's document and item."""
+    return {item["id"]: (document, item) for document in _documents() for item in document["items"]}
+
+
+def _start(document: dict, item: dict) -> str:
+    """`valid_from`, else the document's `effective_from`, else its date (contracts/corpus.md)."""
+    dates = document["dates"]
+    for start in (
+        item.get("valid_from"),
+        dates.get("effective_from"),
+        dates.get("issued_on"),
+        dates.get("held_on"),
+    ):
+        if start:
+            return start
+    raise AssertionError(f"{item['id']} has no start")
+
+
+def _item_groups() -> dict[str, str]:
+    """Each version member's group id."""
+    return {
+        member["item"]: group_id
+        for group_id, members in _graph()["versions"].items()
+        for member in members
+    }
 
 
 def _tree(directory: Path) -> dict[str, bytes]:
@@ -633,3 +671,186 @@ def test_fictional_only():
     domains = {match[1] for _, text in texts for match in EMAIL.finditer(text)}
     assert domains
     assert all(domain.endswith(".example") for domain in domains), domains
+
+
+# 9. Version rules
+
+
+def test_closed_at_next_start():
+    """A superseded member closes at the next later start, unless it states its own end."""
+    graph = _graph()
+    items = _located_items()
+    stated_ends = 0
+    for members in graph["versions"].values():
+        starts = {member["item"]: _start(*items[member["item"]]) for member in members}
+        for member in members:
+            if member["status"] != "superseded":
+                continue
+            _, item = items[member["item"]]
+            if item.get("valid_to"):
+                assert member["closed_at"] == "", member["item"]
+                stated_ends += 1
+            else:
+                own = starts[member["item"]]
+                later = min(start for start in starts.values() if start > own)
+                assert member["closed_at"] == later, member["item"]
+    assert stated_ends
+    assert graph["versions"]["OWNER_OF:object=alpha.crm"] == [
+        {"closed_at": "", "item": "D35.9", "status": "superseded"},
+        {"closed_at": "2026-06-01", "item": "D36.6", "status": "superseded"},
+        {"closed_at": "", "item": "D41.4", "status": "current"},
+    ]
+
+
+def test_fact_issuer_is_source_scope():
+    """A fact's version issuer is the scope of its source, else the document's issuer.
+
+    Engine brief §3.2. D14 is issued by Phòng Tài chính, but its guidance is
+    scoped by Alpha, so its requirement joins Alpha's group.
+    """
+    stack = _stack()
+    world = _world()
+    groups = _item_groups()
+    checked = differs = 0
+    for document in _documents():
+        items = _items(document)
+        for item in document["items"]:
+            if item["kind"] != "fact" or "issuer" not in stack.facts[item["type"]].version_key:
+                continue
+            source = item.get("roles", {}).get("source")
+            scope = world[items[_refs(source)[0]]["world"]].get("scope") if source else None
+            expected = scope or document["issuer"]
+            _, parts = _group_parts(groups[item["id"]])
+            assert parts["issuer"] == expected, item["id"]
+            checked += 1
+            differs += expected != document["issuer"]
+    assert checked
+    assert differs
+    assert _document("D14")["issuer"] == "alpha.tc"
+    members = _graph()["versions"]["Requirement:issuer=alpha;metric=met.han-nop"]
+    assert "D14.9" in [member["item"] for member in members]
+
+
+def test_deletions_replay():
+    """A deletion lists each group it changes with the members left, and an emptied group as []."""
+    graph = _graph()
+    emptied = 0
+    left = []
+    for document_id, deletion in graph["deletions"].items():
+        listed = deletion["versions"]
+        for group_id, members in graph["versions"].items():
+            kept = [m["item"] for m in members if not m["item"].startswith(f"{document_id}.")]
+            where = f"{document_id} {group_id}"
+            if len(kept) == len(members):
+                assert group_id not in listed, where
+            elif not kept:
+                assert listed.get(group_id) == [], where
+                emptied += 1
+            elif group_id in listed:
+                assert [member["item"] for member in listed[group_id]] == kept, where
+                left.append(len(kept))
+    assert emptied
+    assert max(left) >= 2
+    # Deleting the newest of three versions makes the middle one current again.
+    assert graph["deletions"]["D41"]["versions"] == {
+        "OWNER_OF:object=alpha.crm": [
+            {"closed_at": "", "item": "D35.9", "status": "superseded"},
+            {"closed_at": "", "item": "D36.6", "status": "current"},
+        ]
+    }
+
+
+def _content(document: dict, item: dict) -> tuple:
+    """What a relation or statement says: its ends or roles as world ids, and its values."""
+    items = _items(document)
+    values = tuple(sorted((name, a["value"]) for name, a in item.get("attributes", {}).items()))
+    if item["kind"] == "relation":
+        return items[item["from"]]["world"], items[item["to"]]["world"], values
+    roles = tuple(
+        sorted(
+            (role, tuple(sorted(items[ref]["world"] for ref in _refs(value))))
+            for role, value in item["roles"].items()
+        )
+    )
+    return roles, values
+
+
+def test_no_equal_content_in_a_group():
+    """No two members of a group say the same thing.
+
+    The engine makes equal content one version backed by several sources
+    (engine brief §3.2). The generator gives each member its own status, so
+    the fact table never plants equal content in one group.
+    """
+    located = _located_items()
+    for group_id, members in _graph()["versions"].items():
+        contents = Counter(_content(*located[member["item"]]) for member in members)
+        repeated = [content for content, count in contents.items() if count > 1]
+        assert repeated == [], group_id
+
+
+# 10. Generated questions
+
+
+def _generated(qtype: str) -> dict[str, dict]:
+    """The generated questions of one type, by the item or entity in their id."""
+    return {
+        entry["tags"]["id"].partition(":")[2]: entry
+        for entry in _golden()
+        if entry["tags"]["origin"] == "generated" and entry["tags"]["qtype"] == qtype
+    }
+
+
+def test_golden_single_and_historical():
+    """single_fact asks about each figure or requirement alone in its group;
+    historical_figure about each current figure with a period."""
+    versions = _graph()["versions"]
+    groups = _item_groups()
+    statuses = {m["item"]: m["status"] for members in versions.values() for m in members}
+    single, historical = set(), set()
+    for _, item in _located_items().values():
+        if item["kind"] != "fact":
+            continue
+        group_id = groups.get(item["id"])
+        alone = group_id is not None and len(versions[group_id]) == 1
+        if item["type"] in {"ReportedFigure", "Requirement"} and alone:
+            single.add(item["id"])
+        if (
+            item["type"] == "ReportedFigure"
+            and "period" in item.get("attributes", {})
+            and statuses.get(item["id"]) == "current"
+        ):
+            historical.add(item["id"])
+    assert single
+    assert historical
+    assert set(_generated("single_fact")) == single
+    assert set(_generated("historical_figure")) == historical
+
+
+def test_golden_as_of_dates():
+    """Each member of a group of two or more that does not conflict gets an as_of question.
+
+    It is dated 30 days after the member's start, so it asks which version
+    held, not what happens on a boundary day; when the member ends sooner,
+    it is dated at the start.
+    """
+    items = _located_items()
+    expected = {}
+    superseded = 0
+    for members in _graph()["versions"].values():
+        if len(members) < 2:
+            continue
+        for member in members:
+            if member["status"] == "conflicting":
+                continue
+            document, item = items[member["item"]]
+            start = date.fromisoformat(_start(document, item))
+            end = member["closed_at"] or item.get("valid_to")
+            day = start + timedelta(days=30)
+            if end and day.isoformat() >= end:
+                day = start
+            expected[member["item"]] = day.isoformat()
+            superseded += member["status"] == "superseded"
+    assert superseded
+    as_of = {item_id: entry["tags"]["as_of"] for item_id, entry in _generated("as_of").items()}
+    assert as_of == expected
