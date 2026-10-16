@@ -14,9 +14,9 @@ Feature 002 gives every later M1 feature its inputs and test oracles:
 2. the shipped `core` and `enterprise-docs` packs, as package data;
 3. a `pack` field in the profile, and stage hashes that include the
    pack;
-4. 73 identity cases in the packs' vocabulary: the 60 design cases of
-   ADR 0016, recovered from the session record, and 13 added for
-   coverage;
+4. 77 identity cases in the packs' vocabulary: the 60 design cases of
+   ADR 0016, recovered from the session record, and 17 added for
+   coverage and for ADR 0023;
 5. a synthetic bilingual corpus of about 40 documents with planted
    answers, the running example D1 to D5, and a golden set, rebuilt by a
    deterministic generator.

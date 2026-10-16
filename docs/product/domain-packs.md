@@ -78,14 +78,15 @@ entities:
       registration_id: {range: str, compare: digits, unique: global}   # national business registration number
       established_on: {range: date}
     exact_mappings: ["schema:Organization"]
-  Person:
+  Person:                                # no scope: an employer changes over a life
     description: A specific, named human being.
-    scope: {role: employer, to: [Organization], inherit: none}
-    identity: [[email]]
+    identity: [[email]]                  # a hit whose names clash is linked, not merged
+    vetoes: [born_on]
     names: evidence                      # a shared name never merges alone
     corroborate: [MEMBER_OF, HOLDS_POSITION]
     attributes:
       email: {range: str, compare: lower, unique: global}
+      born_on: {range: date}             # 1980 and 1980-05-12 agree
   Metric:
     description: A named measure that documents define, calculate or report.
 enums:
@@ -100,6 +101,7 @@ facts:
     required: [term, text]
   Statement:
     roles: {speaker: [Person, Organization], about: [Person, Organization, Product, Concept, Work, Metric]}
+    time: point
     extract: false           # defined, but not extracted unless a child pack switches it on
 not_entities: [money, date, percentage, number, duration]
 retrieval:                 # query-time: changing it never triggers a re-index
@@ -117,14 +119,14 @@ and the `finance` draft in [packs/](packs/), with their reasoning in
 |---|---|---|
 | `extends` | Parent pack, or a list of parents. Absent only in `core`. | required |
 | `description`, `examples`, `aliases` | What the LLM reads. Every type needs a definition and examples. | required |
-| `is_a` | Single parent type, such as `Acquisition: {is_a: Event}`. | required |
+| `is_a` | Single parent type, such as `Acquisition: {is_a: Event}`. The subtype copies the parent's roles and attributes, and its time unless it states its own: a conference can last for days under the point-time `Event`. It does not copy `identity` or `required`. | optional |
 | `identity` | On an entity type: keys tried in order, with `scope`, `vetoes`, `names` and the other [identity fields](#identity-fields). On an event type: entries such as `[time, about, decided_by]`; two events from different documents merge only when every role and attribute of one entry matches ([ADR 0013](../decisions/0013-resolve-events-by-identity-and-version-facts-in-the-engine.md)). An event type without it never merges across documents. | optional |
 | `version_key` | On a fact type: the roles and attributes that make two facts statements of the same thing, such as `Requirement: [issuer, metric, applies_to, condition]`. Facts with equal values form a version group, and the engine marks them `current`, `superseded` or `conflicting`. Without it, every fact of the type is current ([ADR 0013](../decisions/0013-resolve-events-by-identity-and-version-facts-in-the-engine.md)). | optional |
 | `glossary` | User packs only: canonical names with their type, aliases and an optional note, such as `{name: Công ty CP Alpha, type: Organization, aliases: [Alpha]}`. An entry that occurs in a chunk goes into that chunk's extraction prompt, and resolution maps its names and aliases to one entity of that type ([engine brief §2.4](engine-brief.md#24-extract-e6), [§2.6](engine-brief.md#26-resolve-entities-e8)). | optional |
 | `attributes` | `range` (`str`, `date`, `money`, `percentage`, `int`, `float`, `bool`, an enum), `required`, `multivalued`, `unit`, and an optional `description` for the prompt. Key and veto attributes also take `compare` and `unique` ([identity fields](#identity-fields)). | required |
 | `from`, `to` | Allowed endpoint types of a relation. | required |
 | `where` | Allowed enum values on an endpoint, such as `LISTED_ON: {from: [Instrument], to: [Organization], where: {to: {category: [exchange]}}}`. The attribute must be an enum on every allowed type of that endpoint. Checked in code, never in the compiled schema. | optional |
-| `time` | `none`, `point` or `interval`. | required |
+| `time` | `none`, `point` or `interval`. An `is_a` subtype may leave it out and take its parent's. | required |
 | `roles` | Role name → allowed types, for events and facts. A role may point to an event, such as a decision's `made_in` meeting. | required |
 | `required` | Roles or attributes an item must have. Each one costs recall, since items without it are dropped. Only the pack that defines a type sets it. | required |
 | `not_entities` | Literal kinds the LLM must not emit as entities. | required |
@@ -157,28 +159,45 @@ that its `version_key` may name: the scope of its `source` entity, else
 the document's issuer
 ([engine brief §3.2](engine-brief.md#32-version-groups-e3)).
 
-**Stacking.** A child pack may:
+**Stacking.** A child pack only adds
+([research R3 of 002](../../specs/002-packs-and-corpus/research.md#r3-stacking)).
+It may:
 - add types;
 - add attributes and roles to inherited types;
 - add allowed types to inherited roles and relation endpoints;
 - add allowed values to an inherited `where` constraint;
-- add enum values;
+- add enum values, `exact_mappings` and `not_entities`; the stack keeps
+  the union, so an empty `not_entities` list removes nothing;
 - put identity keys in front of the inherited ones (finance puts `[lei]`
   before core's keys);
-- add vetoes, and add values to an inherited scope's `when` list;
-- switch an inherited scope's `inherit` to `document` (enterprise-docs
-  does this for internal documents);
+- add vetoes, and add values to an attribute already in an inherited
+  scope's `when`;
+- add a whole scope, with `role` and `to`, to an inherited entity type
+  that has none (enterprise-docs scopes `Person` by employer,
+  [ADR 0023](../decisions/0023-keep-only-identity-rules-true-in-every-domain-in-core.md));
+- switch an inherited scope's `inherit` from `none` to `document`
+  (enterprise-docs does this for internal documents);
 - add attributes to an inherited `version_key` (finance adds `segment`,
   `consolidation` and `period_kind` to `ReportedFigure`);
-- switch `extract` on or off.
+- state a time on an inherited type that has none;
+- switch `extract` on or off;
+- replace each `retrieval` setting it states, since retrieval is
+  query-time.
 
-It may not change a range, a time kind or a description, and it may not
-add `required` fields to a type it did not define. A required field added
-by a child would tighten the type for every other pack in the stack. For
-the same reason it may not remove a scope, a key or a veto, or change
-`names`: that would loosen identity for every pack in the stack. A
-pack that extends several parents (`extends: [enterprise-docs, finance]`)
-gets their union, and a shared ancestor such as `core` is loaded once.
+It may not change, or add where none was set, a description (of a type,
+a relation or an attribute), `examples`, `aliases`, `is_a`, a range, a
+time kind, `cardinality`, `document_link`, `agent_visible`, `deprecated`
+or `renamed_from`. The pack that defines a type writes its description
+and examples, since no child can add them later. It may not add
+`required` fields to a type it did not define: a required field added by
+a child would tighten the type for every other pack in the stack. For
+the same reason it may not remove a scope, a key or a veto, change a
+scope's `role` or `to`, change `names`, `compare` or `unique`, or add or
+change `corroborate`: each would loosen identity for every pack in the
+stack. A `where` added to an inherited relation, or a `when` added to a
+scope that has none, fails with `stack.added-identity`. A pack that
+extends several parents (`extends: [enterprise-docs, finance]`) gets
+their union, and a shared ancestor such as `core` is loaded once.
 Identical definitions from two parents merge. Conflicting ones, such as
 one attribute with two ranges, fail with a `ConfigError` naming both
 sources.
@@ -205,18 +224,21 @@ An attribute that is neither a key nor a veto only describes the
 entity. A value many entities share, such as a person's name, is
 evidence: it can support a merge but never decide one. A name, a unit, a
 title, an end date or a status is never a veto, because each changes
-over an entity's life.
+over an entity's life. A scope blocks harder than a veto, so `core` takes
+a scope from an attribute that changes only where the name rule needs it:
+`Person` has none there, and `enterprise-docs` adds the employer
+([ADR 0023](../decisions/0023-keep-only-identity-rules-true-in-every-domain-in-core.md)).
 
 | Field | On | Meaning |
 |---|---|---|
 | `scope` | entity type | Whose thing it is, as `{role, to, inherit, when}`. `role` is the word the prompt uses: issuer, employer, owner, provider, parent. `to` lists the allowed scope types. `inherit: document` takes the document's issuer when the text names none (caller metadata, the card, the profile's `default_issuer`). `inherit: none` leaves the scope unknown. `when` limits the scope to some enum values, as `Organization` does for unit categories. No `scope` means the type is unscoped. |
 | `identity` | entity type | Keys, tried in order. Each key is a list of attributes, with `scope` first for a scoped type: `[[scope, code], [scope, title, version_label]]`. A key that holds only for a time is written `{key: [exchange, ticker], during: [listed_on, delisted_on]}`. |
-| `vetoes` | entity type | Attributes that block a merge when both sides know them and the values differ. A missing value never blocks. |
+| `vetoes` | entity type | Attributes that block a merge when both sides know them and the values differ. A missing value never blocks. Two dates of different precision compare at the coarser one, so 1980 and 1980-05-12 do not differ. |
 | `names` | entity type | `key` (default): the name or an alias is a key within the scope. `evidence`: a shared name merges only with the corroboration below, else it goes to the LLM confirmation. `versioned`: one entity per version, and a mention with no version resolves to the version in force on the citing date. `none`: the name is never matched. |
-| `corroborate` | entity type with `names: evidence` | Relations that confirm a name match when the mention and the candidate share an endpoint, such as `[MEMBER_OF, HOLDS_POSITION]` for `Person`. |
+| `corroborate` | entity type with `names: evidence` | Relations that confirm a name match when the mention and the candidate share an endpoint, such as `[MEMBER_OF, HOLDS_POSITION]` for `Person`. The endpoint is the same resolved entity, and a relation attribute such as a title must match too. Links that both sides date, with intervals that do not overlap, do not count. |
 | `version_start` | entity type with `names: versioned` | Date attributes, in order, that start a version's force, such as `[effective_from, issued_on]`. |
 | `compare` | key or veto attribute | `text` (default, the engine's normalization), `code` (case, spaces, "số", Đ → D), `digits`, `lower`, `upper` or `date`. |
-| `unique` | key attribute | `scope` (default): unique within a scope. `global`: unique everywhere, such as a tax ID, an LEI, an ISIN or an email. A key made only of global attributes needs no `scope` and is checked against candidates of every scope; vetoes still apply. `self_scoped`: unique everywhere when the value names its issuer, by the engine's `resolution.self_scoped_codes`, as Vietnamese law codes do. Such a value is checked the same way, and its mention inherits no scope from the document. |
+| `unique` | key attribute | `scope` (default): unique within a scope. `global`: unique everywhere, such as a tax ID, an LEI, an ISIN or an email. A key made only of global attributes needs no `scope` and is checked against candidates of every scope; vetoes still apply. On a type with `names: evidence`, a hit whose names clash gives a `same_as` link instead of a merge, since a mailbox can be shared. `self_scoped`: unique everywhere when the value names its issuer, by the engine's `resolution.self_scoped_codes`, as Vietnamese law codes do. Such a value is checked the same way, and its mention inherits no scope from the document. |
 
 **Lint at load.** A pack fails to load when:
 - a key of a scoped type has no `scope` and holds an attribute whose
@@ -440,3 +462,20 @@ set of fields.
 4. The token budget of the `describe_schema` summary, and how a document's
    title and code are found for `document_link` (file metadata, first
    heading, a profile pattern). Engine brief.
+5. Gaps the `core` audit of 2026-10-16 found and left for M1 or later
+   ([ADR 0023](../decisions/0023-keep-only-identity-rules-true-in-every-domain-in-core.md)):
+   - **Factuality:** a negated, planned or reported relation or event,
+     such as "Alpha không mua Beta" or "dự kiến bổ nhiệm", is extracted
+     like a stated one.
+   - **Time precision:** `valid_precision` is day, month or year, so a
+     quarter, a time of day or a decade has no exact form.
+   - **Year floor:** dates before 1900 are removed (engine brief §2.5),
+     which drops historical and legal dates. It could be a setting.
+   - **Symmetric relations,** such as two people who know each other,
+     need two edges today.
+   - **Several issuers** of one work, such as a joint circular, a
+     contract or a paper with many authors.
+   - **Event vetoes,** so two decisions one body makes on one subject on
+     one day stay apart.
+   - **Dated scopes,** so a place, unit or product that moved under
+     another parent can merge across the move.

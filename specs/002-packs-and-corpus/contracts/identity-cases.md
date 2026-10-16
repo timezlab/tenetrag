@@ -37,8 +37,8 @@ loads and checks them.
 
 | File | `pack` | Cases |
 |---|---|---|
-| `src/tenetrag/packs/shipped/core.cases.yaml` | `core` | 23 design, 2 added |
-| `src/tenetrag/packs/shipped/enterprise-docs.cases.yaml` | `enterprise-docs` | 30 design, 11 added |
+| `src/tenetrag/packs/shipped/core.cases.yaml` | `core` | 22 design, 5 added |
+| `src/tenetrag/packs/shipped/enterprise-docs.cases.yaml` | `enterprise-docs` | 31 design, 12 added |
 | `tests/fixtures/identity/finance.cases.yaml` | `../../../docs/product/packs/finance.yaml` | 7 design |
 
 The fixtures were converted once from the
@@ -106,7 +106,7 @@ outcome: {kind: confirm, candidates: [an.alpha], right: an.alpha}  # PER-7
 
 ```text
   - enterprise-docs.cases.yaml: cases[PER-5].depends_on[0]: `Person` has no veto `employee_ids` under `enterprise-docs` [case.unknown-element]
-  - core.cases.yaml: cases[PER-10].mention.attributes.employee_id: `Person` has no attribute `employee_id` under `core` [case.unknown-attribute]
+  - core.cases.yaml: cases[PER-20].mention.attributes.employee_id: `Person` has no attribute `employee_id` under `core` [case.unknown-attribute]
   - enterprise-docs.cases.yaml: entities.Procedure.vetoes[code]: no case depends on `veto:code`; add one that this veto keeps apart [case.coverage-element]
 ```
 
@@ -117,13 +117,13 @@ All in `tests/unit/packs/test_cases.py`:
 | Test | Asserts |
 |---|---|
 | `test_cases_consistent` | `check_cases(*shipped_cases(), finance_cases)` returns no problem (FR-032, SC-007) |
-| `test_case_counts` | 73 cases: 60 `design` and 13 `added`, split per file as in the table above |
+| `test_case_counts` | 77 cases: 60 `design` and 17 `added`, split per file as in the table above |
 | `test_design_cases_match_snapshot` | the 60 design ids, each `expect` and each outcome kind equal the snapshot's class and R2 outcome; 30 apart and 30 merge (US4-4, FR-030). Reads the snapshot, so it needs a checkout, like the `finance` tests |
 | `test_coverage_shipped` | no `case.coverage-*` problem for `core` or `enterprise-docs` (US4-1, US4-2, FR-031) |
 | `test_missing_veto_case` | the `enterprise-docs` cases without PER-5 give `case.coverage-element` naming `veto:employee_id` (US4 independent test) |
 | `test_unknown_attribute` | a case giving `Person` an `employee_id` under `core` fails, naming the case and the attribute (US4-3) |
 | `test_element_resolves_in_stack` | `veto:employee_id` passes under `enterprise-docs` and fails under `core` with `case.unknown-element` |
-| `test_outcome_fits_expect` | `merge` with `expect: apart`, and an `into` outside `existing`, give `case.outcome` |
+| `test_outcome_fits_expect` | `merge` with `expect: apart`, and an `into` outside `existing`, give `case.outcome`; `same_as` with `expect: merge` passes (ADR 0023) |
 | `test_blocked_by_needs_veto` | `blocked_by: code` without `veto:code` in `depends_on` gives `case.blocked-by` |
 | `test_duplicate_id_across_files` | one id in two files gives `case.duplicate-id`, naming both files |
 | `test_d5_situation` | POL-1 and UNIT-1 keep Beta's mention apart from Alpha's entity, and MET-1 merges the metric (US4-5) |

@@ -143,7 +143,7 @@ This is the layout on Postgres and Delta. The Neo4j mapping follows.
 | `facts` | as `relations`, without subject_id and object_id | |
 | `roles` | owner_id, owner_kind (`event`, `fact`), role, target_id, target_kind (`entity`, `event`), doc_id, chunk_id | one row per source, so deletes stay row-local |
 | `text_in` | entity_id, doc_id, attribute | derived (§2.9) |
-| `same_as` | entity_a, entity_b, score, origin (`embedding`, `llm_unsure`, `ambiguous_alias`, `ambiguous_key`, `ambiguous_version`, `same_name`), status (`candidate`, `confirmed`, `rejected`) | a traversable link, not a merge |
+| `same_as` | entity_a, entity_b, score, origin (`embedding`, `llm_unsure`, `ambiguous_alias`, `ambiguous_key`, `ambiguous_version`, `same_name`, `key_name_conflict`), status (`candidate`, `confirmed`, `rejected`) | a traversable link, not a merge |
 | `resolution_decisions` | pair_key, verdict, method, model, run_id | caches LLM verdicts; a reviewer verdict wins |
 | `extraction_cache` | cache_key, payload (JSON), created_at | validated extraction per chunk (§2.5) |
 | `runs` | run_id, status, started_at, finished_at, stage hashes, prompt versions, pack stamp, stats (JSON) | drops, counts, LLM calls and tokens live in `stats` |
@@ -431,18 +431,19 @@ Each entity type in the pack declares:
 - `names`: how the name counts.
 
 The format is in [domain-packs.md](domain-packs.md#identity-fields). The
-draft packs give:
+packs give, with `core` holding only the rules true in every domain
+([ADR 0023](../decisions/0023-keep-only-identity-rules-true-in-every-domain-in-core.md)):
 
 | Type | Scope | Keys | Vetoes | Name rule |
 |---|---|---|---|---|
 | Organization, company categories | none | registration_id · lei (finance) | registration_id, established_on, lei | key; a short name with no legal form, such as `Alpha`, never merges by name and goes to step 4 |
 | Organization, unit categories | the parent organization, as a path | registration_id (a branch's 13-digit code) | registration_id, established_on | key within the parent |
-| Person | employer | [scope, employee_id] · email | employee_id | evidence: needs a shared unit or title |
+| Person | none in `core`; employer in `enterprise-docs` | [scope, employee_id] (enterprise-docs) · email, guarded by the name | born_on · employee_id (enterprise-docs) | evidence: needs a shared unit or title at the same organization, at overlapping times |
 | Policy, Procedure | issuer | [scope, code] · [scope, title, version_label] · [scope, title, issued_on] | code, version_label, issued_on | versioned |
-| Work | issuer | [scope, code]; the code alone when it names its issuer (`39/2016/TT-NHNN`) | code, issued_on | key within the issuer |
+| Work | issuer, who issued or wrote it, not a publisher | [scope, code]; the code alone when it names its issuer (`39/2016/TT-NHNN`); a code with no year only when both issue years match | code, issued_on | key within the issuer |
 | Project | owner | [scope, code] | code | key within the owner |
 | System | owner | none | none | key within the owner |
-| Product | provider | none | none | key within the provider |
+| Product | provider, an organization or person, not a reseller | none | none | key within the provider |
 | Place | parent place | none | none | key within the parent |
 | Instrument | none | isin · [exchange, ticker] while listed | isin | none |
 | Metric, Concept | none | none | none | key: the term is the node, and each source's meaning is a `Definition` fact |
@@ -461,7 +462,8 @@ For Policy, Procedure and Work, `title` in a key is the entity's name.
   Sources 2–4 apply only to types whose pack scope inherits from the
   document. `enterprise-docs` turns that on for internal documents.
   `core` leaves it off, since a news article's publisher is not the
-  employer of every person it names. `scope_source` records the source.
+  parent or provider of everything it names. `scope_source` records the
+  source.
 - A scope is a path, such as Công ty CP Alpha › Chi nhánh Hà Nội. Two
   scopes conflict when neither path is a prefix of the other. A path from
   the text must match exactly. A path inherited from the document is
@@ -485,7 +487,9 @@ For Policy, Procedure and Work, `title` in a key is the entity's name.
 **Order.** Within one type, the first step that decides wins:
 0. **Filter.** Drop candidates whose scope conflicts, and candidates with
    a veto attribute known on both sides with different values under its
-   comparator. A missing value is not a different one. Each dropped
+   comparator. A missing value is not a different one. Two dates of
+   different precision compare at the coarser one, so 1980 and
+   1980-05-12 do not differ. Each dropped
    candidate that shares the mention's name or a key value becomes an
    `identity_blocks` row with the attribute, both values and both quotes.
    Every later step sees only the candidates left, except the global keys
@@ -508,6 +512,17 @@ For Policy, Procedure and Work, `title` in a key is the entity's name.
      that passed the vetoes, whatever its scope. The value alone proves
      identity. An email that names Trần Thị Bình of Alpha in a Beta
      document still finds her, although the inherited scope says Beta.
+   - For a type with `names: evidence`, a key hit merges only when the
+     names agree: every word of the shorter name, compared without case
+     or diacritics, is in the longer one, and an initial matches a word
+     that starts with it. Otherwise the mention becomes a new entity with
+     `same_as` (`key_name_conflict`), since a mailbox can be shared. A
+     mention with no name merges. Đỗ Thu Hà and Vũ Quang Huy, who both
+     sign from nhansu@alpha.example, stay two people.
+   - A code with no four-digit year, such as `15/QĐ-HĐQT`, restarts its
+     numbering every year. It is a key only when both sides know the
+     issue year and the years match. Otherwise the candidate gets
+     `same_as` (`ambiguous_key`).
    - On a merge, the entity keeps its own scope. The mention's inherited
      scope is dropped and recorded in the run record.
 3. **Name rule,** on the normalized name, former names, and aliases with
@@ -516,13 +531,19 @@ For Policy, Procedure and Work, `title` in a key is the entity's name.
    - `key`: one hit merges. Two or more give a new entity with `same_as`
      (`ambiguous_alias`).
    - `evidence`: the mention merges with the one candidate that shares a
-     unit (`MEMBER_OF`) or a title (`HOLDS_POSITION`) stated in the same
-     chunk. A candidate with no unit or title known on either side goes to
-     step 4 with its profile. When every candidate's unit and title
-     differ, the mention becomes a new entity with `same_as`
-     (`same_name`). A Nguyễn Văn An named as head of Phòng Tài chính
-     merges with the one already known in that unit. A Chuyên viên of
-     Phòng Công nghệ thông tin with the same name becomes a second person.
+     unit or a title stated in the same chunk. A shared unit is a
+     `MEMBER_OF` to the same resolved organization. A shared title is a
+     `HOLDS_POSITION` with the same title at the same resolved
+     organization. A link that both sides date, with intervals that do
+     not overlap, does not count. A candidate with no unit or title known
+     on either side goes to step 4 with its profile. When every
+     candidate's unit and title differ, the mention becomes a new entity
+     with `same_as` (`same_name`). A Nguyễn Văn An named as head of Phòng
+     Tài chính merges with the one already known in that unit. A
+     Chuyên viên of Phòng Công nghệ thông tin with the same name becomes a
+     second person, and so does a "Giám đốc" of the same name at another
+     company. In `core`, where Person has no scope, a person who changed
+     employers is linked this way rather than split with no link.
    - `versioned`: one hit merges. When several versions hit and the
      mention states no code, version or issue date, it resolves to the
      version in force on the citing document's date: the newest whose
@@ -587,6 +608,14 @@ Notes:
   mentions from the cache.
 - Merging two entities that already exist is a reviewer action and comes
   after v1. Resolution only attaches new extractions.
+- **Known limits**
+  ([ADR 0023](../decisions/0023-keep-only-identity-rules-true-in-every-domain-in-core.md)).
+  A scope holds no time, so a place moved under another parent, such as
+  a commune after the 2025 province mergers, a unit moved under another
+  branch, or a product taken over by another provider, splits with no
+  link. `registration_id` is unique only within one country's register.
+  A work has one issuer scope, so mentions of a joint circular that name
+  different issuers split.
 
 ### 2.7 Resolve events (E2)
 1. **Within a document,** two events of the same type merge when their
@@ -597,15 +626,18 @@ Notes:
    apart, because their `about` targets differ.
 2. **Across documents,** events merge only on a full match of the type's
    `identity`, a pack field that now applies to events. A type without
-   `identity` never merges across documents.
+   `identity` never merges across documents. `core`'s `Event` has none,
+   since two companies' annual general meetings can share a date and a
+   title
+   ([ADR 0023](../decisions/0023-keep-only-identity-rules-true-in-every-domain-in-core.md)).
 
 There is no fuzzy or LLM event resolution in v1. Proposed identities for
 the shipped event types:
 
 | Type | `identity` |
 |---|---|
-| `Event` (core) | `[time, title]` |
-| `Meeting` | `[time, title]`, `[time, chair]` |
+| `Event` (core) | none |
+| `Meeting` | `[time, title, chair]` |
 | `Decision` | `[time, about, decided_by]` |
 | `Acquisition` | `[time, buyer, target]` |
 | `RatingAction` | `[time, rater, rated, scope]` |
@@ -613,7 +645,11 @@ the shipped event types:
 
 An acquisition announced in March and completed in June gives two events,
 because the times differ. Linking deal stages waits for a user who needs
-it.
+it. One chair can hold two meetings a day, and two units can hold
+meetings with one title, so `Meeting` needs all three. `Decision` still
+merges two decisions that one body makes on one subject on one day.
+An `is_a` subtype may state its own time, such as an interval for a
+conference under the point-time `Event`.
 
 ### 2.8 Versions and supersession
 Computed in the engine (§3). The pipeline loads the version groups a

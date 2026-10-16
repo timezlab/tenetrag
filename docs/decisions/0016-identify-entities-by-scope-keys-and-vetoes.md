@@ -1,6 +1,6 @@
 # Identify entities by scope, keys and vetoes declared in the pack
 
-**Status:** accepted
+**Status:** accepted; amended by [0023](0023-keep-only-identity-rules-true-in-every-domain-in-core.md)
 **Date:** 2026-10-06
 **Deciders:** Liam Lee (sessions 2026-10-05 and 2026-10-06)
 

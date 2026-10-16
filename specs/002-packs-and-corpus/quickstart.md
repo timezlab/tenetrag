@@ -113,7 +113,7 @@ uv run pytest tests/unit/packs/test_cases.py -q
 ```
 
 **Expected:**
-- 73 cases, 60 of them the design cases with their original ids;
+- 77 cases, 60 of them the design cases with their original ids;
 - `check_cases` reports no problem for the shipped files and the
   `finance` file;
 - `test_design_cases_match_snapshot` passes: every design case keeps

@@ -45,10 +45,10 @@ Every rule id has a broken test pack under
 | file | `file.reserved-name` | an entity attribute named `scope`, an event role or attribute named `time`, a fact role or attribute named `issuer` |
 | stack | `stack.missing-description` | a new entity, event or fact type has no `description` |
 | stack | `stack.changed-range` | an inherited attribute's `range`, or a relation's `value`, changes |
-| stack | `stack.changed-time` | an inherited type's `time` changes |
+| stack | `stack.changed-time` | an inherited type's `time` changes; an `is_a` subtype may still state its own |
 | stack | `stack.changed-description` | an inherited description changes (restating it word for word is fine) |
 | stack | `stack.changed-identity` | an inherited `names`, `corroborate`, `version_start`, `compare`, `unique`, scope `role` or `to` changes, or `inherit` goes from `document` to `none` |
-| stack | `stack.added-identity` | a scope, `corroborate` or `where` constraint is added to an inherited type or relation that had none |
+| stack | `stack.added-identity` | `corroborate` or a `where` constraint is added to an inherited type or relation that had none, or a `when` to a scope that had none; a whole scope may be added (ADR 0023) |
 | stack | `stack.required-on-inherited` | a pack adds `required` (a list entry or `required: true`) to a type another pack defined |
 | stack | `stack.removed` | a `null` or empty value would remove an inherited element |
 | stack | `stack.changed` | any other change to an inherited field, such as `is_a`, `cardinality`, `multivalued` or `unit` |
@@ -170,7 +170,8 @@ non-empty list of type or relation names).
 `PackStack` is what `load_pack` returns: frozen dataclasses with
 `slots=True`, mappings wrapped in `MappingProxyType`, sequences as
 tuples. It holds resolved values: every default of §2 is filled in, and
-`is_a` parents' roles, attributes and `time` are copied into each child.
+`is_a` parents' roles and attributes are copied into each child, and so
+is `time` when the child states none.
 
 ```
 PackStack
@@ -250,10 +251,10 @@ Example. `enterprise-docs` over `core`, for `Person`:
 
 | Field | `core` | `enterprise-docs` states | Merged |
 |---|---|---|---|
-| `scope` | `{role: employer, to: [Organization], inherit: none}` | `{inherit: document}` | `{role: employer, to: [Organization], inherit: document}` |
+| `scope` | none | `{role: employer, to: [Organization], inherit: document}`, whole (ADR 0023) | the same |
 | `identity` | `[[email]]` | `[[scope, employee_id]]` | `[[scope, employee_id], [email]]` |
-| `vetoes` | none | `[employee_id]` | `[employee_id]` |
-| `attributes` | `email` | `employee_id` | `email`, `employee_id` |
+| `vetoes` | `[born_on]` | `[employee_id]` | `[born_on, employee_id]` |
+| `attributes` | `born_on`, `email` | `employee_id` | `born_on`, `email`, `employee_id` |
 | `names`, `corroborate` | `evidence`, `[MEMBER_OF, HOLDS_POSITION]` | not stated | unchanged |
 
 ## 5. Hashes and the stamp
@@ -379,7 +380,10 @@ inherited from the document), `translation` (text), and `document`:
 | `merge` | `into`: an existing id | `expect: merge` |
 | `confirm` | `candidates`: existing ids; `right`: one of them | `expect: merge` |
 | `new` | none | `expect: apart` |
-| `same_as` | `links`: existing ids | `expect: apart` |
+| `same_as` | `links`: existing ids | `expect: apart`, or `expect: merge` as a split that keeps a link (ADR 0023) |
+
+A `same_as` outcome under `expect: merge` counts as a split, never as a
+wrong merge. PER-11, a person who changed jobs, is one.
 
 **Elements** in `depends_on`: `scope`, `key:<a>+<b>` (the key's
 attributes in its written order, `scope` included), `veto:<a>`,

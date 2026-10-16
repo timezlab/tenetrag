@@ -162,9 +162,10 @@ The script's own types differ from the packs'. R11 lists the conversion.
     | `from`, `to`, role types, `where` values, enum values | add values; the merged stack sorts them (R7) |
     | `identity` | add keys; a later pack's keys go in front of inherited ones |
     | `vetoes`, `exact_mappings` | add; the merged stack keeps the union, sorted |
-    | `scope` | add `when` values; switch `inherit` from `none` to `document`; any other field it states must equal the inherited one |
+    | `scope` | on a type with none, add a whole scope (`role` and `to` required; ADR 0023); otherwise add values to an attribute already in `when`, switch `inherit` from `none` to `document`, and state any other field equal to the inherited one |
     | `version_key` | append attributes |
     | `extract` | switch freely |
+    | `time` | state one on a type that has none, such as an `is_a` subtype |
     | `not_entities`, `competency_questions` | union; question ids are unique |
     | `retrieval` | replace per key |
     | `mode` | the top pack's, else the nearest ancestor's |
@@ -175,16 +176,22 @@ The script's own types differ from the packs'. R11 lists the conversion.
     `corroborate`, `version_start`, `compare`, `unique`, a scope's `role`
     or `to`), `stack.required-on-inherited`, `stack.removed` (a `null`
     or empty value that would remove an inherited element), and
-    `stack.added-identity` (a scope, `corroborate` or `where` constraint
-    added to an inherited type that had none, since it would tighten the
-    type for every pack in the stack).
+    `stack.added-identity` (`corroborate` or a `where` constraint added
+    to an inherited type that had none, or a `when` added to a scope that
+    had none). `corroborate` makes merges easier and a `when` lifts the
+    scope from every other value, so each would loosen identity; a
+    `where` would tighten validation for every pack in the stack. A
+    whole scope only keeps more entities apart, so it may be added
+    (ADR 0023).
   - **Two parents** are merged into the linear order like any other
     packs. Two definitions of one element that differ fail with
     `stack.parents-conflict`, naming both packs. Identical ones merge
     silently.
-  - **`is_a`** inherits roles, attributes and `time`. It does not inherit
-    `identity`, `required` or `version_key`, since each event type merges
-    on its own terms (ADR 0013).
+  - **`is_a`** inherits roles and attributes, and `time` when the child
+    states none: a conference can last for days under the point-time
+    `Event` (ADR 0023). It does not inherit `identity`, `required` or
+    `version_key`, since each event type merges on its own terms
+    (ADR 0013).
 - **Rationale:** one rule, "a child only adds", explains every row. It
   never loosens identity or tightens validation for other packs in the
   stack. Recording origins costs a map and makes every conflict
@@ -459,15 +466,21 @@ The script's own types differ from the packs'. R11 lists the conversion.
 
     | Stack | Cases |
     |---|---|
-    | `core` | ORG-1, 2, 3, 4, 7; UNIT-7, 11, 12; PER-1, 2, 3, 4, 6, 7; WRK-1, 2, 4, 5, 6; PRD-1; PLC-1; MET-1; CON-1 (23) |
-    | `enterprise-docs` | UNIT-1, 2, 3, 4, 5, 6, 8, 9, 10, 13; PER-5, 8, 9; POL-1 to 12; WRK-3; PRJ-1, 2, 3; SYS-1 (30) |
+    | `core` | ORG-1, 2, 3, 4, 7; UNIT-7, 11, 12; PER-1, 2, 3, 4, 7; WRK-1, 2, 4, 5, 6; PRD-1; PLC-1; MET-1; CON-1 (22) |
+    | `enterprise-docs` | UNIT-1, 2, 3, 4, 5, 6, 8, 9, 10, 13; PER-5, 6, 8, 9; POL-1 to 12; WRK-3; PRJ-1, 2, 3; SYS-1 (31) |
     | `finance` draft, by path | ORG-5, ORG-6, INS-1 to 5 (7) |
+
+    PER-6 (same name, another company) moved to `enterprise-docs` with
+    ADR 0023: `core`'s `Person` lost its employer scope, so under `core`
+    the pair would get a `same_as` link instead of the snapshot's `NEW`.
+    The employer scope of `enterprise-docs` keeps it `NEW`.
 
     The `finance` cases live in `tests/fixtures/identity/`, since
     `finance` is not shipped. The spec assumed a test-only copy of the
     draft's `Instrument`. Loading the draft itself, as FR-019 already
     does, leaves nothing to drift; the assumption is reworded (R13).
-  - **13 added cases**, so that FR-031 holds for both shipped packs:
+  - **17 added cases**, so that FR-031 holds for both shipped packs.
+    PER-10 to PER-13 came with ADR 0023:
 
     | Stack | Id | Expect | Element |
     |---|---|---|---|
@@ -484,18 +497,22 @@ The script's own types differ from the packs'. R11 lists the conversion.
     | `enterprise-docs` | PROC-5 | apart | `veto:code` |
     | `enterprise-docs` | PROC-6 | apart | `veto:issued_on` |
     | `enterprise-docs` | PROC-7 | apart | `veto:version_label` |
+    | `core` | PER-10 | apart | `veto:born_on`: same name and unit, born 1980 and 1992-03-14 |
+    | `core` | PER-11 | merge | `names:evidence`: Lê Minh of Alpha, then "Lê Văn Minh", Giám đốc at Beta in 2026; outcome `same_as`, a split that keeps a link |
+    | `core` | PER-12 | apart | `names:evidence`, the name guard on an email hit: two people sign from one shared mailbox; outcome `same_as` (`key_name_conflict`) |
+    | `enterprise-docs` | PER-13 | apart | `scope`: employee ID A0123 at Alpha and at Beta |
 
   - **Coverage per shipped pack** (FR-031), with the cases above:
 
     | Pack | Type | Merge | Apart | Keys and vetoes, each with a case |
     |---|---|---|---|---|
     | `core` | Organization | ORG-2, 3, 4, UNIT-11 | ORG-1, 7, UNIT-7, 12 | key `[registration_id]` ORG-2, UNIT-11; veto `registration_id` ORG-1, ORG-7, UNIT-12; veto `established_on` UNIT-7 |
-    | `core` | Person | PER-2, 3, 4, 7 | PER-1, 6 | key `[email]` PER-3, PER-4 |
+    | `core` | Person | PER-2, 3, 4, 7, 11 | PER-1, 10, 12 | key `[email]` PER-3, PER-4; veto `born_on` PER-10; the email name guard PER-12 |
     | `core` | Place | PLC-2 | PLC-1 | none declared |
     | `core` | Work | WRK-1, 6 | WRK-2, 4, 5 | key `[scope, code]` WRK-6; veto `code` WRK-4; veto `issued_on` WRK-5 |
     | `core` | Product | PRD-2 | PRD-1 | none declared |
     | `enterprise-docs` | Organization (scope changed) | UNIT-4, 6, 8, 9, 13 | UNIT-1, 2, 3, 5, 10 | none declared |
-    | `enterprise-docs` | Person (changed) | PER-8, 9 | PER-5 | key `[scope, employee_id]` PER-8; veto `employee_id` PER-5 |
+    | `enterprise-docs` | Person (changed) | PER-8, 9 | PER-5, 6, 13 | key `[scope, employee_id]` PER-8; veto `employee_id` PER-5; the added scope PER-6, PER-13 |
     | `enterprise-docs` | Work (scope changed) | WRK-3 | WRK-7 | none declared |
     | `enterprise-docs` | Product (scope changed) | PRD-3 | PRD-4 | none declared |
     | `enterprise-docs` | Policy | POL-3, 4, 6, 8, 9, 10 | POL-1, 2, 5, 7, 11, 12 | keys POL-6, POL-9, POL-10; vetoes `code` POL-12, `version_label` POL-11, `issued_on` POL-7 |
@@ -503,7 +520,7 @@ The script's own types differ from the packs'. R11 lists the conversion.
     | `enterprise-docs` | Project | PRJ-2 | PRJ-1, 3 | key PRJ-2; veto `code` PRJ-3 |
     | `enterprise-docs` | System | SYS-2 | SYS-1 | none declared |
 
-    That gives 73 cases: 60 from the design and 13 added. `Metric` and
+    That gives 77 cases: 60 from the design and 17 added. `Metric` and
     `Concept` declare no identity field, so FR-031 does not ask for
     their cases. MET-1 and CON-1 still run.
   - **The D5 situation** (US4-5) is POL-1 and UNIT-1: Beta's
@@ -624,6 +641,16 @@ Small wording changes, with the reason in the section named:
 - **Engine, feature 004.** The compiled schema's attribute values are
   strings. Validation parses each into its range (`date`, `int`, an enum
   value) and drops it with `BAD_VALUE` when it does not parse.
+- **Engine rules of ADR 0023, feature 004.** Resolution gains four rules
+  (engine brief §2.6): dates of different precision compare at the
+  coarser one; a key hit on a `names: evidence` type merges only when the
+  names agree, else `same_as` (`key_name_conflict`); corroboration needs
+  the same resolved organization, and the same title for
+  `HOLDS_POSITION`, at overlapping times; a code with no year is a key
+  only when both issue years match. PER-10 to PER-12 exercise the first
+  three. Event resolution needs cases too: two companies' AGMs on one
+  day stay apart under `core`, and two meetings one chair holds on one
+  day stay apart under `enterprise-docs`.
 - **Open questions** of domain-packs.md stay open: Vietnamese aliases in
   packs, types per extraction pass, and enum caps in provider schemas.
   The largest stack's biggest enum is 23 attribute names (R6), far from

@@ -91,11 +91,12 @@ passes (open question 2 in
 
 - **Entities:** `Person`, `Organization`, `Place`, `Work`, `Product`,
   `Metric`, `Concept`.
-- **Event:** the `Event` parent, with roles `participant` and `location`.
+- **Event:** the `Event` parent, with roles `participant` and `location`
+  and a point time. A subtype may state its own time.
 - **Facts:** `Definition` (`term`, `defined_by`; `text`, `formula`,
   `scope`) and `ReportedFigure` (`metric`, `subject`; `value`, `unit`,
-  `period`, `basis`: actual, target, forecast or budget). `Statement` is
-  off by default.
+  `period`, `basis`: actual, target, forecast or budget). `Statement`, a
+  point in time, is off by default.
 - **Relations:** `MEMBER_OF`, `HOLDS_POSITION`, `PART_OF`, `LOCATED_IN`,
   `ISSUED_BY`, `OFFERS`.
 
@@ -112,20 +113,32 @@ Notes:
   FinReflectKG as "produces" or "product of".
 - Literals stay attributes. The not-an-entity list adds quantity, URL,
   email and phone.
-- **Identity.**
-  - `Person`: scoped by employer. The key is email, and a name is only
-    evidence. A shared name merges only when the unit (`MEMBER_OF`) or
-    the title (`HOLDS_POSITION`) matches, else the LLM confirms.
+- **Identity.** `core` holds only the rules that hold in every domain,
+  since a child pack can tighten identity but never loosen it
+  ([ADR 0023](../decisions/0023-keep-only-identity-rules-true-in-every-domain-in-core.md)).
+  - `Person`: no scope, since an employer changes over a life. The key is
+    email, but a hit whose names clash is linked by `same_as`, not
+    merged, since a mailbox can be shared. `born_on` is a veto. A name is
+    only evidence: a shared name merges only when the unit (`MEMBER_OF`)
+    or the title (`HOLDS_POSITION`) at the same organization matches,
+    at overlapping times, else the LLM confirms. A person who changed
+    jobs is linked by `same_as`.
   - `Organization`: a company has no scope. Its registration number is a
     key and a veto, and so is its founding date. A unit (category `unit`)
     is scoped by its parent, and its name is a key only within it.
-  - `Work`: scoped by its issuer. A code that names its issuer, such as
-    "39/2016/TT-NHNN", matches without the scope.
-  - `Product` and `Place`: scoped by provider and parent place.
+  - `Work`: scoped by its issuer, who issued or wrote it, not a
+    publisher. A code that names its issuer, such as "39/2016/TT-NHNN",
+    matches without the scope.
+  - `Product` and `Place`: scoped by provider and parent place. A
+    provider is an organization or a person, never a reseller. A place
+    or product that moves under another parent splits; dated scopes are
+    an [open question](domain-packs.md#open-questions).
+  - `Event`: no identity, so a plain event never merges across
+    documents: two companies' AGMs can share a date and a title.
   - `Metric` and `Concept`: lexical. The term is the node, and each
     source's meaning is a `Definition` fact.
   - No type inherits a scope from the document in `core`: a news
-    publisher is not the employer of everyone it names.
+    publisher is not the parent or provider of everything it names.
 
 ## `enterprise-docs`
 
@@ -138,7 +151,7 @@ Notes:
 | Facts | `ActionItem` (owner, about, assigned_in; due_date, status), `Requirement` (source, applies_to, metric; modality, condition, threshold, deadline) |
 | Relations | `OWNER_OF` (one owner at a time), `IMPLEMENTS`, `APPLIES_TO`, `SUPERSEDES`, `USES` |
 | Enum values | `OrgCategory` += department, team, committee, business_unit, branch |
-| Identity | units, people, works and products inherit the document's issuer as their scope; `Person` += `employee_id` (key and veto); the new types are scoped by issuer or owner |
+| Identity | units, works and products inherit the document's issuer as their scope; `Person` gets an employer scope inherited from the document, and `employee_id` (key and veto, tried before email); `Meeting` merges on time, title and chair; the new types are scoped by issuer or owner |
 
 Notes:
 - **Scope.** The pack holds what most organizations' internal documents

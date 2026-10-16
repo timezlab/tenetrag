@@ -608,7 +608,7 @@ index run
 
 ## Phase 6: User Story 4 - Identity cases ship with each pack (Priority: P2)
 
-**Goal**: 73 identity cases in the packs' vocabulary, the 60 design cases
+**Goal**: 77 identity cases in the packs' vocabulary, the 60 design cases
 among them, loaded and checked for consistency and coverage
 
 **Independent Test**: follow
@@ -653,8 +653,9 @@ passes.
   - A throwaway script in the session scratchpad, never committed, reads
     `research/identity-design-cases.json` and applies the conversion
     rules of research R11.
-  - It writes `src/tenetrag/packs/shipped/core.cases.yaml` (23 cases),
-    `src/tenetrag/packs/shipped/enterprise-docs.cases.yaml` (30) and
+  - It writes `src/tenetrag/packs/shipped/core.cases.yaml` (22 cases),
+    `src/tenetrag/packs/shipped/enterprise-docs.cases.yaml` (31, with
+    PER-6 moved there by ADR 0023) and
     `tests/fixtures/identity/finance.cases.yaml` (7, with
     `pack: ../../../docs/product/packs/finance.yaml`), per R11's stack
     table.
@@ -663,9 +664,10 @@ passes.
     that T036 fills.
 
   Depends on T034.
-- [ ] T036 [US4] Write the 13 added cases of research R11's table by
-  hand (PLC-2, PRD-2 to PRD-4, WRK-7, SYS-2, PROC-1 to PROC-7), with
-  fictional names and `.example` emails. `check_cases(*shipped_cases(),
+- [ ] T036 [US4] Write the 17 added cases of research R11's table by
+  hand (PLC-2, PRD-2 to PRD-4, WRK-7, SYS-2, PROC-1 to PROC-7, and
+  PER-10 to PER-13 of ADR 0023), with fictional names and `.example`
+  emails. `check_cases(*shipped_cases(),
   finance_cases)` then returns no problem. Depends on T035.
 - [ ] T037 [US4] Run `uv run pytest tests/unit/packs/test_cases.py -q`,
   quickstart §4 with its negative check, and `make check`. Record the
@@ -842,7 +844,7 @@ validation
     from the fact table by `make corpus`, with one golden JSONL file
     filtered by `qtype`, rendered as Markdown until feature 004
     (research R13);
-  - engine brief §10: where the identity cases (73: 60 design, 13 added)
+  - engine brief §10: where the identity cases (77: 60 design, 17 added)
     and the running example live.
 - [ ] T052 [P] Update `AGENTS.md`: the status line (002 implemented, 003
   next) and a `make corpus` line in Commands. Keep it under 150 lines.
