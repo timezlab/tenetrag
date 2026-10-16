@@ -339,7 +339,7 @@ class _Merger:
             elif key == "roles":
                 self.roles(where, state["roles"], value, is_new)
             elif key == "scope":
-                self.scope(where, state, value, is_new)
+                self.scope(where, state, value)
             elif key == "identity":
                 self.identity(kind, where, state, value, is_new)
             elif key == "where":
@@ -427,12 +427,11 @@ class _Merger:
             else:
                 roles[role] |= set(types)
 
-    def scope(self, path: str, state: dict[str, Any], stated: ScopeDef, is_new: bool) -> None:
+    def scope(self, path: str, state: dict[str, Any], stated: ScopeDef) -> None:
         scope = state["scope"]
         if scope is None:
-            if not is_new:
-                self.added_identity(path)
-                return
+            # A scope added to an inherited type that had none only keeps more entities
+            # apart, so it is taken whole, as on a new type (ADR 0023).
             for key in ("role", "to"):
                 if getattr(stated, key) is None:
                     self.problem(
@@ -613,7 +612,7 @@ class _Merger:
     # After the last file
 
     def resolve_is_a(self) -> None:
-        """Copy each `is_a` parent's roles, attributes and time into the child, parents first."""
+        """Copy each `is_a` parent's roles, attributes and, unless stated, time; parents first."""
         events = self.definitions["events"]
         resolved: set[str] = set()
 
@@ -652,15 +651,10 @@ class _Merger:
                         owner_of(self.owners, where),
                     )
                     break
+        # A subtype may state its own time: a conference runs for days under a point-time
+        # Event (ADR 0023).
         if child["time"] is None:
             child["time"] = parent["time"]
-        elif parent["time"] is not None and child["time"] != parent["time"]:
-            self.problem(
-                "stack.changed-time",
-                f"{path}.time",
-                f"the time differs from the parent type `{child['is_a']}`; leave it out",
-                owner_of(self.owners, path),
-            )
 
     def freeze(self) -> PackStack:
         top = self.files[-1].info

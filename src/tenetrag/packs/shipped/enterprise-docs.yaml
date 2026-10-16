@@ -8,8 +8,8 @@ entities:
   # their scope when the text names none (ADR 0016). Policy v1 of two companies stays two entities.
   Organization:            # inherited: unit categories added to core's scope condition
     scope: {inherit: document, when: {category: [department, team, committee, business_unit, branch]}}
-  Person:                  # inherited: an employee ID is tried before core's email key
-    scope: {inherit: document}
+  Person:                  # inherited: scoped by employer here, not in core (ADR 0023); an employee ID is tried before core's email key
+    scope: {role: employer, to: [Organization], inherit: document}
     identity: [[scope, employee_id]]
     vetoes: [employee_id]
     attributes:
@@ -84,7 +84,7 @@ events:
     description: A named or dated meeting whose minutes or notes record who attended and what was discussed.
     roles: {attendee: [Person, Organization], chair: [Person]}
     attributes: {title: {range: str}}
-    identity: [[time, title], [time, chair]]
+    identity: [[time, title, chair]]   # one chair can hold two meetings a day, and two units can hold same-titled ones
   Decision:
     is_a: Event
     description: A choice that a person or body made or recorded, such as approving a budget or rejecting a proposal.
