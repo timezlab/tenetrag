@@ -14,13 +14,16 @@ Behaviours:
 9. Lists whose order means nothing are sorted; identity keys keep their
    order, a child's keys first.
 10. Defaults are filled in after stacking.
-11. `is_a` copies roles, attributes and time, not identity or required.
+11. `is_a` copies roles, attributes and time, not identity or required. A
+    subtype may state its own time; an inherited type keeps its own.
 12. `mode` is the top pack's, else the nearest ancestor's.
 13. Restating an inherited value word for word merges, as does an enum value
     that two packs add.
 14. A relative reference resolves against base_dir, else the working
     directory; an `extends` path against the file that holds it. A problem
     names a file by those relative paths.
+15. A pack may add a whole scope to an inherited entity type that has none
+    (ADR 0023).
 """
 
 import dataclasses
@@ -68,8 +71,8 @@ def test_person_merged_field_by_field():
     person = load_pack("enterprise-docs").entities["Person"]
     assert person.scope == Scope(role="employer", to=("Organization",), inherit="document", when={})
     assert person.identity == (Key(("scope", "employee_id")), Key(("email",)))
-    assert person.vetoes == ("employee_id",)
-    assert list(person.attributes) == ["email", "employee_id"]
+    assert person.vetoes == ("born_on", "employee_id")
+    assert list(person.attributes) == ["born_on", "email", "employee_id"]
     assert person.attributes["employee_id"].compare == "upper"
     assert person.names is NameRule.EVIDENCE
     assert person.corroborate == ("HOLDS_POSITION", "MEMBER_OF")
@@ -306,6 +309,23 @@ def test_is_a_copies_roles_attributes_and_time(tmp_path):
     assert stack.events["Decision"].required == ("about",)
 
 
+def test_is_a_subtype_states_its_own_time(tmp_path):
+    stack = load(
+        tmp_path,
+        HEADER
+        + "events:\n  Conference:\n    is_a: Event\n"
+        + "    description: A named conference that runs over several days.\n"
+        + "    time: interval\n",
+    )
+    assert stack.events["Conference"].time == "interval"
+    assert stack.events["Event"].time == "point"
+
+
+def test_inherited_event_keeps_its_time(tmp_path):
+    error = failing(tmp_path, HEADER + "events:\n  Event:\n    time: interval\n")
+    assert problem_lines(error) == [("pack.yaml", "events.Event.time", "stack.changed-time")]
+
+
 def test_mode_from_nearest_pack(tmp_path):
     assert load_pack("core").mode is Mode.STRICT
     assert load_pack("enterprise-docs").mode is Mode.STRICT
@@ -324,12 +344,33 @@ def test_restated_values_merge(tmp_path):
         tmp_path,
         HEADER
         + "entities:\n  Person:\n    description: A specific, named human being.\n"
-        + "    scope: {role: employer, to: [Organization]}\n"
+        + "    vetoes: [born_on]\n"
         + "    attributes: {email: {range: str, compare: lower, unique: global}}\n"
         + "relations:\n  MEMBER_OF: {from: [Person], time: interval}\n",
     )
     assert stack.entities["Person"] == load_pack("core").entities["Person"]
     assert stack.relations["MEMBER_OF"] == load_pack("core").relations["MEMBER_OF"]
+
+
+def test_child_adds_a_scope_to_an_unscoped_type(tmp_path):
+    stack = load(
+        tmp_path,
+        HEADER
+        + "entities:\n  Metric:\n"
+        + "    scope: {role: owner, to: [Organization], inherit: document}\n",
+    )
+    assert stack.entities["Metric"].scope == Scope(
+        role="owner", to=("Organization",), inherit="document", when={}
+    )
+    assert stack.origins["entities.Metric.scope"] == "user"
+
+
+def test_added_scope_is_stated_whole(tmp_path):
+    error = failing(tmp_path, HEADER + "entities:\n  Metric:\n    scope: {inherit: document}\n")
+    assert problem_lines(error) == [
+        ("pack.yaml", "entities.Metric.scope.role", "file.invalid-value"),
+        ("pack.yaml", "entities.Metric.scope.to", "file.invalid-value"),
+    ]
 
 
 def test_enum_value_added_twice_merges(tmp_path):
