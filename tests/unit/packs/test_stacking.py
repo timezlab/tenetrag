@@ -31,7 +31,7 @@ import shutil
 
 import pytest
 
-from tenetrag.packs import Key, Mode, NameRule, PackInfo, Scope, load_pack
+from tenetrag.packs import Key, Mode, NameRule, Scope, load_pack
 from tenetrag.protocols.errors import ConfigError
 from tests.support.packs import PACK_FIXTURES, problem_lines, problem_messages, write_pack
 
@@ -82,7 +82,8 @@ def test_person_merged_field_by_field():
 def test_user_pack_additions():
     stack = load_pack(VALID / "alpha-ops.yaml")
     assert [info.name for info in stack.packs] == ["core", "enterprise-docs", "alpha-ops"]
-    assert stack.packs[0] == PackInfo(name="core", version=1, source="shipped")
+    core = stack.packs[0]
+    assert (core.name, core.version, core.source) == ("core", 1, "shipped")
     assert stack.packs[-1].source == str((VALID / "alpha-ops.yaml").resolve())
     vendor = stack.entities["Vendor"]
     assert vendor.identity == (Key(("tax_code",)),)

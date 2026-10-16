@@ -37,6 +37,35 @@ def test_load_profile_accepts_str_path():
     assert load_profile(str(path)) == load_profile(path)
 
 
+# The pack path (contracts/config.md §1)
+
+
+def write_profile(path: Path, text: str) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    return path
+
+
+def test_pack_path_relative_to_profile(tmp_path):
+    profile = write_profile(tmp_path / "profiles" / "alpha.yaml", "pack: packs/alpha-ops.yaml\n")
+    assert load_profile(profile).pack == str(tmp_path / "profiles" / "packs" / "alpha-ops.yaml")
+    assert profile_from_yaml("pack: packs/alpha-ops.yaml\n").pack == "packs/alpha-ops.yaml"
+    assert profile_from_dict({"pack": "packs/alpha-ops.yaml"}).pack == "packs/alpha-ops.yaml"
+
+
+def test_pack_path_from_a_relative_profile_path(tmp_path, monkeypatch):
+    write_profile(tmp_path / "profiles" / "alpha.yaml", "pack: ../packs/alpha-ops.yml\n")
+    monkeypatch.chdir(tmp_path)
+    loaded = load_profile(Path("profiles") / "alpha.yaml")
+    assert loaded.pack == str(tmp_path / "packs" / "alpha-ops.yml")
+
+
+@pytest.mark.parametrize("value", ["enterprise-docs", "/srv/packs/alpha-ops.yaml"])
+def test_pack_name_or_absolute_path_kept(tmp_path, value):
+    profile = write_profile(tmp_path / "alpha.yaml", f"pack: {value}\n")
+    assert load_profile(profile).pack == value
+
+
 # Duplicate keys
 
 

@@ -46,6 +46,7 @@ def test_empty_mapping_gives_all_defaults():
     assert profile.models.answer is None
     assert profile.models.embedding is None
     assert profile.language == "en"
+    assert profile.pack == "core"
 
 
 def test_chat_model_defaults():
@@ -377,3 +378,34 @@ def test_language_codes_accepted(language):
 @pytest.mark.parametrize("language", ["Vietnamese", "VI", "pt-br", "e", ""])
 def test_language_codes_rejected(language):
     assert "language" in problems({"language": language})
+
+
+# The pack (contracts/config.md §1, data-model §7)
+
+
+def test_pack_default():
+    assert profile_from_dict({}).pack == "core"
+    assert profile_from_dict({"language": "vi"}).pack == "core"
+
+
+@pytest.mark.parametrize(
+    "value", ["enterprise-docs", "core", "a/b.yaml", "c.yml", "/srv/packs/alpha-ops.yaml"]
+)
+def test_pack_name_or_path(value):
+    assert profile_from_dict({"pack": value}).pack == value
+
+
+@pytest.mark.parametrize("value", ["Core", "core_v2", "a/b.json", "", "-core", "core-"])
+def test_pack_name_or_path_rejected(value):
+    message = problems({"pack": value})
+    assert "pack:" in message
+    assert "pack name" in message
+    assert ".yaml or .yml" in message
+
+
+def test_pack_name_pattern_matches_packs():
+    # config cannot import packs, so the pattern is written in both modules.
+    from tenetrag.config import profile
+    from tenetrag.packs import format as pack_format
+
+    assert profile.PACK_NAME.pattern == pack_format.PACK_NAME.pattern

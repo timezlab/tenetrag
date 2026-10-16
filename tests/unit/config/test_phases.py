@@ -128,6 +128,11 @@ def test_resolved_phases(path, expected):
     assert field_phases()[path] == expected
 
 
+def test_pack_is_operational():
+    # The pack's content enters the stage hashes through pack_hash, not this field.
+    assert field_phases()["pack"] == QUERY
+
+
 # The rules, on synthetic models
 
 

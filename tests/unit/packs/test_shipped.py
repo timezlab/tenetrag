@@ -7,12 +7,24 @@ Behaviours:
 4. core keeps only the identity and time rules that hold in every domain,
    since a child pack cannot undo them (ADR 0023); enterprise-docs scopes
    people by employer and meetings by chair and title.
+5. Each shipped file's hash equals the pin of its (name, version), so a
+   changed file needs a new version (FR-016, US2-7).
+6. The finance draft stacks and compiles alone on core and on
+   enterprise-docs (FR-019).
 """
 
 import pytest
 
-from tenetrag.packs import Key, PackInfo, Scope, ShippedPack, load_pack, shipped_packs
-from tests.support.packs import REPO_ROOT
+from tenetrag.packs import Key, Scope, ShippedPack, compile_schema, load_pack, shipped_packs
+from tests.support.packs import FINANCE_DRAFT, PACK_FIXTURES, REPO_ROOT
+
+# The file hash of each shipped (name, version), data-model §5. Pins are only
+# ever added: a changed file gets a new version and a new pin, so a stamp
+# names one pack content for good.
+PINS = {
+    ("core", 1): "sha256:pending",
+    ("enterprise-docs", 1): "sha256:pending",
+}
 
 
 def test_shipped_listed():
@@ -23,7 +35,8 @@ def test_shipped_listed():
 def test_shipped_load_clean(name):
     stack = load_pack(name)
     assert (stack.name, stack.version) == (name, 1)
-    assert stack.packs[-1] == PackInfo(name=name, version=1, source="shipped")
+    top = stack.packs[-1]
+    assert (top.name, top.version, top.source) == (name, 1, "shipped")
     assert stack.warnings == ()
     assert stack.glossary == ()
 
@@ -55,3 +68,32 @@ def test_enterprise_docs_scopes_people_and_meetings():
 def test_no_draft_copies():
     drafts = REPO_ROOT / "docs" / "product" / "packs"
     assert sorted(path.name for path in drafts.glob("*.yaml")) == ["finance.yaml"]
+
+
+@pytest.mark.parametrize("name", ["core", "enterprise-docs"])
+def test_shipped_pins(name):
+    top = load_pack(name).packs[-1]
+    pin = PINS.get((name, top.version))
+    assert top.file_hash == pin, (
+        f"src/tenetrag/packs/shipped/{name}.yaml changed without a new version: bump "
+        f"`version` in it and add a pin for ({name!r}, {top.version + 1}) to PINS, "
+        "keeping the old pins"
+    )
+
+
+@pytest.mark.parametrize(
+    ("reference", "names"),
+    [
+        (FINANCE_DRAFT, ["core", "finance"]),
+        (
+            PACK_FIXTURES / "valid" / "shared-ancestor.yaml",
+            ["core", "enterprise-docs", "finance", "shared-ancestor"],
+        ),
+    ],
+    ids=["on-core", "on-enterprise-docs"],
+)
+def test_finance_draft_stacks(reference, names):
+    stack = load_pack(reference)
+    assert [info.name for info in stack.packs] == names
+    assert stack.warnings == ()
+    assert compile_schema(stack).property_count == 52
