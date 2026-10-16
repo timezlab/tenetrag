@@ -26,8 +26,10 @@ Behaviours:
 import dataclasses
 import json
 import re
+import unicodedata
 from collections import Counter
 
+import pydantic
 import pytest
 import yaml
 
@@ -469,6 +471,21 @@ def test_element_grammar_refuses(tmp_path, element):
     assert found(problems) == [("case.unknown-element", "cases[X-1].depends_on[1]")]
 
 
+@pytest.mark.parametrize("element", ["veto:", "key:", "veto:Born_On", "employee_id"])
+def test_bad_element_names_the_grammar(tmp_path, element):
+    problems = check(tmp_path, case(depends_on=["key:email", element]), parent="enterprise-docs")
+    assert len(problems) == 1
+    assert "`key:<a>+<b>`" in problems[0].message
+    assert "has no" not in problems[0].message
+
+
+def test_scope_element_needs_a_scope(tmp_path):
+    # core gives Person no scope; enterprise-docs gives it an employer.
+    problems = check(tmp_path, case(depends_on=["key:email", "scope"]))
+    assert found(problems) == [("case.unknown-element", "cases[X-1].depends_on[1]")]
+    assert problems[0].message == "`Person` has no scope under `user`"
+
+
 def test_enum_value_in_stack(tmp_path):
     unit = {
         "type": "Organization",
@@ -504,6 +521,18 @@ def test_scope_fits_the_type(tmp_path):
     )
     problems = check(tmp_path, met, entities={"alpha": ALPHA, "met": metric})
     assert found(problems) == [("case.unknown-element", "cases[X-1].mention.scope")]
+
+
+def test_scope_is_an_entity(tmp_path):
+    entities = {"alpha": ALPHA, "an": AN | {"scope": "nobody"}}
+    problems = check(tmp_path, case(), parent="enterprise-docs", entities=entities)
+    assert found(problems) == [("case.unknown-entity", "entities.an.scope")]
+
+
+def test_issuer_is_an_entity(tmp_path):
+    cited = mention(document=DOCUMENT | {"issuer": "gamma"})
+    problems = check(tmp_path, case(mention=cited))
+    assert found(problems) == [("case.unknown-entity", "cases[X-1].mention.document.issuer")]
 
 
 def test_relations_fit_the_stack(tmp_path):
@@ -632,6 +661,12 @@ def test_duplicate_id_across_files(tmp_path):
     assert inline.source in problems[0].message
 
 
+def test_duplicate_id_in_one_file(tmp_path):
+    problems = check(tmp_path, case("X-1"), case("X-1"))
+    assert found(problems) == [("case.duplicate-id", "cases[X-1]")]
+    assert "in this file" in problems[0].message
+
+
 # One small file for each case.* rule of data-model §8
 
 RULE_FILES = {
@@ -714,6 +749,34 @@ def test_case_rule(tmp_path, rule):
             "cases[0].mention.document.date",
             "file.invalid-value",
         ),
+        # Python reads 20250610 as a date; a case file writes the ISO form with dashes.
+        (
+            {"mention": mention(document=DOCUMENT | {"date": "20250610"})},
+            "cases[0].mention.document.date",
+            "file.invalid-value",
+        ),
+        (
+            {"mention": mention(document=DOCUMENT | {"language": "fr"})},
+            "cases[0].mention.document.language",
+            "file.invalid-value",
+        ),
+        (
+            {"mention": mention(attributes={"email": {"value": "", "quote": "email"}})},
+            "cases[0].mention.attributes.email.value",
+            "file.invalid-value",
+        ),
+        # A `!!binary` value reads as bytes, which strict mode refuses as text.
+        (
+            {
+                "mention": mention(
+                    attributes={"email": {"value": b"an.nv@alpha.example", "quote": "email"}}
+                )
+            },
+            "cases[0].mention.attributes.email.value",
+            "file.invalid-value",
+        ),
+        ({"existing": []}, "cases[0].existing", "file.invalid-value"),
+        ({"existing": ["An"]}, "cases[0].existing[0]", "file.bad-name"),
     ],
 )
 def test_case_shape(tmp_path, changes, path, rule):
@@ -745,6 +808,26 @@ def test_case_dates_read_either_way(tmp_path):
     assert "date: 2025-06-10" in text
     written.write_text(text, encoding="utf-8")
     assert load_cases(written).cases[0].mention.document.date == "2025-06-10"
+
+
+def test_attribute_dates_read_either_way(tmp_path):
+    born = {"born_on": {"value": "1990-01-02", "quote": "sinh ngày 02/01/1990"}}
+    written = write_cases(tmp_path, case(mention=mention(attributes=born)))
+    text = written.read_text(encoding="utf-8").replace("'1990-01-02'", "1990-01-02")
+    assert "value: 1990-01-02" in text
+    written.write_text(text, encoding="utf-8")
+    loaded = load_cases(written).cases[0].mention.attributes["born_on"]
+    assert loaded.value == "1990-01-02"
+
+
+def test_case_text_read_as_nfc(tmp_path):
+    written = write_cases(tmp_path, case())
+    decomposed = unicodedata.normalize("NFD", written.read_text(encoding="utf-8"))
+    assert decomposed != written.read_text(encoding="utf-8")
+    written.write_text(decomposed, encoding="utf-8")
+    loaded = load_cases(written)
+    assert loaded.entities["alpha"].name == unicodedata.normalize("NFC", "Công ty CP Alpha")
+    assert loaded.cases[0].title == unicodedata.normalize("NFC", "Cùng email")
 
 
 def test_case_text_never_echoed(tmp_path):
@@ -783,3 +866,11 @@ def test_case_set_read_only():
     with pytest.raises(TypeError):
         core.entities["alpha"] = core.entities["alpha"]
     assert isinstance(core.cases, tuple)
+
+
+def test_cases_frozen():
+    core = shipped_cases()[0]
+    with pytest.raises(pydantic.ValidationError):
+        core.cases[0].title = "other"
+    with pytest.raises(pydantic.ValidationError):
+        core.entities["alpha"].name = "other"
