@@ -11,11 +11,20 @@ Behaviours:
    changed file needs a new version (FR-016, US2-7).
 6. The finance draft stacks and compiles alone on core and on
    enterprise-docs (FR-019).
+7. Each shipped pack adds competency questions of its own (US3-4).
 """
 
 import pytest
 
-from tenetrag.packs import Key, Scope, ShippedPack, compile_schema, load_pack, shipped_packs
+from tenetrag.packs import (
+    Key,
+    Scope,
+    ShippedPack,
+    check_coverage,
+    compile_schema,
+    load_pack,
+    shipped_packs,
+)
 from tests.support.packs import FINANCE_DRAFT, PACK_FIXTURES, REPO_ROOT
 
 # The file hash of each shipped (name, version), data-model §5. Pins are only
@@ -82,6 +91,12 @@ def test_shipped_pins(name):
         f"`version` in it and add a pin for ({name!r}, {top.version + 1}) to PINS, "
         "keeping the old pins"
     )
+
+
+@pytest.mark.parametrize("name", ["core", "enterprise-docs"])
+def test_shipped_have_questions(name):
+    report = check_coverage(load_pack(name))
+    assert any(question.pack == name for question in report.questions)
 
 
 @pytest.mark.parametrize(

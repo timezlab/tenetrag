@@ -1,0 +1,7 @@
+pack: audits
+version: 1
+extends: core
+competency_questions:
+  - id: audits-1
+    text: Which units were audited in year Y?
+    needs: [Organization, AUDITED]
