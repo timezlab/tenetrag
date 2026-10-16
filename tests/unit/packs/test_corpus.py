@@ -469,6 +469,43 @@ def test_golden_running_example():
         assert entry["tags"]["origin"] == "hand_written"
 
 
+def test_golden_names_tell_apart():
+    """A question about an entity names it so that a same-named entity does not answer.
+
+    Versions of one company's document differ by their version label;
+    same-named entities of two companies differ by the company.
+    """
+    world = _world()
+
+    def label(entity_id, lang):
+        entry = world[entity_id]
+        return entry.get("labels", {}).get(lang, entry["name"])
+
+    def company(entity_id):
+        while "scope" in world[entity_id]:
+            entity_id = world[entity_id]["scope"]
+        return entity_id
+
+    checked = 0
+    for entry in _golden():
+        qtype, _, entity_id = entry["tags"]["id"].partition(":")
+        if qtype != "entity_all" or entity_id not in world:
+            continue
+        lang, question = entry["tags"]["lang"], entry["question"]
+        name = label(entity_id, lang)
+        for rival in (other for other in world if other != entity_id):
+            if label(rival, lang) != name:
+                continue
+            if company(rival) != company(entity_id):
+                assert label(company(entity_id), lang) in question, entry["tags"]["id"]
+            else:
+                version = world[entity_id]["attributes"]["version_label"]
+                expected = f"phiên bản {version}" if lang == "vi" else f"version {version}"
+                assert expected in question, entry["tags"]["id"]
+            checked += 1
+    assert checked
+
+
 def test_golden_sources_exist():
     document_ids = {document["id"] for document in _documents()}
     cited = {source for entry in _golden() for source in entry["expected_sources"]}
