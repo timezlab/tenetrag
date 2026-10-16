@@ -1,0 +1,29 @@
+# Batch A: a bilingual register; its owner for QT-TC-03 conflicts with D9
+# from the same start (two OWNER_OF statements, equal starts).
+id: D10
+language: mixed
+issuer: alpha
+title: Bảng phân công đơn vị chủ trì / Process owner register
+format: xlsx
+dates: {issued_on: "2025-05-28", effective_from: "2025-06-01"}
+blocks:
+  - {heading: "Bảng phân công đơn vị chủ trì / Process owner register", level: 1}
+  - paragraph: "Áp dụng từ ngày 01/06/2025 / Effective from 1 June 2025."
+  - table:
+      header: ["Quy trình / Process", "Đơn vị chủ trì / Owner"]
+      rows:
+        - ["Quy trình phê duyệt thanh toán (QT-TC-03) / Payment approval procedure", "Phòng Tài chính / Finance Department"]
+        - ["Hệ thống quản lý chi phí / Expense management system", "Phòng Tài chính / Finance Department"]
+items:
+  - id: D10.1
+    kind: entity
+    type: Procedure
+    world: alpha.qtpd.v1
+    surface: Quy trình phê duyệt thanh toán
+    is_name: true
+    attributes:
+      code: {value: QT-TC-03, quote: QT-TC-03}
+  - {id: D10.2, kind: entity, type: Organization, world: alpha.tc, surface: Phòng Tài chính, is_name: true}
+  - {id: D10.3, kind: entity, type: System, world: alpha.htcp, surface: Hệ thống quản lý chi phí, is_name: true}
+  - {id: D10.4, kind: relation, type: OWNER_OF, from: D10.2, to: D10.1, quote: "Quy trình phê duyệt thanh toán (QT-TC-03) / Payment approval procedure | Phòng Tài chính"}
+  - {id: D10.5, kind: relation, type: OWNER_OF, from: D10.2, to: D10.3, quote: "Hệ thống quản lý chi phí / Expense management system | Phòng Tài chính"}

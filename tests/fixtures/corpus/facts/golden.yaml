@@ -1,0 +1,61 @@
+# Hand-written golden questions (contracts/corpus.md). They follow the
+# generated ones in golden.jsonl, in this order. Q-a to Q-c are the engine
+# brief's running example questions, word for word.
+questions:
+  - id: Q-a
+    qtype: as_of
+    lang: vi
+    cq: [ed-7]
+    as_of: "2025-03-15"
+    question: Phụ cấp lưu trú theo quy chế công tác phí vào tháng 3/2025 là bao nhiêu?
+    expected_answer: 2.000.000 VND/ngày, theo Quy chế công tác phí phiên bản 1 (D1). Phiên bản 2 (D2) nâng mức này lên 2.500.000 VND/ngày từ ngày 15/01/2026.
+    expected_sources: [D1, D2]
+  - id: Q-b
+    qtype: meeting_decision
+    lang: vi
+    cq: [ed-1]
+    question: Ai thông qua quy chế công tác phí phiên bản 2, khi nào?
+    expected_answer: Ủy ban Rủi ro thông qua Quy chế công tác phí phiên bản 2 tại cuộc họp ngày 20/12/2025 (D3).
+    expected_sources: [D3]
+  - id: Q-c
+    qtype: definition
+    lang: en
+    cq: [core-3]
+    question: How is churn rate calculated?
+    expected_answer: Churn rate = customers lost in the period ÷ customers at the start of the period (D4).
+    expected_sources: [D4]
+  - id: Q-owner-conflict
+    qtype: conflicting_versions
+    lang: vi
+    cq: [ed-3]
+    question: Đơn vị nào chủ trì Quy trình phê duyệt thanh toán của Công ty CP Alpha từ ngày 01/06/2025?
+    expected_answer: 'Hai tài liệu cùng áp dụng từ ngày 01/06/2025 nói khác nhau. Quy trình phê duyệt thanh toán ghi "Đơn vị chủ trì: Phòng Kế toán" (D9), còn Bảng phân công đơn vị chủ trì ghi Phòng Tài chính (D10).'
+    expected_sources: [D9, D10]
+  - id: Q-binh
+    qtype: entity_all
+    lang: vi
+    cq: [core-1, ed-1]
+    question: Các tài liệu cho biết gì về bà Trần Thị Bình của Công ty CP Alpha?
+    expected_answer: Bà Trần Thị Bình là Chủ tịch Ủy ban Rủi ro (D3, D17). Bà chủ trì các cuộc họp Ủy ban Rủi ro ngày 20/12/2025 (D3) và ngày 10/03/2026 (D17), và cuộc họp của Product Committee ngày 08/04/2026 (D21).
+    expected_sources: [D3, D17, D21]
+  - id: Q-active-users
+    qtype: single_fact
+    lang: en
+    cq: [core-4, ed-6]
+    question: How many active users did the Beta Mobile app have at the end of Q3 2025?
+    expected_answer: The Beta Mobile app had 120,000 active users at the end of Q3 2025 (D26).
+    expected_sources: [D26]
+  - id: Q-alpha-revenue
+    qtype: historical_figure
+    lang: vi
+    cq: [core-4, ed-6]
+    question: Doanh thu năm 2025 của Công ty CP Alpha so với kế hoạch thế nào?
+    expected_answer: Kế hoạch doanh thu năm 2025 là 1.200 tỷ đồng (D24). Báo cáo nhanh ngày 15/01/2026 ước doanh thu thực hiện theo số liệu sơ bộ đạt 1.140 tỷ đồng (D30); Báo cáo thường niên 2025 công bố số chính thức là VND 1,150 billion, bằng 96% kế hoạch (D25).
+    expected_sources: [D24, D25, D30]
+  - id: Q-gamma-an
+    qtype: cross_lingual
+    lang: en
+    cq: [core-1]
+    question: What position was Nguyễn Văn An of Gamma Co., Ltd. appointed to, and from when?
+    expected_answer: Nguyễn Văn An (an.nguyen@gamma.example) was appointed Trưởng phòng (Head) of Phòng Kinh doanh, the Sales Department of Công ty TNHH Gamma, from 01/11/2025 (D34). He is not Nguyễn Văn An of Công ty CP Alpha.
+    expected_sources: [D34]

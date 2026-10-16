@@ -1,0 +1,40 @@
+# Batch A: a procedure that implements the security policy, named with no version.
+id: D15
+language: en
+issuer: alpha
+title: Data Retention Procedure
+format: docx
+dates: {issued_on: "2025-08-04", effective_from: "2025-08-18"}
+blocks:
+  - {heading: "Data Retention Procedure", level: 1}
+  - paragraph: "Code: ALP-PRC-11. Version 1. Issued on 4 August 2025, effective from 18 August 2025. Owner: IT Department."
+  - paragraph: "This procedure implements the Information Security Policy."
+  - paragraph: "The retention period for customer records is 10 years."
+  - paragraph: "Customer records are kept in the CRM system."
+items:
+  - id: D15.1
+    kind: entity
+    type: Procedure
+    world: alpha.drp.v1
+    surface: Data Retention Procedure
+    is_name: true
+    attributes:
+      title: {value: Data Retention Procedure, quote: Data Retention Procedure}
+      code: {value: ALP-PRC-11, quote: "Code: ALP-PRC-11"}
+      version_label: {value: "1", quote: Version 1}
+      issued_on: {value: "2025-08-04", quote: Issued on 4 August 2025}
+      effective_from: {value: "2025-08-18", quote: effective from 18 August 2025}
+  - {id: D15.2, kind: entity, type: Organization, world: alpha.cntt, surface: IT Department, is_name: true}
+  - {id: D15.3, kind: entity, type: Policy, world: alpha.isp.v1, surface: Information Security Policy, is_name: true}
+  - {id: D15.4, kind: entity, type: Metric, world: met.retention, surface: retention period, is_name: true}
+  - {id: D15.5, kind: entity, type: System, world: alpha.crm, surface: CRM system, is_name: true}
+  - {id: D15.6, kind: relation, type: OWNER_OF, from: D15.2, to: D15.1, quote: "Owner: IT Department"}
+  - {id: D15.7, kind: relation, type: IMPLEMENTS, from: D15.1, to: D15.3, quote: "This procedure implements the Information Security Policy."}
+  - {id: D15.8, kind: relation, type: USES, from: D15.1, to: D15.5, quote: "Customer records are kept in the CRM system."}
+  - id: D15.9
+    kind: fact
+    type: Requirement
+    roles: {source: D15.1, metric: D15.4}
+    attributes:
+      threshold: {value: 10 years, quote: 10 years}
+    quote: "The retention period for customer records is 10 years."

@@ -1,0 +1,28 @@
+# Batch C: Gamma's 2025 turnover target, beside D28's actual for the same year.
+id: D31
+language: mixed
+issuer: gamma
+title: Mục tiêu nhân sự năm 2025 / HR targets for 2025
+format: xlsx
+dates: {issued_on: "2025-01-20"}
+blocks:
+  - {heading: "Mục tiêu nhân sự năm 2025 / HR targets for 2025", level: 1}
+  - paragraph: "Công ty TNHH Gamma / Gamma Co., Ltd."
+  - table:
+      header: ["Chỉ số / Metric", "Mục tiêu 2025 / Target 2025", "Đơn vị phụ trách / Owner"]
+      rows:
+        - ["Tỷ lệ nghỉ việc / Employee turnover rate", "10%", "Phòng Nhân sự / Human Resources Department"]
+items:
+  - {id: D31.1, kind: entity, type: Organization, world: gamma, surface: Công ty TNHH Gamma, is_name: true}
+  - {id: D31.2, kind: entity, type: Metric, world: met.turnover, surface: Tỷ lệ nghỉ việc, is_name: true}
+  - {id: D31.3, kind: entity, type: Organization, world: gamma.hr, surface: Phòng Nhân sự, is_name: true}
+  - id: D31.4
+    kind: fact
+    type: ReportedFigure
+    roles: {subject: D31.1, metric: D31.2}
+    attributes:
+      value: {value: 10%, quote: 10%}
+      basis: {value: target, quote: Mục tiêu}
+      period: {value: "2025", quote: "2025"}
+    quote: "Tỷ lệ nghỉ việc / Employee turnover rate | 10%"
+  - {id: D31.5, kind: relation, type: OWNER_OF, from: D31.3, to: D31.2, quote: "10% | Phòng Nhân sự"}

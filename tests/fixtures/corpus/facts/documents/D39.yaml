@@ -1,0 +1,40 @@
+# Batch D: Beta founds a project on its own CRM, a system named like Alpha's.
+id: D39
+language: vi
+issuer: beta
+title: Quyết định thành lập Dự án Beta Mobile 2.0
+format: docx
+dates: {issued_on: "2026-02-15"}
+blocks:
+  - {heading: "QUYẾT ĐỊNH THÀNH LẬP DỰ ÁN BETA MOBILE 2.0", level: 1}
+  - paragraph: "Công ty CP Beta. Ngày 15/02/2026."
+  - list:
+      - "Thành lập Dự án Beta Mobile 2.0, mã dự án BM2-26, thời gian thực hiện từ 01/03/2026 đến 31/12/2026."
+      - "Phòng Sản phẩm là đơn vị chủ trì dự án."
+      - "Dự án sử dụng hệ thống CRM của Công ty CP Beta."
+  - paragraph: "Tổng Giám đốc: Vũ Đức Khánh."
+items:
+  - {id: D39.1, kind: entity, type: Organization, world: beta, surface: Công ty CP Beta, is_name: true}
+  - id: D39.2
+    kind: entity
+    type: Project
+    world: beta.bm2
+    surface: Dự án Beta Mobile 2.0
+    is_name: true
+    attributes:
+      code: {value: BM2-26, quote: BM2-26}
+      start_date: {value: "2026-03-01", quote: 01/03/2026}
+      end_date: {value: "2026-12-31", quote: 31/12/2026}
+  - {id: D39.3, kind: entity, type: Organization, world: beta.sp, surface: Phòng Sản phẩm, is_name: true}
+  - {id: D39.4, kind: entity, type: System, world: beta.crm, surface: hệ thống CRM, is_name: true}
+  - {id: D39.5, kind: entity, type: Person, world: beta.khanh, surface: Vũ Đức Khánh, is_name: true}
+  - {id: D39.6, kind: relation, type: OWNER_OF, from: D39.3, to: D39.2, quote: "Phòng Sản phẩm là đơn vị chủ trì dự án."}
+  - {id: D39.7, kind: relation, type: USES, from: D39.2, to: D39.4, quote: "Dự án sử dụng hệ thống CRM của Công ty CP Beta."}
+  - id: D39.8
+    kind: relation
+    type: HOLDS_POSITION
+    from: D39.5
+    to: D39.1
+    attributes:
+      title: {value: Tổng Giám đốc, quote: Tổng Giám đốc}
+    quote: "Tổng Giám đốc: Vũ Đức Khánh"

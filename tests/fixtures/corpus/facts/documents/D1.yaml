@@ -1,0 +1,37 @@
+# Running example D1: Alpha's travel expense policy, version 1 (engine brief).
+id: D1
+language: vi
+issuer: alpha
+title: Quy chế công tác phí
+format: docx
+dates: {issued_on: "2025-01-10", effective_from: "2025-02-01"}
+blocks:
+  - {heading: "QUY CHẾ CÔNG TÁC PHÍ", level: 1}
+  - paragraph: "Phiên bản 1. Ban hành ngày 10/01/2025, có hiệu lực từ ngày 01/02/2025. Đơn vị chủ trì: Phòng Tài chính."
+  - paragraph: "Quy chế này áp dụng cho nhân viên Công ty CP Alpha đi công tác trong nước."
+  - paragraph: "Mức phụ cấp lưu trú là 2.000.000 VND/ngày."
+items:
+  - id: D1.1
+    kind: entity
+    type: Policy
+    world: alpha.ctp.v1
+    surface: QUY CHẾ CÔNG TÁC PHÍ
+    is_name: true
+    attributes:
+      title: {value: Quy chế công tác phí, quote: "QUY CHẾ CÔNG TÁC PHÍ"}
+      version_label: {value: "1", quote: "Phiên bản 1"}
+      issued_on: {value: "2025-01-10", quote: "Ban hành ngày 10/01/2025"}
+      effective_from: {value: "2025-02-01", quote: "có hiệu lực từ ngày 01/02/2025"}
+  - {id: D1.2, kind: entity, type: Organization, world: alpha.tc, surface: Phòng Tài chính, is_name: true}
+  - {id: D1.3, kind: entity, type: Metric, world: met.luu-tru, surface: phụ cấp lưu trú, is_name: true}
+  - {id: D1.4, kind: entity, type: Organization, world: alpha, surface: Công ty CP Alpha, is_name: true}
+  - {id: D1.5, kind: relation, type: OWNER_OF, from: D1.2, to: D1.1, quote: "Đơn vị chủ trì: Phòng Tài chính"}
+  - id: D1.6
+    kind: fact
+    type: Requirement
+    roles: {source: D1.1, metric: D1.3}
+    attributes:
+      threshold: {value: 2.000.000 VND/ngày, quote: "2.000.000 VND/ngày"}
+    quote: "Mức phụ cấp lưu trú là 2.000.000 VND/ngày."
+    valid_from: "2025-02-01"
+  - {id: D1.7, kind: relation, type: APPLIES_TO, from: D1.1, to: D1.4, quote: "Quy chế này áp dụng cho nhân viên Công ty CP Alpha"}

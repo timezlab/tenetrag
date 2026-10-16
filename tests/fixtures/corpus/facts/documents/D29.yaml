@@ -1,0 +1,38 @@
+# Batch C: Beta defines turnover differently from Gamma (two issuers, one term).
+id: D29
+language: vi
+issuer: beta
+title: Sổ tay chỉ số nhân sự
+format: docx
+dates: {issued_on: "2025-05-05"}
+blocks:
+  - {heading: "SỔ TAY CHỈ SỐ NHÂN SỰ", level: 1}
+  - paragraph: "Sổ tay chỉ số nhân sự của Công ty CP Beta do Phòng Hành chính ban hành ngày 05/05/2025."
+  - {heading: "Tỷ lệ nghỉ việc", level: 2}
+  - paragraph: "Tỷ lệ nghỉ việc là số nhân viên nghỉ việc trong kỳ chia cho số nhân viên có mặt đầu kỳ."
+  - paragraph: "Công thức: số nhân viên nghỉ việc trong kỳ ÷ số nhân viên đầu kỳ."
+items:
+  - id: D29.1
+    kind: entity
+    type: Work
+    world: beta.hrmh
+    surface: Sổ tay chỉ số nhân sự
+    is_name: true
+    attributes:
+      issued_on: {value: "2025-05-05", quote: 05/05/2025}
+  - {id: D29.2, kind: entity, type: Organization, world: beta, surface: Công ty CP Beta, is_name: true}
+  - {id: D29.3, kind: entity, type: Organization, world: beta.hc, surface: Phòng Hành chính, is_name: true}
+  - {id: D29.4, kind: relation, type: ISSUED_BY, from: D29.1, to: D29.3, quote: "Sổ tay chỉ số nhân sự của Công ty CP Beta do Phòng Hành chính ban hành"}
+  - {id: D29.5, kind: entity, type: Metric, world: met.turnover, surface: Tỷ lệ nghỉ việc, is_name: true}
+  - id: D29.6
+    kind: fact
+    type: Definition
+    roles: {term: D29.5, defined_by: D29.1}
+    attributes:
+      text:
+        value: "Tỷ lệ nghỉ việc là số nhân viên nghỉ việc trong kỳ chia cho số nhân viên có mặt đầu kỳ."
+        quote: "Tỷ lệ nghỉ việc là số nhân viên nghỉ việc trong kỳ chia cho số nhân viên có mặt đầu kỳ."
+      formula:
+        value: "số nhân viên nghỉ việc trong kỳ ÷ số nhân viên đầu kỳ"
+        quote: "số nhân viên nghỉ việc trong kỳ ÷ số nhân viên đầu kỳ"
+    quote: "Tỷ lệ nghỉ việc là số nhân viên nghỉ việc trong kỳ chia cho số nhân viên có mặt đầu kỳ."

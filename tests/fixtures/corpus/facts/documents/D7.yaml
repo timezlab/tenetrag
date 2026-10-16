@@ -1,0 +1,38 @@
+# Batch A: version 2 replaces version 1 and moves the policy to Risk Management.
+id: D7
+language: en
+issuer: alpha
+title: Information Security Policy
+format: pdf
+dates: {issued_on: "2026-02-02", effective_from: "2026-02-16"}
+blocks:
+  - {heading: "Information Security Policy", level: 1}
+  - paragraph: "Code: ALP-ISP. Version 2. Issued on 2 February 2026, effective from 16 February 2026. Policy owner: Risk Management Department."
+  - paragraph: "This version replaces version 1 of the Information Security Policy."
+  - {heading: "Passwords", level: 2}
+  - paragraph: "The minimum password length is 14 characters."
+items:
+  - id: D7.1
+    kind: entity
+    type: Policy
+    world: alpha.isp.v2
+    surface: Information Security Policy
+    is_name: true
+    attributes:
+      title: {value: Information Security Policy, quote: Information Security Policy}
+      code: {value: ALP-ISP, quote: "Code: ALP-ISP"}
+      version_label: {value: "2", quote: Version 2}
+      issued_on: {value: "2026-02-02", quote: Issued on 2 February 2026}
+      effective_from: {value: "2026-02-16", quote: effective from 16 February 2026}
+  - {id: D7.2, kind: entity, type: Organization, world: alpha.qlrr, surface: Risk Management Department, is_name: true}
+  - {id: D7.3, kind: entity, type: Policy, world: alpha.isp.v1, surface: version 1, is_name: false}
+  - {id: D7.4, kind: entity, type: Metric, world: met.pw-len, surface: password length, is_name: true}
+  - {id: D7.5, kind: relation, type: OWNER_OF, from: D7.2, to: D7.1, quote: "Policy owner: Risk Management Department"}
+  - {id: D7.6, kind: relation, type: SUPERSEDES, from: D7.1, to: D7.3, quote: "This version replaces version 1 of the Information Security Policy."}
+  - id: D7.7
+    kind: fact
+    type: Requirement
+    roles: {source: D7.1, metric: D7.4}
+    attributes:
+      threshold: {value: 14 characters, quote: 14 characters}
+    quote: "The minimum password length is 14 characters."

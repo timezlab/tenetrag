@@ -1,0 +1,35 @@
+# Batch D: the project charter; the IT Department owns the CRM until a
+# stated end, and D36 hands it to the Sales Department (OWNER_OF superseded,
+# with closed_at left empty because the item states its own end). "IT Dept."
+# is a short form.
+id: D35
+language: en
+issuer: alpha
+title: CRM Upgrade Project charter
+format: docx
+dates: {issued_on: "2025-04-20"}
+blocks:
+  - {heading: "CRM Upgrade Project charter", level: 1}
+  - paragraph: "Project code: PRJ-24. Start date: 1 May 2025. End date: 30 June 2026. Status: active."
+  - paragraph: "Owner: IT Dept. Project manager: Phạm Quốc Dũng, IT Department."
+  - paragraph: "The project upgrades the CRM system. The CRM system is owned by the IT Department until 31 December 2025."
+items:
+  - id: D35.1
+    kind: entity
+    type: Project
+    world: alpha.crm-up
+    surface: CRM Upgrade Project
+    is_name: true
+    attributes:
+      code: {value: PRJ-24, quote: PRJ-24}
+      start_date: {value: "2025-05-01", quote: 1 May 2025}
+      end_date: {value: "2026-06-30", quote: 30 June 2026}
+      status: {value: active, quote: "Status: active"}
+  - {id: D35.2, kind: entity, type: Organization, world: alpha.cntt, surface: IT Dept., is_name: true}
+  - {id: D35.3, kind: entity, type: Person, world: alpha.dung, surface: Phạm Quốc Dũng, is_name: true}
+  - {id: D35.4, kind: entity, type: Organization, world: alpha.cntt, surface: IT Department, is_name: true}
+  - {id: D35.5, kind: entity, type: System, world: alpha.crm, surface: CRM system, is_name: true}
+  - {id: D35.6, kind: relation, type: OWNER_OF, from: D35.2, to: D35.1, quote: "Owner: IT Dept."}
+  - {id: D35.7, kind: relation, type: MEMBER_OF, from: D35.3, to: D35.4, quote: "Phạm Quốc Dũng, IT Department"}
+  - {id: D35.8, kind: relation, type: USES, from: D35.1, to: D35.5, quote: "The project upgrades the CRM system."}
+  - {id: D35.9, kind: relation, type: OWNER_OF, from: D35.4, to: D35.5, quote: "The CRM system is owned by the IT Department until 31 December 2025.", valid_to: "2025-12-31"}

@@ -1,0 +1,37 @@
+# Batch D: Beta's profile names the company three ways.
+id: D37
+language: mixed
+issuer: beta
+title: Hồ sơ năng lực Công ty CP Beta / Beta JSC company profile
+format: pptx
+dates: {issued_on: "2026-02-20"}
+blocks:
+  - {heading: "Hồ sơ năng lực Công ty CP Beta / Beta JSC company profile", level: 1}
+  - paragraph: "Công ty CP Beta (Beta JSC, gọi tắt là Beta) được thành lập ngày 10/03/2015, trụ sở tại Hà Nội. / Beta JSC was established on 10 March 2015 and is headquartered in Hanoi."
+  - list:
+      - "Beta cung cấp ứng dụng Beta Mobile cho khách hàng cá nhân. / Beta offers the Beta Mobile app to retail customers."
+      - "Beta cung cấp dịch vụ Beta Care cho khách hàng doanh nghiệp. / Beta offers the Beta Care service to business customers."
+  - paragraph: "Các đơn vị / Units: Phòng Tài chính, Phòng Hành chính, Phòng Sản phẩm trực thuộc Công ty CP Beta."
+items:
+  - id: D37.1
+    kind: entity
+    type: Organization
+    world: beta
+    surface: Công ty CP Beta
+    is_name: true
+    attributes:
+      established_on: {value: "2015-03-10", quote: 10/03/2015}
+  - {id: D37.2, kind: entity, type: Organization, world: beta, surface: Beta JSC, is_name: true}
+  - {id: D37.3, kind: entity, type: Organization, world: beta, surface: Beta, is_name: true}
+  - {id: D37.4, kind: entity, type: Place, world: place.hanoi, surface: Hà Nội, is_name: true}
+  - {id: D37.5, kind: entity, type: Product, world: beta.app, surface: Beta Mobile, is_name: true}
+  - {id: D37.6, kind: entity, type: Product, world: beta.care, surface: Beta Care, is_name: true}
+  - {id: D37.7, kind: entity, type: Organization, world: beta.tc, surface: Phòng Tài chính, is_name: true}
+  - {id: D37.8, kind: entity, type: Organization, world: beta.hc, surface: Phòng Hành chính, is_name: true}
+  - {id: D37.9, kind: entity, type: Organization, world: beta.sp, surface: Phòng Sản phẩm, is_name: true}
+  - {id: D37.10, kind: relation, type: LOCATED_IN, from: D37.1, to: D37.4, quote: "trụ sở tại Hà Nội"}
+  - {id: D37.11, kind: relation, type: OFFERS, from: D37.3, to: D37.5, quote: "Beta cung cấp ứng dụng Beta Mobile cho khách hàng cá nhân."}
+  - {id: D37.12, kind: relation, type: OFFERS, from: D37.3, to: D37.6, quote: "Beta cung cấp dịch vụ Beta Care cho khách hàng doanh nghiệp."}
+  - {id: D37.13, kind: relation, type: PART_OF, from: D37.7, to: D37.1, quote: "Phòng Tài chính, Phòng Hành chính, Phòng Sản phẩm trực thuộc Công ty CP Beta"}
+  - {id: D37.14, kind: relation, type: PART_OF, from: D37.8, to: D37.1, quote: "Phòng Tài chính, Phòng Hành chính, Phòng Sản phẩm trực thuộc Công ty CP Beta"}
+  - {id: D37.15, kind: relation, type: PART_OF, from: D37.9, to: D37.1, quote: "Phòng Tài chính, Phòng Hành chính, Phòng Sản phẩm trực thuộc Công ty CP Beta"}

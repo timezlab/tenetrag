@@ -1,0 +1,27 @@
+# Batch C: Alpha's 2025 revenue target; D30 and D25 report the actual.
+id: D24
+language: vi
+issuer: alpha
+title: Kế hoạch kinh doanh năm 2025
+format: xlsx
+dates: {issued_on: "2024-12-20"}
+blocks:
+  - {heading: "KẾ HOẠCH KINH DOANH NĂM 2025", level: 1}
+  - paragraph: "Công ty CP Alpha. Ngày ban hành: 20/12/2024. Đơn vị lập: Phòng Tài chính."
+  - table:
+      header: ["Chỉ tiêu", "Kế hoạch năm 2025"]
+      rows:
+        - ["Doanh thu", "1.200 tỷ đồng"]
+items:
+  - {id: D24.1, kind: entity, type: Organization, world: alpha, surface: Công ty CP Alpha, is_name: true}
+  - {id: D24.2, kind: entity, type: Organization, world: alpha.tc, surface: Phòng Tài chính, is_name: true}
+  - {id: D24.3, kind: entity, type: Metric, world: met.revenue, surface: Doanh thu, is_name: true}
+  - id: D24.4
+    kind: fact
+    type: ReportedFigure
+    roles: {subject: D24.1, metric: D24.3}
+    attributes:
+      value: {value: "1.200 tỷ đồng", quote: "1.200 tỷ đồng"}
+      basis: {value: target, quote: Kế hoạch}
+      period: {value: "2025", quote: năm 2025}
+    quote: "Doanh thu | 1.200 tỷ đồng"

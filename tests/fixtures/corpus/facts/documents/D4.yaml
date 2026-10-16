@@ -1,0 +1,35 @@
+# Running example D4: Alpha's English KPI handbook defines churn rate (engine brief).
+id: D4
+language: en
+issuer: alpha
+title: KPI handbook 2025
+format: pdf
+dates: {issued_on: "2025-03-01"}
+blocks:
+  - {heading: "KPI handbook 2025", level: 1}
+  - paragraph: "Issued by the Finance Department of Alpha JSC on 1 March 2025."
+  - {heading: "Customer metrics", level: 2}
+  - paragraph: "Churn rate = customers lost in the period ÷ customers at the start of the period."
+items:
+  - id: D4.1
+    kind: entity
+    type: Work
+    world: alpha.kpi-2025
+    surface: KPI handbook 2025
+    is_name: true
+    attributes:
+      title: {value: KPI handbook 2025, quote: KPI handbook 2025}
+      issued_on: {value: "2025-03-01", quote: on 1 March 2025}
+  - {id: D4.2, kind: entity, type: Organization, world: alpha.tc, surface: Finance Department, is_name: true}
+  - {id: D4.3, kind: entity, type: Organization, world: alpha, surface: Alpha JSC, is_name: true}
+  - {id: D4.4, kind: entity, type: Metric, world: met.churn, surface: Churn rate, is_name: true}
+  - {id: D4.5, kind: relation, type: ISSUED_BY, from: D4.1, to: D4.2, quote: "Issued by the Finance Department"}
+  - {id: D4.6, kind: relation, type: PART_OF, from: D4.2, to: D4.3, quote: "the Finance Department of Alpha JSC"}
+  - id: D4.7
+    kind: fact
+    type: Definition
+    roles: {term: D4.4, defined_by: D4.1}
+    attributes:
+      text: {value: "customers lost in the period ÷ customers at the start of the period", quote: "customers lost in the period ÷ customers at the start of the period"}
+      formula: {value: "customers lost in the period ÷ customers at the start of the period", quote: "customers lost in the period ÷ customers at the start of the period"}
+    quote: "Churn rate = customers lost in the period ÷ customers at the start of the period."

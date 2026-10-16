@@ -1,0 +1,775 @@
+{
+ "deletions": {
+  "D2": {
+   "versions": {
+    "OWNER_OF:object=alpha.ctp.v2": [],
+    "Requirement:issuer=alpha;metric=met.luu-tru": [
+     {
+      "closed_at": "",
+      "item": "D1.6",
+      "status": "current"
+     }
+    ]
+   }
+  },
+  "D41": {
+   "versions": {
+    "OWNER_OF:object=alpha.crm": [
+     {
+      "closed_at": "",
+      "item": "D35.9",
+      "status": "superseded"
+     },
+     {
+      "closed_at": "",
+      "item": "D36.6",
+      "status": "current"
+     }
+    ]
+   }
+  },
+  "D8": {
+   "versions": {
+    "OWNER_OF:object=alpha.isp.v1": [
+     {
+      "closed_at": "",
+      "item": "D6.6",
+      "status": "current"
+     }
+    ]
+   }
+  }
+ },
+ "entities": {
+  "alpha": [
+   "D1.4",
+   "D4.3",
+   "D6.3",
+   "D21.6",
+   "D24.1",
+   "D25.1",
+   "D30.1",
+   "D33.1",
+   "D33.2",
+   "D36.1",
+   "D40.1"
+  ],
+  "alpha.an": [
+   "D3.3",
+   "D16.5",
+   "D17.3"
+  ],
+  "alpha.binh": [
+   "D3.2",
+   "D17.2",
+   "D21.2"
+  ],
+  "alpha.chau": [
+   "D16.2",
+   "D17.5",
+   "D21.3",
+   "D23.2",
+   "D33.3"
+  ],
+  "alpha.cntt": [
+   "D6.2",
+   "D8.3",
+   "D15.2",
+   "D16.3",
+   "D17.6",
+   "D33.5",
+   "D35.2",
+   "D35.4",
+   "D36.4",
+   "D40.5"
+  ],
+  "alpha.crm": [
+   "D6.4",
+   "D8.4",
+   "D15.5",
+   "D21.7",
+   "D35.5",
+   "D36.3",
+   "D41.2"
+  ],
+  "alpha.crm-up": [
+   "D16.6",
+   "D35.1",
+   "D36.5"
+  ],
+  "alpha.cskh": [
+   "D41.1"
+  ],
+  "alpha.ctp.v1": [
+   "D1.1",
+   "D2.4"
+  ],
+  "alpha.ctp.v2": [
+   "D2.1",
+   "D3.5",
+   "D14.2"
+  ],
+  "alpha.drp.v1": [
+   "D15.1"
+  ],
+  "alpha.dung": [
+   "D16.4",
+   "D21.4",
+   "D23.3",
+   "D33.4",
+   "D35.3",
+   "D40.6"
+  ],
+  "alpha.hd-ctp": [
+   "D14.1"
+  ],
+  "alpha.htcp": [
+   "D3.6",
+   "D10.3",
+   "D17.7"
+  ],
+  "alpha.hung": [
+   "D40.9"
+  ],
+  "alpha.isp.v1": [
+   "D6.1",
+   "D7.3",
+   "D8.1",
+   "D15.3"
+  ],
+  "alpha.isp.v2": [
+   "D7.1",
+   "D23.5"
+  ],
+  "alpha.itsc": [
+   "D16.1",
+   "D23.1"
+  ],
+  "alpha.kd": [
+   "D36.2",
+   "D40.11",
+   "D41.3"
+  ],
+  "alpha.kpi-2025": [
+   "D4.1"
+  ],
+  "alpha.kt": [
+   "D9.2",
+   "D40.8"
+  ],
+  "alpha.lan": [
+   "D40.12"
+  ],
+  "alpha.mai": [
+   "D40.3"
+  ],
+  "alpha.pay": [
+   "D21.5"
+  ],
+  "alpha.qlrr": [
+   "D7.2",
+   "D8.2",
+   "D23.4"
+  ],
+  "alpha.qtpd.v1": [
+   "D9.1",
+   "D10.1",
+   "D17.8"
+  ],
+  "alpha.spc": [
+   "D21.1"
+  ],
+  "alpha.tc": [
+   "D1.2",
+   "D2.2",
+   "D3.4",
+   "D4.2",
+   "D10.2",
+   "D14.10",
+   "D17.4",
+   "D24.2",
+   "D30.2",
+   "D40.2"
+  ],
+  "alpha.ubrr": [
+   "D3.1",
+   "D17.1"
+  ],
+  "beta": [
+   "D5.4",
+   "D18.2",
+   "D22.1",
+   "D26.1",
+   "D29.2",
+   "D32.1",
+   "D37.1",
+   "D37.2",
+   "D37.3",
+   "D39.1"
+  ],
+  "beta.app": [
+   "D18.5",
+   "D22.6",
+   "D26.4",
+   "D32.4",
+   "D37.5"
+  ],
+  "beta.bdh": [
+   "D22.2"
+  ],
+  "beta.bm2": [
+   "D39.2"
+  ],
+  "beta.care": [
+   "D37.6"
+  ],
+  "beta.crm": [
+   "D39.4"
+  ],
+  "beta.ctp.v1": [
+   "D5.1"
+  ],
+  "beta.ha": [
+   "D18.3",
+   "D22.4"
+  ],
+  "beta.hc": [
+   "D11.2",
+   "D12.2",
+   "D22.5",
+   "D29.3",
+   "D37.8"
+  ],
+  "beta.hdqt": [
+   "D18.1"
+  ],
+  "beta.hrmh": [
+   "D29.1"
+  ],
+  "beta.khanh": [
+   "D18.4",
+   "D22.3",
+   "D39.5"
+  ],
+  "beta.qtms.v1": [
+   "D11.1",
+   "D12.3"
+  ],
+  "beta.qtms.v2": [
+   "D12.1",
+   "D22.7"
+  ],
+  "beta.sp": [
+   "D32.2",
+   "D37.9",
+   "D39.3"
+  ],
+  "beta.tc": [
+   "D5.2",
+   "D37.7"
+  ],
+  "btc": [
+   "D14.4"
+  ],
+  "btc.tt40": [
+   "D14.3"
+  ],
+  "gamma": [
+   "D13.2",
+   "D19.1",
+   "D20.1",
+   "D27.3",
+   "D28.4",
+   "D31.1",
+   "D34.1",
+   "D38.1",
+   "D38.2",
+   "D38.3"
+  ],
+  "gamma.an": [
+   "D34.2",
+   "D38.9"
+  ],
+  "gamma.hr": [
+   "D13.3",
+   "D19.5",
+   "D20.5",
+   "D27.2",
+   "D28.3",
+   "D31.3",
+   "D38.8"
+  ],
+  "gamma.hrm": [
+   "D19.6"
+  ],
+  "gamma.hrmh-2025": [
+   "D27.1",
+   "D28.2"
+  ],
+  "gamma.hrmh-2026": [
+   "D28.1"
+  ],
+  "gamma.kd": [
+   "D34.3",
+   "D38.10"
+  ],
+  "gamma.long": [
+   "D19.3",
+   "D20.3",
+   "D34.4",
+   "D38.6"
+  ],
+  "gamma.mgmt": [
+   "D19.2",
+   "D20.2"
+  ],
+  "gamma.payroll": [
+   "D38.5"
+  ],
+  "gamma.rwp.v1": [
+   "D13.1"
+  ],
+  "gamma.td": [
+   "D20.6"
+  ],
+  "gamma.thao": [
+   "D19.4",
+   "D20.4",
+   "D38.7"
+  ],
+  "met.active-users": [
+   "D22.12",
+   "D26.5",
+   "D32.3"
+  ],
+  "met.bao-gia": [
+   "D11.3",
+   "D12.4"
+  ],
+  "met.churn": [
+   "D4.4"
+  ],
+  "met.han-muc-tt": [
+   "D9.3"
+  ],
+  "met.han-nop": [
+   "D14.5"
+  ],
+  "met.luu-tru": [
+   "D1.3",
+   "D2.3",
+   "D5.3"
+  ],
+  "met.pw-len": [
+   "D6.5",
+   "D7.4"
+  ],
+  "met.remote-days": [
+   "D13.4"
+  ],
+  "met.retention": [
+   "D15.4"
+  ],
+  "met.revenue": [
+   "D24.3",
+   "D25.2",
+   "D26.2",
+   "D30.3"
+  ],
+  "met.turnover": [
+   "D27.6",
+   "D28.7",
+   "D29.5",
+   "D31.2"
+  ],
+  "place.danang": [
+   "D38.4"
+  ],
+  "place.hanoi": [
+   "D37.4"
+  ]
+ },
+ "supersedes": [
+  {
+   "from": "alpha.ctp.v2",
+   "item": "D2.7",
+   "to": "alpha.ctp.v1"
+  },
+  {
+   "from": "alpha.isp.v2",
+   "item": "D7.6",
+   "to": "alpha.isp.v1"
+  },
+  {
+   "from": "beta.qtms.v2",
+   "item": "D12.6",
+   "to": "beta.qtms.v1"
+  },
+  {
+   "from": "gamma.hrmh-2026",
+   "item": "D28.6",
+   "to": "gamma.hrmh-2025"
+  }
+ ],
+ "text_in": [
+  {
+   "document": "D1",
+   "entity": "alpha.ctp.v1"
+  },
+  {
+   "document": "D2",
+   "entity": "alpha.ctp.v2"
+  },
+  {
+   "document": "D4",
+   "entity": "alpha.kpi-2025"
+  },
+  {
+   "document": "D5",
+   "entity": "beta.ctp.v1"
+  },
+  {
+   "document": "D6",
+   "entity": "alpha.isp.v1"
+  },
+  {
+   "document": "D7",
+   "entity": "alpha.isp.v2"
+  },
+  {
+   "document": "D9",
+   "entity": "alpha.qtpd.v1"
+  },
+  {
+   "document": "D11",
+   "entity": "beta.qtms.v1"
+  },
+  {
+   "document": "D12",
+   "entity": "beta.qtms.v2"
+  },
+  {
+   "document": "D13",
+   "entity": "gamma.rwp.v1"
+  },
+  {
+   "document": "D14",
+   "entity": "alpha.hd-ctp"
+  },
+  {
+   "document": "D15",
+   "entity": "alpha.drp.v1"
+  },
+  {
+   "document": "D27",
+   "entity": "gamma.hrmh-2025"
+  },
+  {
+   "document": "D28",
+   "entity": "gamma.hrmh-2026"
+  },
+  {
+   "document": "D29",
+   "entity": "beta.hrmh"
+  }
+ ],
+ "versions": {
+  "Definition:issuer=alpha;term=met.churn": [
+   {
+    "closed_at": "",
+    "item": "D4.7",
+    "status": "current"
+   }
+  ],
+  "Definition:issuer=beta;term=met.active-users": [
+   {
+    "closed_at": "",
+    "item": "D32.6",
+    "status": "current"
+   }
+  ],
+  "Definition:issuer=beta;term=met.turnover": [
+   {
+    "closed_at": "",
+    "item": "D29.6",
+    "status": "current"
+   }
+  ],
+  "Definition:issuer=gamma;term=met.turnover": [
+   {
+    "closed_at": "2026-01-12",
+    "item": "D27.7",
+    "status": "superseded"
+   },
+   {
+    "closed_at": "",
+    "item": "D28.8",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=alpha.crm": [
+   {
+    "closed_at": "",
+    "item": "D35.9",
+    "status": "superseded"
+   },
+   {
+    "closed_at": "2026-06-01",
+    "item": "D36.6",
+    "status": "superseded"
+   },
+   {
+    "closed_at": "",
+    "item": "D41.4",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=alpha.crm-up": [
+   {
+    "closed_at": "",
+    "item": "D35.6",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=alpha.ctp.v1": [
+   {
+    "closed_at": "",
+    "item": "D1.5",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=alpha.ctp.v2": [
+   {
+    "closed_at": "",
+    "item": "D2.5",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=alpha.drp.v1": [
+   {
+    "closed_at": "",
+    "item": "D15.6",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=alpha.htcp": [
+   {
+    "closed_at": "",
+    "item": "D10.5",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=alpha.isp.v1": [
+   {
+    "closed_at": "2025-09-01",
+    "item": "D6.6",
+    "status": "superseded"
+   },
+   {
+    "closed_at": "",
+    "item": "D8.5",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=alpha.isp.v2": [
+   {
+    "closed_at": "",
+    "item": "D7.5",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=alpha.qtpd.v1": [
+   {
+    "closed_at": "",
+    "item": "D9.4",
+    "status": "conflicting"
+   },
+   {
+    "closed_at": "",
+    "item": "D10.4",
+    "status": "conflicting"
+   }
+  ],
+  "OWNER_OF:object=beta.bm2": [
+   {
+    "closed_at": "",
+    "item": "D39.6",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=beta.ctp.v1": [
+   {
+    "closed_at": "",
+    "item": "D5.5",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=beta.qtms.v1": [
+   {
+    "closed_at": "",
+    "item": "D11.4",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=beta.qtms.v2": [
+   {
+    "closed_at": "",
+    "item": "D12.5",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=gamma.rwp.v1": [
+   {
+    "closed_at": "",
+    "item": "D13.5",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=met.active-users": [
+   {
+    "closed_at": "",
+    "item": "D32.5",
+    "status": "current"
+   }
+  ],
+  "OWNER_OF:object=met.turnover": [
+   {
+    "closed_at": "",
+    "item": "D31.5",
+    "status": "current"
+   }
+  ],
+  "ReportedFigure:basis=actual;metric=met.active-users;period=Q4 2025;subject=beta.app": [
+   {
+    "closed_at": "",
+    "item": "D32.8",
+    "status": "current"
+   }
+  ],
+  "ReportedFigure:basis=actual;metric=met.revenue;period=2025;subject=alpha": [
+   {
+    "closed_at": "2026-03-20",
+    "item": "D30.4",
+    "status": "superseded"
+   },
+   {
+    "closed_at": "",
+    "item": "D25.3",
+    "status": "current"
+   }
+  ],
+  "ReportedFigure:basis=actual;metric=met.revenue;period=Q3 2025;subject=beta": [
+   {
+    "closed_at": "",
+    "item": "D26.3",
+    "status": "current"
+   }
+  ],
+  "ReportedFigure:basis=actual;metric=met.turnover;period=2025;subject=gamma": [
+   {
+    "closed_at": "",
+    "item": "D28.9",
+    "status": "current"
+   }
+  ],
+  "ReportedFigure:basis=target;metric=met.active-users;period=Q4 2025;subject=beta.app": [
+   {
+    "closed_at": "",
+    "item": "D32.7",
+    "status": "current"
+   }
+  ],
+  "ReportedFigure:basis=target;metric=met.revenue;period=2025;subject=alpha": [
+   {
+    "closed_at": "",
+    "item": "D24.4",
+    "status": "current"
+   }
+  ],
+  "ReportedFigure:basis=target;metric=met.turnover;period=2025;subject=gamma": [
+   {
+    "closed_at": "",
+    "item": "D31.4",
+    "status": "current"
+   }
+  ],
+  "ReportedFigure:metric=met.active-users;period=Q3 2025;subject=beta.app": [
+   {
+    "closed_at": "",
+    "item": "D26.6",
+    "status": "current"
+   }
+  ],
+  "Requirement:issuer=alpha;metric=met.han-muc-tt": [
+   {
+    "closed_at": "",
+    "item": "D9.5",
+    "status": "current"
+   }
+  ],
+  "Requirement:issuer=alpha;metric=met.han-nop": [
+   {
+    "closed_at": "",
+    "item": "D14.9",
+    "status": "current"
+   }
+  ],
+  "Requirement:issuer=alpha;metric=met.luu-tru": [
+   {
+    "closed_at": "2026-01-15",
+    "item": "D1.6",
+    "status": "superseded"
+   },
+   {
+    "closed_at": "",
+    "item": "D2.6",
+    "status": "current"
+   }
+  ],
+  "Requirement:issuer=alpha;metric=met.pw-len": [
+   {
+    "closed_at": "2026-02-16",
+    "item": "D6.9",
+    "status": "superseded"
+   },
+   {
+    "closed_at": "",
+    "item": "D7.7",
+    "status": "current"
+   }
+  ],
+  "Requirement:issuer=alpha;metric=met.retention": [
+   {
+    "closed_at": "",
+    "item": "D15.9",
+    "status": "current"
+   }
+  ],
+  "Requirement:issuer=beta;metric=met.bao-gia": [
+   {
+    "closed_at": "2026-02-01",
+    "item": "D11.5",
+    "status": "superseded"
+   },
+   {
+    "closed_at": "",
+    "item": "D12.7",
+    "status": "current"
+   }
+  ],
+  "Requirement:issuer=beta;metric=met.luu-tru": [
+   {
+    "closed_at": "",
+    "item": "D5.6",
+    "status": "current"
+   }
+  ],
+  "Requirement:issuer=gamma;metric=met.remote-days": [
+   {
+    "closed_at": "",
+    "item": "D13.7",
+    "status": "current"
+   }
+  ]
+ }
+}

@@ -1,0 +1,42 @@
+# Batch D: the other Nguyễn Văn An, at Gamma (same name, another person).
+id: D34
+language: vi
+issuer: gamma
+title: Quyết định bổ nhiệm Trưởng phòng Kinh doanh
+format: docx
+dates: {issued_on: "2025-10-25", effective_from: "2025-11-01"}
+blocks:
+  - {heading: "QUYẾT ĐỊNH BỔ NHIỆM TRƯỞNG PHÒNG KINH DOANH", level: 1}
+  - paragraph: "Công ty TNHH Gamma. Ngày 25/10/2025."
+  - paragraph: "Bổ nhiệm ông Nguyễn Văn An (an.nguyen@gamma.example) giữ chức Trưởng phòng Phòng Kinh doanh, Công ty TNHH Gamma, kể từ ngày 01/11/2025."
+  - paragraph: "Ký: Đỗ Thành Long, Tổng Giám đốc."
+items:
+  - {id: D34.1, kind: entity, type: Organization, world: gamma, surface: Công ty TNHH Gamma, is_name: true}
+  - id: D34.2
+    kind: entity
+    type: Person
+    world: gamma.an
+    surface: Nguyễn Văn An
+    is_name: true
+    attributes:
+      email: {value: an.nguyen@gamma.example, quote: an.nguyen@gamma.example}
+  - {id: D34.3, kind: entity, type: Organization, world: gamma.kd, surface: Phòng Kinh doanh, is_name: true}
+  - {id: D34.4, kind: entity, type: Person, world: gamma.long, surface: Đỗ Thành Long, is_name: true}
+  - id: D34.5
+    kind: relation
+    type: HOLDS_POSITION
+    from: D34.2
+    to: D34.3
+    attributes:
+      title: {value: Trưởng phòng, quote: Trưởng phòng}
+    quote: "Bổ nhiệm ông Nguyễn Văn An (an.nguyen@gamma.example) giữ chức Trưởng phòng Phòng Kinh doanh"
+    valid_from: "2025-11-01"
+  - {id: D34.6, kind: relation, type: PART_OF, from: D34.3, to: D34.1, quote: "Phòng Kinh doanh, Công ty TNHH Gamma"}
+  - id: D34.7
+    kind: relation
+    type: HOLDS_POSITION
+    from: D34.4
+    to: D34.1
+    attributes:
+      title: {value: Tổng Giám đốc, quote: Tổng Giám đốc}
+    quote: "Đỗ Thành Long, Tổng Giám đốc"

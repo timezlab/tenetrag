@@ -1,0 +1,35 @@
+# Batch A: Alpha's payment approval procedure names the Accounting
+# Department as owner; D10 names Finance from the same day.
+id: D9
+language: vi
+issuer: alpha
+title: Quy trình phê duyệt thanh toán
+format: docx
+dates: {issued_on: "2025-05-20", effective_from: "2025-06-01"}
+blocks:
+  - {heading: "QUY TRÌNH PHÊ DUYỆT THANH TOÁN", level: 1}
+  - paragraph: "Mã: QT-TC-03. Phiên bản 1. Ban hành ngày 20/05/2025, có hiệu lực từ ngày 01/06/2025. Đơn vị chủ trì: Phòng Kế toán."
+  - paragraph: "Hạn mức phê duyệt thanh toán của Kế toán trưởng là 200.000.000 VND; khoản vượt hạn mức phải được Giám đốc Tài chính phê duyệt."
+items:
+  - id: D9.1
+    kind: entity
+    type: Procedure
+    world: alpha.qtpd.v1
+    surface: QUY TRÌNH PHÊ DUYỆT THANH TOÁN
+    is_name: true
+    attributes:
+      title: {value: Quy trình phê duyệt thanh toán, quote: QUY TRÌNH PHÊ DUYỆT THANH TOÁN}
+      code: {value: QT-TC-03, quote: "Mã: QT-TC-03"}
+      version_label: {value: "1", quote: Phiên bản 1}
+      issued_on: {value: "2025-05-20", quote: Ban hành ngày 20/05/2025}
+      effective_from: {value: "2025-06-01", quote: có hiệu lực từ ngày 01/06/2025}
+  - {id: D9.2, kind: entity, type: Organization, world: alpha.kt, surface: Phòng Kế toán, is_name: true}
+  - {id: D9.3, kind: entity, type: Metric, world: met.han-muc-tt, surface: Hạn mức phê duyệt thanh toán, is_name: true}
+  - {id: D9.4, kind: relation, type: OWNER_OF, from: D9.2, to: D9.1, quote: "Đơn vị chủ trì: Phòng Kế toán"}
+  - id: D9.5
+    kind: fact
+    type: Requirement
+    roles: {source: D9.1, metric: D9.3}
+    attributes:
+      threshold: {value: 200.000.000 VND, quote: 200.000.000 VND}
+    quote: "Hạn mức phê duyệt thanh toán của Kế toán trưởng là 200.000.000 VND"

@@ -1,0 +1,24 @@
+# Batch D: the Customer Care Centre takes over the CRM from 01/06/2026, the
+# third OWNER_OF version after D35 and D36. graph.yaml deletes D41, which
+# leaves two members whose statuses change: D36.6 is current again. The new
+# owner differs from D35's, since equal content would be one version.
+id: D41
+language: vi
+issuer: alpha
+title: Quyết định giao Trung tâm Chăm sóc khách hàng chủ trì hệ thống CRM
+format: docx
+dates: {issued_on: "2026-05-20", effective_from: "2026-06-01"}
+blocks:
+  - {heading: "QUYẾT ĐỊNH GIAO TRUNG TÂM CHĂM SÓC KHÁCH HÀNG CHỦ TRÌ HỆ THỐNG CRM", level: 1}
+  - paragraph: "Kể từ ngày 01/06/2026, Trung tâm Chăm sóc khách hàng là đơn vị chủ trì hệ thống CRM, thay cho Phòng Kinh doanh."
+items:
+  - {id: D41.1, kind: entity, type: Organization, world: alpha.cskh, surface: Trung tâm Chăm sóc khách hàng, is_name: true}
+  - {id: D41.2, kind: entity, type: System, world: alpha.crm, surface: hệ thống CRM, is_name: true}
+  - {id: D41.3, kind: entity, type: Organization, world: alpha.kd, surface: Phòng Kinh doanh, is_name: true}
+  - id: D41.4
+    kind: relation
+    type: OWNER_OF
+    from: D41.1
+    to: D41.2
+    quote: "Kể từ ngày 01/06/2026, Trung tâm Chăm sóc khách hàng là đơn vị chủ trì hệ thống CRM, thay cho Phòng Kinh doanh."
+    valid_from: "2026-06-01"

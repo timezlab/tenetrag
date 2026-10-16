@@ -1,0 +1,47 @@
+# Batch B: bilingual minutes; the IT Steering Committee approves version 2
+# of the security policy (D7) before it takes effect.
+id: D23
+language: mixed
+issuer: alpha
+title: Biên bản họp Ban Chỉ đạo CNTT / IT Steering Committee minutes
+format: docx
+dates: {held_on: "2026-01-28"}
+blocks:
+  - {heading: "Biên bản họp Ban Chỉ đạo CNTT / IT Steering Committee minutes", level: 1}
+  - paragraph: "Thời gian / Date: 28/01/2026. Chủ trì / Chair: Lê Minh Châu. Thành phần / Attendees: Phạm Quốc Dũng; Phòng Quản lý Rủi ro / Risk Management Department."
+  - paragraph: "Ban Chỉ đạo CNTT thông qua Chính sách An toàn thông tin phiên bản 2. / The IT Steering Committee approved version 2 of the Information Security Policy."
+  - paragraph: "Ông Phạm Quốc Dũng phổ biến phiên bản 2 tới toàn bộ nhân viên trước ngày 16/02/2026. Trạng thái: đang thực hiện. / Phạm Quốc Dũng will brief all staff on version 2 by 16 February 2026. Status: in progress."
+items:
+  - {id: D23.1, kind: entity, type: Organization, world: alpha.itsc, surface: Ban Chỉ đạo CNTT, is_name: true}
+  - {id: D23.2, kind: entity, type: Person, world: alpha.chau, surface: Lê Minh Châu, is_name: true}
+  - {id: D23.3, kind: entity, type: Person, world: alpha.dung, surface: Phạm Quốc Dũng, is_name: true}
+  - {id: D23.4, kind: entity, type: Organization, world: alpha.qlrr, surface: Phòng Quản lý Rủi ro, is_name: true}
+  - id: D23.5
+    kind: entity
+    type: Policy
+    world: alpha.isp.v2
+    surface: Chính sách An toàn thông tin phiên bản 2
+    is_name: true
+    attributes:
+      version_label: {value: "2", quote: phiên bản 2}
+  - id: D23.6
+    kind: event
+    type: Meeting
+    roles: {chair: D23.2, attendee: [D23.3, D23.4], participant: [D23.1]}
+    quote: "Thời gian / Date: 28/01/2026. Chủ trì / Chair: Lê Minh Châu."
+    valid_from: "2026-01-28"
+  - id: D23.7
+    kind: event
+    type: Decision
+    roles: {about: D23.5, decided_by: D23.1, made_in: D23.6}
+    attributes:
+      status: {value: approved, quote: thông qua}
+    quote: "Ban Chỉ đạo CNTT thông qua Chính sách An toàn thông tin phiên bản 2."
+  - id: D23.8
+    kind: fact
+    type: ActionItem
+    roles: {owner: D23.3, about: D23.5, assigned_in: D23.6}
+    attributes:
+      due_date: {value: "2026-02-16", quote: trước ngày 16/02/2026}
+      status: {value: in_progress, quote: đang thực hiện}
+    quote: "Ông Phạm Quốc Dũng phổ biến phiên bản 2 tới toàn bộ nhân viên trước ngày 16/02/2026. Trạng thái: đang thực hiện."

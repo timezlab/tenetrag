@@ -1,0 +1,33 @@
+# Batch C: Beta's quarterly results, with a figure about its product.
+id: D26
+language: en
+issuer: beta
+title: Business results for Q3 2025
+format: pdf
+dates: {issued_on: "2025-10-20"}
+blocks:
+  - {heading: "Beta JSC — Business results for Q3 2025", level: 1}
+  - paragraph: "Actual revenue for Q3 2025 was VND 210 billion."
+  - paragraph: "The Beta Mobile app had 120,000 active users at the end of Q3 2025."
+items:
+  - {id: D26.1, kind: entity, type: Organization, world: beta, surface: Beta JSC, is_name: true}
+  - {id: D26.2, kind: entity, type: Metric, world: met.revenue, surface: revenue, is_name: true}
+  - id: D26.3
+    kind: fact
+    type: ReportedFigure
+    roles: {subject: D26.1, metric: D26.2}
+    attributes:
+      value: {value: VND 210 billion, quote: VND 210 billion}
+      basis: {value: actual, quote: Actual}
+      period: {value: Q3 2025, quote: Q3 2025}
+    quote: "Actual revenue for Q3 2025 was VND 210 billion."
+  - {id: D26.4, kind: entity, type: Product, world: beta.app, surface: Beta Mobile, is_name: true}
+  - {id: D26.5, kind: entity, type: Metric, world: met.active-users, surface: active users, is_name: true}
+  - id: D26.6
+    kind: fact
+    type: ReportedFigure
+    roles: {subject: D26.4, metric: D26.5}
+    attributes:
+      value: {value: "120,000", quote: "120,000"}
+      period: {value: Q3 2025, quote: end of Q3 2025}
+    quote: "The Beta Mobile app had 120,000 active users at the end of Q3 2025."

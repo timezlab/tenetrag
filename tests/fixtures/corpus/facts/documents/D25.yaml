@@ -1,0 +1,23 @@
+# Batch C: the audited actual for 2025, which replaces D30's preliminary figure.
+id: D25
+language: en
+issuer: alpha
+title: Annual Report 2025
+format: pdf
+dates: {issued_on: "2026-03-20"}
+blocks:
+  - {heading: "Alpha JSC Annual Report 2025", level: 1}
+  - {heading: "Business results", level: 2}
+  - paragraph: "In 2025, Alpha JSC recorded actual revenue of VND 1,150 billion, 96% of plan."
+items:
+  - {id: D25.1, kind: entity, type: Organization, world: alpha, surface: Alpha JSC, is_name: true}
+  - {id: D25.2, kind: entity, type: Metric, world: met.revenue, surface: revenue, is_name: true}
+  - id: D25.3
+    kind: fact
+    type: ReportedFigure
+    roles: {subject: D25.1, metric: D25.2}
+    attributes:
+      value: {value: "VND 1,150 billion", quote: "VND 1,150 billion"}
+      basis: {value: actual, quote: actual}
+      period: {value: "2025", quote: In 2025}
+    quote: "In 2025, Alpha JSC recorded actual revenue of VND 1,150 billion, 96% of plan."

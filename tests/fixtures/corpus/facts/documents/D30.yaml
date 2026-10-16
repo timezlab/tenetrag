@@ -1,0 +1,25 @@
+# Batch C: a preliminary actual, superseded by the audited one in D25.
+id: D30
+language: vi
+issuer: alpha
+title: Báo cáo nhanh kết quả kinh doanh năm 2025
+format: docx
+dates: {issued_on: "2026-01-15"}
+blocks:
+  - {heading: "BÁO CÁO NHANH KẾT QUẢ KINH DOANH NĂM 2025", level: 1}
+  - paragraph: "Công ty CP Alpha. Phòng Tài chính lập ngày 15/01/2026."
+  - paragraph: "Doanh thu thực hiện năm 2025 theo số liệu sơ bộ đạt 1.140 tỷ đồng, bằng 95% kế hoạch."
+  - paragraph: "Số liệu chính thức sẽ được công bố trong Báo cáo thường niên 2025."
+items:
+  - {id: D30.1, kind: entity, type: Organization, world: alpha, surface: Công ty CP Alpha, is_name: true}
+  - {id: D30.2, kind: entity, type: Organization, world: alpha.tc, surface: Phòng Tài chính, is_name: true}
+  - {id: D30.3, kind: entity, type: Metric, world: met.revenue, surface: Doanh thu, is_name: true}
+  - id: D30.4
+    kind: fact
+    type: ReportedFigure
+    roles: {subject: D30.1, metric: D30.3}
+    attributes:
+      value: {value: "1.140 tỷ đồng", quote: "1.140 tỷ đồng"}
+      basis: {value: actual, quote: thực hiện}
+      period: {value: "2025", quote: năm 2025}
+    quote: "Doanh thu thực hiện năm 2025 theo số liệu sơ bộ đạt 1.140 tỷ đồng, bằng 95% kế hoạch."

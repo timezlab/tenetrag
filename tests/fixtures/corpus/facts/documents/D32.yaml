@@ -1,0 +1,48 @@
+# Batch C: a product KPI with its owner, its definition, a target and an actual.
+id: D32
+language: mixed
+issuer: beta
+title: Báo cáo KPI Beta Mobile quý 4/2025 / Beta Mobile KPI report Q4 2025
+format: xlsx
+dates: {issued_on: "2026-01-10"}
+blocks:
+  - {heading: "Báo cáo KPI Beta Mobile quý 4/2025 / Beta Mobile KPI report Q4 2025", level: 1}
+  - paragraph: "Công ty CP Beta. Đơn vị phụ trách chỉ số / Metric owner: Phòng Sản phẩm / Product Department."
+  - paragraph: "Người dùng hoạt động là khách hàng đăng nhập ứng dụng Beta Mobile ít nhất một lần trong 30 ngày gần nhất. / Active users are customers who logged in to the Beta Mobile app at least once in the last 30 days."
+  - table:
+      header: ["Chỉ số / Metric", "Kế hoạch quý 4/2025 / Target", "Thực hiện quý 4/2025 / Actual"]
+      rows:
+        - ["Người dùng hoạt động / Active users", "150.000", "135.000"]
+items:
+  - {id: D32.1, kind: entity, type: Organization, world: beta, surface: Công ty CP Beta, is_name: true}
+  - {id: D32.2, kind: entity, type: Organization, world: beta.sp, surface: Phòng Sản phẩm, is_name: true}
+  - {id: D32.3, kind: entity, type: Metric, world: met.active-users, surface: Người dùng hoạt động, is_name: true}
+  - {id: D32.4, kind: entity, type: Product, world: beta.app, surface: Beta Mobile, is_name: true}
+  - {id: D32.5, kind: relation, type: OWNER_OF, from: D32.2, to: D32.3, quote: "Đơn vị phụ trách chỉ số / Metric owner: Phòng Sản phẩm"}
+  - id: D32.6
+    kind: fact
+    type: Definition
+    roles: {term: D32.3, defined_by: D32.2}
+    attributes:
+      text:
+        value: "Người dùng hoạt động là khách hàng đăng nhập ứng dụng Beta Mobile ít nhất một lần trong 30 ngày gần nhất."
+        quote: "Người dùng hoạt động là khách hàng đăng nhập ứng dụng Beta Mobile ít nhất một lần trong 30 ngày gần nhất."
+    quote: "Người dùng hoạt động là khách hàng đăng nhập ứng dụng Beta Mobile ít nhất một lần trong 30 ngày gần nhất."
+  - id: D32.7
+    kind: fact
+    type: ReportedFigure
+    roles: {subject: D32.4, metric: D32.3}
+    attributes:
+      value: {value: "150.000", quote: "150.000"}
+      basis: {value: target, quote: Kế hoạch}
+      period: {value: Q4 2025, quote: quý 4/2025}
+    quote: "Người dùng hoạt động / Active users | 150.000"
+  - id: D32.8
+    kind: fact
+    type: ReportedFigure
+    roles: {subject: D32.4, metric: D32.3}
+    attributes:
+      value: {value: "135.000", quote: "135.000"}
+      basis: {value: actual, quote: Thực hiện}
+      period: {value: Q4 2025, quote: quý 4/2025}
+    quote: "Người dùng hoạt động / Active users | 150.000 | 135.000"

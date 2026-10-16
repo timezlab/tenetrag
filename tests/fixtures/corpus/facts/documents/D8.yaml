@@ -1,0 +1,25 @@
+# Batch A: a notice moves version 1's ownership; it names the policy with
+# no version, in Vietnamese. Two OWNER_OF statements, different starts.
+id: D8
+language: vi
+issuer: alpha
+title: Thông báo thay đổi đơn vị chủ trì Chính sách An toàn thông tin
+format: docx
+dates: {issued_on: "2025-08-25", effective_from: "2025-09-01"}
+blocks:
+  - {heading: "THÔNG BÁO", level: 1}
+  - paragraph: "Về việc thay đổi đơn vị chủ trì Chính sách An toàn thông tin."
+  - paragraph: "Từ ngày 01/09/2025, Phòng Quản lý Rủi ro chủ trì Chính sách An toàn thông tin thay cho Phòng Công nghệ thông tin."
+  - paragraph: "Phòng Công nghệ thông tin tiếp tục vận hành hệ thống CRM."
+items:
+  - {id: D8.1, kind: entity, type: Policy, world: alpha.isp.v1, surface: Chính sách An toàn thông tin, is_name: true}
+  - {id: D8.2, kind: entity, type: Organization, world: alpha.qlrr, surface: Phòng Quản lý Rủi ro, is_name: true}
+  - {id: D8.3, kind: entity, type: Organization, world: alpha.cntt, surface: Phòng Công nghệ thông tin, is_name: true}
+  - {id: D8.4, kind: entity, type: System, world: alpha.crm, surface: hệ thống CRM, is_name: true}
+  - id: D8.5
+    kind: relation
+    type: OWNER_OF
+    from: D8.2
+    to: D8.1
+    quote: "Từ ngày 01/09/2025, Phòng Quản lý Rủi ro chủ trì Chính sách An toàn thông tin"
+    valid_from: "2025-09-01"

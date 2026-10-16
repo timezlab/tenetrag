@@ -1,0 +1,59 @@
+# Batch B: Beta's board approves the Beta Mobile launch.
+id: D18
+language: en
+issuer: beta
+title: Minutes of the Board of Directors
+format: pdf
+dates: {held_on: "2025-06-25"}
+blocks:
+  - {heading: "Minutes of the Board of Directors of Beta JSC", level: 1}
+  - paragraph: "Date: 25 June 2025. Chair: Hoàng Thu Hà, Chairwoman of the Board of Directors. Attendees: Vũ Đức Khánh, Chief Executive Officer."
+  - {heading: "Resolutions", level: 2}
+  - paragraph: "The Board approved the launch of the Beta Mobile app for retail customers."
+  - {heading: "Action items", level: 2}
+  - list:
+      - "Vũ Đức Khánh will present the launch plan by 31 July 2025. Status: open."
+items:
+  - {id: D18.1, kind: entity, type: Organization, world: beta.hdqt, surface: Board of Directors, is_name: true}
+  - {id: D18.2, kind: entity, type: Organization, world: beta, surface: Beta JSC, is_name: true}
+  - {id: D18.3, kind: entity, type: Person, world: beta.ha, surface: Hoàng Thu Hà, is_name: true}
+  - {id: D18.4, kind: entity, type: Person, world: beta.khanh, surface: Vũ Đức Khánh, is_name: true}
+  - {id: D18.5, kind: entity, type: Product, world: beta.app, surface: Beta Mobile, is_name: true}
+  - id: D18.6
+    kind: event
+    type: Meeting
+    roles: {chair: D18.3, attendee: [D18.4], participant: [D18.1]}
+    quote: "Date: 25 June 2025. Chair: Hoàng Thu Hà, Chairwoman of the Board of Directors."
+    valid_from: "2025-06-25"
+  - id: D18.7
+    kind: relation
+    type: HOLDS_POSITION
+    from: D18.3
+    to: D18.1
+    attributes:
+      title: {value: Chairwoman, quote: Chairwoman}
+    quote: "Hoàng Thu Hà, Chairwoman of the Board of Directors"
+  - id: D18.8
+    kind: relation
+    type: HOLDS_POSITION
+    from: D18.4
+    to: D18.2
+    attributes:
+      title: {value: Chief Executive Officer, quote: Chief Executive Officer}
+    quote: "Vũ Đức Khánh, Chief Executive Officer"
+  - {id: D18.9, kind: relation, type: PART_OF, from: D18.1, to: D18.2, quote: "Board of Directors of Beta JSC"}
+  - id: D18.10
+    kind: event
+    type: Decision
+    roles: {about: D18.5, decided_by: D18.1, made_in: D18.6}
+    attributes:
+      status: {value: approved, quote: approved}
+    quote: "The Board approved the launch of the Beta Mobile app for retail customers."
+  - id: D18.11
+    kind: fact
+    type: ActionItem
+    roles: {owner: D18.4, about: D18.5, assigned_in: D18.6}
+    attributes:
+      due_date: {value: "2025-07-31", quote: by 31 July 2025}
+      status: {value: open, quote: "Status: open"}
+    quote: "Vũ Đức Khánh will present the launch plan by 31 July 2025. Status: open."

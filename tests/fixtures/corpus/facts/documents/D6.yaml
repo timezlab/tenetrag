@@ -1,0 +1,41 @@
+# Batch A: Alpha's information security policy, version 1. Its requirement
+# states no start, so it inherits the policy's effective date (§3.1).
+id: D6
+language: en
+issuer: alpha
+title: Information Security Policy
+format: pdf
+dates: {issued_on: "2025-02-10", effective_from: "2025-03-01"}
+blocks:
+  - {heading: "Information Security Policy", level: 1}
+  - paragraph: "Code: ALP-ISP. Version 1. Issued on 10 February 2025, effective from 1 March 2025. Policy owner: IT Department."
+  - paragraph: "This policy applies to every employee of Alpha JSC and to the CRM system."
+  - {heading: "Passwords", level: 2}
+  - paragraph: "The minimum password length is 12 characters."
+items:
+  - id: D6.1
+    kind: entity
+    type: Policy
+    world: alpha.isp.v1
+    surface: Information Security Policy
+    is_name: true
+    attributes:
+      title: {value: Information Security Policy, quote: Information Security Policy}
+      code: {value: ALP-ISP, quote: "Code: ALP-ISP"}
+      version_label: {value: "1", quote: Version 1}
+      issued_on: {value: "2025-02-10", quote: Issued on 10 February 2025}
+      effective_from: {value: "2025-03-01", quote: effective from 1 March 2025}
+  - {id: D6.2, kind: entity, type: Organization, world: alpha.cntt, surface: IT Department, is_name: true}
+  - {id: D6.3, kind: entity, type: Organization, world: alpha, surface: Alpha JSC, is_name: true}
+  - {id: D6.4, kind: entity, type: System, world: alpha.crm, surface: CRM system, is_name: true}
+  - {id: D6.5, kind: entity, type: Metric, world: met.pw-len, surface: password length, is_name: true}
+  - {id: D6.6, kind: relation, type: OWNER_OF, from: D6.2, to: D6.1, quote: "Policy owner: IT Department"}
+  - {id: D6.7, kind: relation, type: APPLIES_TO, from: D6.1, to: D6.3, quote: "This policy applies to every employee of Alpha JSC"}
+  - {id: D6.8, kind: relation, type: APPLIES_TO, from: D6.1, to: D6.4, quote: "and to the CRM system"}
+  - id: D6.9
+    kind: fact
+    type: Requirement
+    roles: {source: D6.1, metric: D6.5}
+    attributes:
+      threshold: {value: 12 characters, quote: 12 characters}
+    quote: "The minimum password length is 12 characters."

@@ -1,0 +1,37 @@
+# Batch A: Gamma's remote work policy, in English.
+id: D13
+language: en
+issuer: gamma
+title: Remote Work Policy
+format: pdf
+dates: {issued_on: "2025-07-01", effective_from: "2025-07-15"}
+blocks:
+  - {heading: "Remote Work Policy", level: 1}
+  - paragraph: "Gamma Co., Ltd. Policy code: GM-HR-02. Version 1. Issued on 1 July 2025, effective from 15 July 2025. Owner: Human Resources Department."
+  - paragraph: "This policy applies to all employees of Gamma Co., Ltd."
+  - paragraph: "The maximum number of remote work days is two per week."
+items:
+  - id: D13.1
+    kind: entity
+    type: Policy
+    world: gamma.rwp.v1
+    surface: Remote Work Policy
+    is_name: true
+    attributes:
+      title: {value: Remote Work Policy, quote: Remote Work Policy}
+      code: {value: GM-HR-02, quote: "Policy code: GM-HR-02"}
+      version_label: {value: "1", quote: Version 1}
+      issued_on: {value: "2025-07-01", quote: Issued on 1 July 2025}
+      effective_from: {value: "2025-07-15", quote: effective from 15 July 2025}
+  - {id: D13.2, kind: entity, type: Organization, world: gamma, surface: "Gamma Co., Ltd.", is_name: true}
+  - {id: D13.3, kind: entity, type: Organization, world: gamma.hr, surface: Human Resources Department, is_name: true}
+  - {id: D13.4, kind: entity, type: Metric, world: met.remote-days, surface: remote work days, is_name: true}
+  - {id: D13.5, kind: relation, type: OWNER_OF, from: D13.3, to: D13.1, quote: "Owner: Human Resources Department"}
+  - {id: D13.6, kind: relation, type: APPLIES_TO, from: D13.1, to: D13.2, quote: "This policy applies to all employees of Gamma Co., Ltd."}
+  - id: D13.7
+    kind: fact
+    type: Requirement
+    roles: {source: D13.1, metric: D13.4}
+    attributes:
+      threshold: {value: two per week, quote: two per week}
+    quote: "The maximum number of remote work days is two per week."

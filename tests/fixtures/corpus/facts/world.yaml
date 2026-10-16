@@ -1,0 +1,495 @@
+# The world of the synthetic corpus (data-model §9, FR-041).
+#
+# Every organization, person and identifier here is fictional. The one
+# exception is a public authority named as the issuer of a public legal
+# document, with that document's code. Emails use the .example domain.
+#
+# An entry's `name` is how its own documents write it; `labels` say how a
+# generated question in each language names it, and default to `name`.
+# Attribute values are plain strings, checked against enterprise-docs.
+
+entities:
+  # Công ty CP Alpha, the running example's company (engine brief).
+  alpha:
+    type: Organization
+    name: Công ty CP Alpha
+    aliases: [Alpha JSC, Alpha]
+    labels: {en: Alpha JSC}
+    attributes: {category: company}
+  alpha.tc:
+    type: Organization
+    name: Phòng Tài chính
+    scope: alpha
+    aliases: [P.TC, Finance Department]
+    labels: {en: the Finance Department}
+    attributes: {category: department}
+  alpha.ubrr:
+    type: Organization
+    name: Ủy ban Rủi ro
+    scope: alpha
+    labels: {en: the Risk Committee}
+    attributes: {category: committee}
+  alpha.an:
+    type: Person
+    name: Nguyễn Văn An
+    scope: alpha
+    attributes: {email: an.nguyen@alpha.example}
+  alpha.binh:
+    type: Person
+    name: Trần Thị Bình
+    scope: alpha
+  alpha.ctp.v1:
+    type: Policy
+    name: Quy chế công tác phí
+    scope: alpha
+    labels: {en: travel expense policy}
+    attributes:
+      title: Quy chế công tác phí
+      version_label: "1"
+      issued_on: "2025-01-10"
+      effective_from: "2025-02-01"
+  alpha.ctp.v2:
+    type: Policy
+    name: Quy chế công tác phí
+    scope: alpha
+    labels: {en: travel expense policy}
+    attributes:
+      title: Quy chế công tác phí
+      version_label: "2"
+      issued_on: "2026-01-05"
+      effective_from: "2026-01-15"
+  alpha.htcp:
+    type: System
+    name: hệ thống quản lý chi phí
+    scope: alpha
+    labels: {en: the expense management system}
+  alpha.kpi-2025:
+    type: Work
+    name: KPI handbook 2025
+    scope: alpha
+    attributes: {kind: standard, title: KPI handbook 2025, issued_on: "2025-03-01"}
+
+  alpha.cntt:
+    type: Organization
+    name: Phòng Công nghệ thông tin
+    scope: alpha
+    aliases: [IT Department, IT Dept., Phòng CNTT, P.CNTT]
+    labels: {en: the IT Department}
+    attributes: {category: department}
+  alpha.qlrr:
+    type: Organization
+    name: Phòng Quản lý Rủi ro
+    scope: alpha
+    aliases: [Risk Management Department]
+    labels: {en: the Risk Management Department}
+    attributes: {category: department}
+  alpha.kt:
+    type: Organization
+    name: Phòng Kế toán
+    scope: alpha
+    aliases: [P.KT, Accounting Department]
+    labels: {en: the Accounting Department}
+    attributes: {category: department}
+  alpha.isp.v1:
+    type: Policy
+    name: Information Security Policy
+    scope: alpha
+    aliases: [Chính sách An toàn thông tin]
+    labels: {vi: Chính sách An toàn thông tin}
+    attributes:
+      title: Information Security Policy
+      code: ALP-ISP
+      version_label: "1"
+      issued_on: "2025-02-10"
+      effective_from: "2025-03-01"
+  alpha.isp.v2:
+    type: Policy
+    name: Information Security Policy
+    scope: alpha
+    aliases: [Chính sách An toàn thông tin]
+    labels: {vi: Chính sách An toàn thông tin}
+    attributes:
+      title: Information Security Policy
+      code: ALP-ISP
+      version_label: "2"
+      issued_on: "2026-02-02"
+      effective_from: "2026-02-16"
+  alpha.qtpd.v1:
+    type: Procedure
+    name: Quy trình phê duyệt thanh toán
+    scope: alpha
+    labels: {en: payment approval procedure}
+    attributes:
+      title: Quy trình phê duyệt thanh toán
+      code: QT-TC-03
+      version_label: "1"
+      issued_on: "2025-05-20"
+      effective_from: "2025-06-01"
+  alpha.hd-ctp:
+    type: Procedure
+    name: Hướng dẫn thực hiện Quy chế công tác phí
+    scope: alpha
+    labels: {en: guidance on the travel expense policy}
+    attributes:
+      title: Hướng dẫn thực hiện Quy chế công tác phí
+      code: HD-TC-01
+      issued_on: "2026-01-20"
+      effective_from: "2026-02-01"
+  alpha.drp.v1:
+    type: Procedure
+    name: Data Retention Procedure
+    scope: alpha
+    labels: {vi: Quy trình lưu trữ dữ liệu}
+    attributes:
+      title: Data Retention Procedure
+      code: ALP-PRC-11
+      version_label: "1"
+      issued_on: "2025-08-04"
+      effective_from: "2025-08-18"
+  alpha.crm:
+    type: System
+    name: CRM system
+    scope: alpha
+    aliases: [hệ thống CRM]
+    labels: {vi: hệ thống CRM, en: the CRM system}
+  alpha.chau:
+    type: Person
+    name: Lê Minh Châu
+    scope: alpha
+  alpha.dung:
+    type: Person
+    name: Phạm Quốc Dũng
+    scope: alpha
+    attributes: {email: dung.pham@alpha.example}
+  alpha.itsc:
+    type: Organization
+    name: IT Steering Committee
+    scope: alpha
+    aliases: [Ban Chỉ đạo CNTT]
+    labels: {vi: Ban Chỉ đạo CNTT, en: the IT Steering Committee}
+    attributes: {category: committee}
+  alpha.spc:
+    type: Organization
+    name: Product Committee
+    scope: alpha
+    labels: {vi: Ủy ban Sản phẩm, en: the Product Committee}
+    attributes: {category: committee}
+  alpha.crm-up:
+    type: Project
+    name: CRM Upgrade Project
+    scope: alpha
+    labels: {vi: Dự án nâng cấp CRM, en: the CRM Upgrade Project}
+    attributes:
+      kind: project
+      code: PRJ-24
+      start_date: "2025-05-01"
+      end_date: "2026-06-30"
+      status: active
+  alpha.pay:
+    type: Product
+    name: Alpha Pay
+    scope: alpha
+    attributes: {kind: service}
+  alpha.kd:
+    type: Organization
+    name: Phòng Kinh doanh
+    scope: alpha
+    aliases: [P.KD, Sales Department]
+    labels: {en: the Sales Department}
+    attributes: {category: department}
+  alpha.cskh:
+    type: Organization
+    name: Trung tâm Chăm sóc khách hàng
+    scope: alpha
+    aliases: [Customer Care Centre]
+    labels: {en: the Customer Care Centre}
+    attributes: {category: business_unit}
+  alpha.mai:
+    type: Person
+    name: Lý Thị Mai
+    scope: alpha
+    attributes: {email: mai.ly@alpha.example}
+  alpha.hung:
+    type: Person
+    name: Đặng Văn Hùng
+    scope: alpha
+    attributes: {email: hung.dang@alpha.example}
+  alpha.lan:
+    type: Person
+    name: Võ Thị Lan
+    scope: alpha
+    attributes: {email: lan.vo@alpha.example}
+
+  # Công ty CP Beta: the same titles, unit and metric as Alpha, kept apart (D5).
+  beta:
+    type: Organization
+    name: Công ty CP Beta
+    aliases: [Beta JSC, Beta]
+    labels: {en: Beta JSC}
+    attributes: {category: company}
+  beta.tc:
+    type: Organization
+    name: Phòng Tài chính
+    scope: beta
+    labels: {en: the Finance Department}
+    attributes: {category: department}
+  beta.ctp.v1:
+    type: Policy
+    name: Quy chế công tác phí
+    scope: beta
+    labels: {en: travel expense policy}
+    attributes:
+      title: Quy chế công tác phí
+      version_label: "1"
+      issued_on: "2026-03-01"
+      effective_from: "2026-03-15"
+
+  beta.hc:
+    type: Organization
+    name: Phòng Hành chính
+    scope: beta
+    labels: {en: the Administration Department}
+    attributes: {category: department}
+  beta.qtms.v1:
+    type: Procedure
+    name: Quy trình mua sắm
+    scope: beta
+    labels: {en: procurement procedure}
+    attributes:
+      title: Quy trình mua sắm
+      code: QT-05
+      version_label: "1"
+      issued_on: "2025-04-15"
+      effective_from: "2025-05-01"
+  beta.qtms.v2:
+    type: Procedure
+    name: Quy trình mua sắm
+    scope: beta
+    labels: {en: procurement procedure}
+    attributes:
+      title: Quy trình mua sắm
+      code: QT-05
+      version_label: "2"
+      issued_on: "2026-01-12"
+      effective_from: "2026-02-01"
+
+  beta.hdqt:
+    type: Organization
+    name: Board of Directors
+    scope: beta
+    aliases: [Hội đồng quản trị]
+    labels: {vi: Hội đồng quản trị, en: the Board of Directors}
+    attributes: {category: committee}
+  beta.bdh:
+    type: Organization
+    name: Ban Điều hành
+    scope: beta
+    labels: {en: the Executive Board}
+    attributes: {category: committee}
+  beta.ha:
+    type: Person
+    name: Hoàng Thu Hà
+    scope: beta
+  beta.khanh:
+    type: Person
+    name: Vũ Đức Khánh
+    scope: beta
+  beta.app:
+    type: Product
+    name: Beta Mobile
+    scope: beta
+    labels: {vi: ứng dụng Beta Mobile, en: the Beta Mobile app}
+    attributes: {kind: product}
+  beta.sp:
+    type: Organization
+    name: Phòng Sản phẩm
+    scope: beta
+    labels: {en: the Product Department}
+    attributes: {category: department}
+  beta.hrmh:
+    type: Work
+    name: Sổ tay chỉ số nhân sự
+    scope: beta
+    labels: {en: Beta's HR metrics handbook}
+    attributes: {kind: standard, title: Sổ tay chỉ số nhân sự, issued_on: "2025-05-05"}
+  beta.care:
+    type: Product
+    name: Beta Care
+    scope: beta
+    attributes: {kind: service}
+  beta.bm2:
+    type: Project
+    name: Dự án Beta Mobile 2.0
+    scope: beta
+    labels: {en: the Beta Mobile 2.0 project}
+    attributes:
+      kind: project
+      code: BM2-26
+      start_date: "2026-03-01"
+      end_date: "2026-12-31"
+  # Beta's CRM shares a name with Alpha's: one name, two systems.
+  beta.crm:
+    type: System
+    name: hệ thống CRM
+    scope: beta
+    labels: {en: the CRM system}
+
+  # Công ty TNHH Gamma, the third company.
+  gamma:
+    type: Organization
+    name: Công ty TNHH Gamma
+    aliases: ["Gamma Co., Ltd.", Gamma]
+    labels: {en: "Gamma Co., Ltd."}
+    attributes: {category: company}
+  gamma.hr:
+    type: Organization
+    name: Human Resources Department
+    scope: gamma
+    aliases: [Phòng Nhân sự, HR Department]
+    labels: {vi: Phòng Nhân sự, en: the Human Resources Department}
+    attributes: {category: department}
+  gamma.rwp.v1:
+    type: Policy
+    name: Remote Work Policy
+    scope: gamma
+    labels: {vi: Chính sách làm việc từ xa}
+    attributes:
+      title: Remote Work Policy
+      code: GM-HR-02
+      version_label: "1"
+      issued_on: "2025-07-01"
+      effective_from: "2025-07-15"
+
+  gamma.mgmt:
+    type: Organization
+    name: Ban Giám đốc
+    scope: gamma
+    aliases: [Management Board]
+    labels: {en: the Management Board}
+    attributes: {category: committee}
+  gamma.long:
+    type: Person
+    name: Đỗ Thành Long
+    scope: gamma
+  gamma.thao:
+    type: Person
+    name: Mai Phương Thảo
+    scope: gamma
+  gamma.hrm:
+    type: System
+    name: HR system
+    scope: gamma
+    labels: {vi: hệ thống nhân sự, en: the HR system}
+  gamma.td:
+    type: Project
+    name: Dự án tuyển dụng quý 4/2025
+    scope: gamma
+    labels: {en: the Q4 2025 recruitment project}
+    attributes: {kind: project}
+  gamma.hrmh-2025:
+    type: Work
+    name: HR Metrics Handbook 2025
+    scope: gamma
+    attributes: {kind: standard, title: HR Metrics Handbook 2025, issued_on: "2025-01-15"}
+  gamma.hrmh-2026:
+    type: Work
+    name: HR Metrics Handbook 2026
+    scope: gamma
+    attributes: {kind: standard, title: HR Metrics Handbook 2026, issued_on: "2026-01-12"}
+  # Nguyễn Văn An of Gamma is not Nguyễn Văn An of Alpha: same name,
+  # another company, another email (identity by scope and keys).
+  gamma.an:
+    type: Person
+    name: Nguyễn Văn An
+    scope: gamma
+    attributes: {email: an.nguyen@gamma.example}
+  gamma.kd:
+    type: Organization
+    name: Phòng Kinh doanh
+    scope: gamma
+    aliases: [Sales Department]
+    labels: {en: the Sales Department}
+    attributes: {category: department}
+  gamma.payroll:
+    type: Product
+    name: Gamma Payroll
+    scope: gamma
+    attributes: {kind: service}
+
+  # A public authority and its public legal document: the one exception
+  # to fictional names (FR-041). The corpus names the code and the issuer
+  # only, and claims nothing about the document's content.
+  btc:
+    type: Organization
+    name: Bộ Tài chính
+    labels: {en: the Ministry of Finance}
+    attributes: {category: government_agency}
+  btc.tt40:
+    type: Work
+    name: Thông tư 40/2017/TT-BTC
+    scope: btc
+    labels: {en: Circular 40/2017/TT-BTC}
+    attributes: {code: 40/2017/TT-BTC, kind: regulation}
+
+  # Public places, named as the companies' locations.
+  place.hanoi:
+    type: Place
+    name: Hà Nội
+    aliases: [Hanoi]
+    labels: {en: Hanoi}
+    attributes: {kind: city}
+  place.danang:
+    type: Place
+    name: Đà Nẵng
+    aliases: [Da Nang]
+    labels: {en: Da Nang}
+    attributes: {kind: city}
+
+  # Metrics have no scope: one entity whoever states them (research R11).
+  met.luu-tru:
+    type: Metric
+    name: phụ cấp lưu trú
+    labels: {en: daily accommodation allowance}
+  met.churn:
+    type: Metric
+    name: churn rate
+    labels: {vi: tỷ lệ rời bỏ}
+  met.pw-len:
+    type: Metric
+    name: password length
+    labels: {vi: độ dài mật khẩu}
+  met.han-muc-tt:
+    type: Metric
+    name: hạn mức phê duyệt thanh toán
+    labels: {en: payment approval limit}
+  met.bao-gia:
+    type: Metric
+    name: số báo giá tối thiểu
+    labels: {en: minimum number of quotations}
+  met.remote-days:
+    type: Metric
+    name: remote work days
+    labels: {vi: số ngày làm việc từ xa}
+  met.han-nop:
+    type: Metric
+    name: thời hạn nộp hồ sơ thanh toán
+    labels: {en: expense claim deadline}
+  met.retention:
+    type: Metric
+    name: record retention period
+    labels: {vi: thời hạn lưu trữ hồ sơ}
+  met.revenue:
+    type: Metric
+    name: doanh thu
+    aliases: [revenue]
+    labels: {en: revenue}
+  met.turnover:
+    type: Metric
+    name: employee turnover rate
+    aliases: [tỷ lệ nghỉ việc]
+    labels: {vi: tỷ lệ nghỉ việc}
+  met.active-users:
+    type: Metric
+    name: active users
+    aliases: [người dùng hoạt động]
+    labels: {vi: số người dùng hoạt động, en: number of active users}

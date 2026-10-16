@@ -1,0 +1,56 @@
+# Batch D: Gamma's profile, with its managers; Nguyễn Văn An here is Gamma's.
+id: D38
+language: en
+issuer: gamma
+title: Gamma Co., Ltd. company profile
+format: pdf
+dates: {issued_on: "2026-03-05"}
+blocks:
+  - {heading: "Gamma Co., Ltd. company profile", level: 1}
+  - paragraph: "Gamma Co., Ltd. (Công ty TNHH Gamma) was established on 5 August 2018 and is based in Da Nang."
+  - paragraph: "Gamma offers Gamma Payroll, a payroll service for small businesses."
+  - paragraph: "Management: Đỗ Thành Long, General Director; Mai Phương Thảo, Head of the Human Resources Department; Nguyễn Văn An, Head of the Sales Department."
+items:
+  - id: D38.1
+    kind: entity
+    type: Organization
+    world: gamma
+    surface: "Gamma Co., Ltd."
+    is_name: true
+    attributes:
+      established_on: {value: "2018-08-05", quote: 5 August 2018}
+  - {id: D38.2, kind: entity, type: Organization, world: gamma, surface: Công ty TNHH Gamma, is_name: true}
+  - {id: D38.3, kind: entity, type: Organization, world: gamma, surface: Gamma, is_name: true}
+  - {id: D38.4, kind: entity, type: Place, world: place.danang, surface: Da Nang, is_name: true}
+  - {id: D38.5, kind: entity, type: Product, world: gamma.payroll, surface: Gamma Payroll, is_name: true}
+  - {id: D38.6, kind: entity, type: Person, world: gamma.long, surface: Đỗ Thành Long, is_name: true}
+  - {id: D38.7, kind: entity, type: Person, world: gamma.thao, surface: Mai Phương Thảo, is_name: true}
+  - {id: D38.8, kind: entity, type: Organization, world: gamma.hr, surface: Human Resources Department, is_name: true}
+  - {id: D38.9, kind: entity, type: Person, world: gamma.an, surface: Nguyễn Văn An, is_name: true}
+  - {id: D38.10, kind: entity, type: Organization, world: gamma.kd, surface: Sales Department, is_name: true}
+  - {id: D38.11, kind: relation, type: LOCATED_IN, from: D38.1, to: D38.4, quote: "is based in Da Nang"}
+  - {id: D38.12, kind: relation, type: OFFERS, from: D38.3, to: D38.5, quote: "Gamma offers Gamma Payroll, a payroll service for small businesses."}
+  - id: D38.13
+    kind: relation
+    type: HOLDS_POSITION
+    from: D38.6
+    to: D38.1
+    attributes:
+      title: {value: General Director, quote: General Director}
+    quote: "Đỗ Thành Long, General Director"
+  - id: D38.14
+    kind: relation
+    type: HOLDS_POSITION
+    from: D38.7
+    to: D38.8
+    attributes:
+      title: {value: Head, quote: Head}
+    quote: "Mai Phương Thảo, Head of the Human Resources Department"
+  - id: D38.15
+    kind: relation
+    type: HOLDS_POSITION
+    from: D38.9
+    to: D38.10
+    attributes:
+      title: {value: Head, quote: Head}
+    quote: "Nguyễn Văn An, Head of the Sales Department"

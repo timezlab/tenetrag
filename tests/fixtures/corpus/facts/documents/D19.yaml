@@ -1,0 +1,59 @@
+# Batch B: Gamma's management rejects a proposal and cancels its follow-up.
+id: D19
+language: en
+issuer: gamma
+title: Minutes of the Management Board meeting
+format: docx
+dates: {held_on: "2025-09-15"}
+blocks:
+  - {heading: "Gamma Co., Ltd. — Minutes of the Management Board meeting", level: 1}
+  - paragraph: "Date: 15 September 2025. Chair: Đỗ Thành Long, General Director. Attendees: Mai Phương Thảo, Head of the Human Resources Department."
+  - {heading: "Decisions", level: 2}
+  - paragraph: "The Management Board rejected the proposal to move the HR system to the cloud."
+  - {heading: "Action items", level: 2}
+  - list:
+      - "Mai Phương Thảo will review the HR system vendor contract by 15 October 2025. Status: cancelled."
+items:
+  - {id: D19.1, kind: entity, type: Organization, world: gamma, surface: "Gamma Co., Ltd.", is_name: true}
+  - {id: D19.2, kind: entity, type: Organization, world: gamma.mgmt, surface: Management Board, is_name: true}
+  - {id: D19.3, kind: entity, type: Person, world: gamma.long, surface: Đỗ Thành Long, is_name: true}
+  - {id: D19.4, kind: entity, type: Person, world: gamma.thao, surface: Mai Phương Thảo, is_name: true}
+  - {id: D19.5, kind: entity, type: Organization, world: gamma.hr, surface: Human Resources Department, is_name: true}
+  - {id: D19.6, kind: entity, type: System, world: gamma.hrm, surface: HR system, is_name: true}
+  - id: D19.7
+    kind: event
+    type: Meeting
+    roles: {chair: D19.3, attendee: [D19.4], participant: [D19.2]}
+    quote: "Date: 15 September 2025. Chair: Đỗ Thành Long, General Director."
+    valid_from: "2025-09-15"
+  - id: D19.8
+    kind: relation
+    type: HOLDS_POSITION
+    from: D19.3
+    to: D19.1
+    attributes:
+      title: {value: General Director, quote: General Director}
+    quote: "Đỗ Thành Long, General Director"
+  - id: D19.9
+    kind: relation
+    type: HOLDS_POSITION
+    from: D19.4
+    to: D19.5
+    attributes:
+      title: {value: Head, quote: Head}
+    quote: "Mai Phương Thảo, Head of the Human Resources Department"
+  - id: D19.10
+    kind: event
+    type: Decision
+    roles: {about: D19.6, decided_by: D19.2, made_in: D19.7}
+    attributes:
+      status: {value: rejected, quote: rejected}
+    quote: "The Management Board rejected the proposal to move the HR system to the cloud."
+  - id: D19.11
+    kind: fact
+    type: ActionItem
+    roles: {owner: D19.4, about: D19.6, assigned_in: D19.7}
+    attributes:
+      due_date: {value: "2025-10-15", quote: by 15 October 2025}
+      status: {value: cancelled, quote: "Status: cancelled"}
+    quote: "Mai Phương Thảo will review the HR system vendor contract by 15 October 2025. Status: cancelled."

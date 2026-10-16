@@ -1,0 +1,58 @@
+# Batch B: Alpha's IT Steering Committee approves the CRM upgrade.
+id: D16
+language: en
+issuer: alpha
+title: Minutes of the IT Steering Committee
+format: docx
+dates: {held_on: "2025-04-10"}
+blocks:
+  - {heading: "Minutes of the IT Steering Committee", level: 1}
+  - paragraph: "Date: 10 April 2025. Chair: Lê Minh Châu, Head of the IT Department. Attendees: Phạm Quốc Dũng (dung.pham@alpha.example), Nguyễn Văn An."
+  - {heading: "Decisions", level: 2}
+  - paragraph: "The committee approved the CRM Upgrade Project."
+  - {heading: "Action items", level: 2}
+  - list:
+      - "Phạm Quốc Dũng will submit the project plan by 30 April 2025. Status: done."
+items:
+  - {id: D16.1, kind: entity, type: Organization, world: alpha.itsc, surface: IT Steering Committee, is_name: true}
+  - {id: D16.2, kind: entity, type: Person, world: alpha.chau, surface: Lê Minh Châu, is_name: true}
+  - {id: D16.3, kind: entity, type: Organization, world: alpha.cntt, surface: IT Department, is_name: true}
+  - id: D16.4
+    kind: entity
+    type: Person
+    world: alpha.dung
+    surface: Phạm Quốc Dũng
+    is_name: true
+    attributes:
+      email: {value: dung.pham@alpha.example, quote: dung.pham@alpha.example}
+  - {id: D16.5, kind: entity, type: Person, world: alpha.an, surface: Nguyễn Văn An, is_name: true}
+  - {id: D16.6, kind: entity, type: Project, world: alpha.crm-up, surface: CRM Upgrade Project, is_name: true}
+  - id: D16.7
+    kind: event
+    type: Meeting
+    roles: {chair: D16.2, attendee: [D16.4, D16.5], participant: [D16.1]}
+    quote: "Date: 10 April 2025. Chair: Lê Minh Châu, Head of the IT Department."
+    valid_from: "2025-04-10"
+  - id: D16.8
+    kind: relation
+    type: HOLDS_POSITION
+    from: D16.2
+    to: D16.3
+    attributes:
+      title: {value: Head, quote: Head}
+    quote: "Lê Minh Châu, Head of the IT Department"
+  - id: D16.9
+    kind: event
+    type: Decision
+    roles: {about: D16.6, decided_by: D16.1, made_in: D16.7}
+    attributes:
+      status: {value: approved, quote: approved}
+    quote: "The committee approved the CRM Upgrade Project."
+  - id: D16.10
+    kind: fact
+    type: ActionItem
+    roles: {owner: D16.4, about: D16.6, assigned_in: D16.7}
+    attributes:
+      due_date: {value: "2025-04-30", quote: by 30 April 2025}
+      status: {value: done, quote: "Status: done"}
+    quote: "Phạm Quốc Dũng will submit the project plan by 30 April 2025. Status: done."

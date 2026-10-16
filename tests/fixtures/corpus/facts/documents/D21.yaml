@@ -1,0 +1,53 @@
+# Batch B: Alpha's Product Committee launches Alpha Pay.
+id: D21
+language: en
+issuer: alpha
+title: Minutes of the Product Committee
+format: docx
+dates: {held_on: "2026-04-08"}
+blocks:
+  - {heading: "Minutes of the Product Committee", level: 1}
+  - paragraph: "Date: 8 April 2026. Chair: Trần Thị Bình. Attendees: Lê Minh Châu, Chief Information Officer; Phạm Quốc Dũng."
+  - {heading: "Decisions", level: 2}
+  - paragraph: "The Product Committee approved the launch of Alpha Pay, a payment service for Alpha's customers."
+  - {heading: "Action items", level: 2}
+  - list:
+      - "Phạm Quốc Dũng will connect Alpha Pay to the CRM system by 30 June 2026. Status: open."
+items:
+  - {id: D21.1, kind: entity, type: Organization, world: alpha.spc, surface: Product Committee, is_name: true}
+  - {id: D21.2, kind: entity, type: Person, world: alpha.binh, surface: Trần Thị Bình, is_name: true}
+  - {id: D21.3, kind: entity, type: Person, world: alpha.chau, surface: Lê Minh Châu, is_name: true}
+  - {id: D21.4, kind: entity, type: Person, world: alpha.dung, surface: Phạm Quốc Dũng, is_name: true}
+  - {id: D21.5, kind: entity, type: Product, world: alpha.pay, surface: Alpha Pay, is_name: true}
+  - {id: D21.6, kind: entity, type: Organization, world: alpha, surface: Alpha, is_name: true}
+  - {id: D21.7, kind: entity, type: System, world: alpha.crm, surface: CRM system, is_name: true}
+  - id: D21.8
+    kind: event
+    type: Meeting
+    roles: {chair: D21.2, attendee: [D21.3, D21.4], participant: [D21.1]}
+    quote: "Date: 8 April 2026. Chair: Trần Thị Bình."
+    valid_from: "2026-04-08"
+  - id: D21.9
+    kind: relation
+    type: HOLDS_POSITION
+    from: D21.3
+    to: D21.6
+    attributes:
+      title: {value: Chief Information Officer, quote: Chief Information Officer}
+    quote: "Lê Minh Châu, Chief Information Officer"
+  - id: D21.10
+    kind: event
+    type: Decision
+    roles: {about: D21.5, decided_by: D21.1, made_in: D21.8}
+    attributes:
+      status: {value: approved, quote: approved}
+    quote: "The Product Committee approved the launch of Alpha Pay, a payment service for Alpha's customers."
+  - {id: D21.11, kind: relation, type: OFFERS, from: D21.6, to: D21.5, quote: "Alpha Pay, a payment service for Alpha's customers"}
+  - id: D21.12
+    kind: fact
+    type: ActionItem
+    roles: {owner: D21.4, about: [D21.5, D21.7], assigned_in: D21.8}
+    attributes:
+      due_date: {value: "2026-06-30", quote: by 30 June 2026}
+      status: {value: open, quote: "Status: open"}
+    quote: "Phạm Quốc Dũng will connect Alpha Pay to the CRM system by 30 June 2026. Status: open."

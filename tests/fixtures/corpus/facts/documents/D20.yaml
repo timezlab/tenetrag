@@ -1,0 +1,51 @@
+# Batch B: Gamma's weekly management meeting, in Vietnamese.
+id: D20
+language: vi
+issuer: gamma
+title: Biên bản họp giao ban Ban Giám đốc
+format: docx
+dates: {held_on: "2025-10-06"}
+blocks:
+  - {heading: "BIÊN BẢN HỌP GIAO BAN BAN GIÁM ĐỐC", level: 1}
+  - paragraph: "Công ty TNHH Gamma. Thời gian: ngày 06/10/2025. Chủ trì: ông Đỗ Thành Long, Tổng Giám đốc. Thành phần: bà Mai Phương Thảo, Phòng Nhân sự."
+  - {heading: "Kết luận", level: 2}
+  - list:
+      - "Ban Giám đốc thông qua Dự án tuyển dụng quý 4/2025."
+      - "Bà Mai Phương Thảo triển khai Dự án tuyển dụng quý 4/2025 trước ngày 15/10/2025. Trạng thái: đang thực hiện."
+items:
+  - {id: D20.1, kind: entity, type: Organization, world: gamma, surface: Công ty TNHH Gamma, is_name: true}
+  - {id: D20.2, kind: entity, type: Organization, world: gamma.mgmt, surface: Ban Giám đốc, is_name: true}
+  - {id: D20.3, kind: entity, type: Person, world: gamma.long, surface: Đỗ Thành Long, is_name: true}
+  - {id: D20.4, kind: entity, type: Person, world: gamma.thao, surface: Mai Phương Thảo, is_name: true}
+  - {id: D20.5, kind: entity, type: Organization, world: gamma.hr, surface: Phòng Nhân sự, is_name: true}
+  - {id: D20.6, kind: entity, type: Project, world: gamma.td, surface: Dự án tuyển dụng quý 4/2025, is_name: true}
+  - id: D20.7
+    kind: event
+    type: Meeting
+    roles: {chair: D20.3, attendee: [D20.4], participant: [D20.2]}
+    quote: "Thời gian: ngày 06/10/2025. Chủ trì: ông Đỗ Thành Long, Tổng Giám đốc."
+    valid_from: "2025-10-06"
+  - id: D20.8
+    kind: relation
+    type: HOLDS_POSITION
+    from: D20.3
+    to: D20.1
+    attributes:
+      title: {value: Tổng Giám đốc, quote: Tổng Giám đốc}
+    quote: "ông Đỗ Thành Long, Tổng Giám đốc"
+  - {id: D20.9, kind: relation, type: MEMBER_OF, from: D20.4, to: D20.5, quote: "bà Mai Phương Thảo, Phòng Nhân sự"}
+  - id: D20.10
+    kind: event
+    type: Decision
+    roles: {about: D20.6, decided_by: D20.2, made_in: D20.7}
+    attributes:
+      status: {value: approved, quote: thông qua}
+    quote: "Ban Giám đốc thông qua Dự án tuyển dụng quý 4/2025."
+  - id: D20.11
+    kind: fact
+    type: ActionItem
+    roles: {owner: D20.4, about: D20.6, assigned_in: D20.7}
+    attributes:
+      due_date: {value: "2025-10-15", quote: trước ngày 15/10/2025}
+      status: {value: in_progress, quote: đang thực hiện}
+    quote: "Bà Mai Phương Thảo triển khai Dự án tuyển dụng quý 4/2025 trước ngày 15/10/2025. Trạng thái: đang thực hiện."

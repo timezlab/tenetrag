@@ -1,0 +1,34 @@
+# Batch A: Beta's procurement procedure, version 1.
+id: D11
+language: vi
+issuer: beta
+title: Quy trình mua sắm
+format: docx
+dates: {issued_on: "2025-04-15", effective_from: "2025-05-01"}
+blocks:
+  - {heading: "QUY TRÌNH MUA SẮM", level: 1}
+  - paragraph: "Mã: QT-05. Phiên bản 1. Ban hành ngày 15/04/2025, có hiệu lực từ ngày 01/05/2025. Đơn vị chủ trì: Phòng Hành chính."
+  - paragraph: "Số báo giá tối thiểu cho mỗi gói mua sắm là 02 báo giá."
+items:
+  - id: D11.1
+    kind: entity
+    type: Procedure
+    world: beta.qtms.v1
+    surface: QUY TRÌNH MUA SẮM
+    is_name: true
+    attributes:
+      title: {value: Quy trình mua sắm, quote: QUY TRÌNH MUA SẮM}
+      code: {value: QT-05, quote: "Mã: QT-05"}
+      version_label: {value: "1", quote: Phiên bản 1}
+      issued_on: {value: "2025-04-15", quote: Ban hành ngày 15/04/2025}
+      effective_from: {value: "2025-05-01", quote: có hiệu lực từ ngày 01/05/2025}
+  - {id: D11.2, kind: entity, type: Organization, world: beta.hc, surface: Phòng Hành chính, is_name: true}
+  - {id: D11.3, kind: entity, type: Metric, world: met.bao-gia, surface: Số báo giá tối thiểu, is_name: true}
+  - {id: D11.4, kind: relation, type: OWNER_OF, from: D11.2, to: D11.1, quote: "Đơn vị chủ trì: Phòng Hành chính"}
+  - id: D11.5
+    kind: fact
+    type: Requirement
+    roles: {source: D11.1, metric: D11.3}
+    attributes:
+      threshold: {value: 02 báo giá, quote: 02 báo giá}
+    quote: "Số báo giá tối thiểu cho mỗi gói mua sắm là 02 báo giá."

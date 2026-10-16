@@ -1,0 +1,37 @@
+# Running example D2: version 2 raises the limit and replaces version 1 (engine brief).
+id: D2
+language: vi
+issuer: alpha
+title: Quy chế công tác phí
+format: pdf
+dates: {issued_on: "2026-01-05", effective_from: "2026-01-15"}
+blocks:
+  - {heading: "QUY CHẾ CÔNG TÁC PHÍ", level: 1}
+  - paragraph: "Phiên bản 2. Ban hành ngày 05/01/2026, có hiệu lực từ ngày 15/01/2026. Đơn vị chủ trì: Phòng Tài chính."
+  - paragraph: "Mức phụ cấp lưu trú là 2.500.000 VND/ngày."
+  - paragraph: "Quy chế này thay thế phiên bản 1."
+items:
+  - id: D2.1
+    kind: entity
+    type: Policy
+    world: alpha.ctp.v2
+    surface: QUY CHẾ CÔNG TÁC PHÍ
+    is_name: true
+    attributes:
+      title: {value: Quy chế công tác phí, quote: "QUY CHẾ CÔNG TÁC PHÍ"}
+      version_label: {value: "2", quote: "Phiên bản 2"}
+      issued_on: {value: "2026-01-05", quote: "Ban hành ngày 05/01/2026"}
+      effective_from: {value: "2026-01-15", quote: "có hiệu lực từ ngày 15/01/2026"}
+  - {id: D2.2, kind: entity, type: Organization, world: alpha.tc, surface: Phòng Tài chính, is_name: true}
+  - {id: D2.3, kind: entity, type: Metric, world: met.luu-tru, surface: phụ cấp lưu trú, is_name: true}
+  - {id: D2.4, kind: entity, type: Policy, world: alpha.ctp.v1, surface: phiên bản 1, is_name: false}
+  - {id: D2.5, kind: relation, type: OWNER_OF, from: D2.2, to: D2.1, quote: "Đơn vị chủ trì: Phòng Tài chính"}
+  - id: D2.6
+    kind: fact
+    type: Requirement
+    roles: {source: D2.1, metric: D2.3}
+    attributes:
+      threshold: {value: 2.500.000 VND/ngày, quote: "2.500.000 VND/ngày"}
+    quote: "Mức phụ cấp lưu trú là 2.500.000 VND/ngày."
+    valid_from: "2026-01-15"
+  - {id: D2.7, kind: relation, type: SUPERSEDES, from: D2.1, to: D2.4, quote: "Quy chế này thay thế phiên bản 1."}

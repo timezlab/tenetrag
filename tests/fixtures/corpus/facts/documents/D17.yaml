@@ -1,0 +1,64 @@
+# Batch B: the Risk Committee's second meeting closes D3's action item and
+# defers the payment approval procedure until its owner is settled (D9, D10).
+id: D17
+language: vi
+issuer: alpha
+title: Biên bản họp Ủy ban Rủi ro
+format: docx
+dates: {held_on: "2026-03-10"}
+blocks:
+  - {heading: "BIÊN BẢN HỌP ỦY BAN RỦI RO", level: 1}
+  - paragraph: "Thời gian: ngày 10/03/2026. Chủ trì: bà Trần Thị Bình, Chủ tịch Ủy ban Rủi ro. Thành phần: ông Nguyễn Văn An, Phòng Tài chính; ông Lê Minh Châu, Phòng Công nghệ thông tin."
+  - {heading: "Nội dung", level: 2}
+  - paragraph: "Ông Nguyễn Văn An báo cáo đã hoàn thành việc cập nhật hệ thống quản lý chi phí."
+  - {heading: "Kết luận", level: 2}
+  - list:
+      - "Ủy ban Rủi ro hoãn phê duyệt Quy trình phê duyệt thanh toán đến khi thống nhất đơn vị chủ trì."
+      - "Phòng Tài chính trình phương án thống nhất trước ngày 31/03/2026. Trạng thái: đang thực hiện."
+items:
+  - {id: D17.1, kind: entity, type: Organization, world: alpha.ubrr, surface: Ủy ban Rủi ro, is_name: true}
+  - {id: D17.2, kind: entity, type: Person, world: alpha.binh, surface: Trần Thị Bình, is_name: true}
+  - {id: D17.3, kind: entity, type: Person, world: alpha.an, surface: Nguyễn Văn An, is_name: true}
+  - {id: D17.4, kind: entity, type: Organization, world: alpha.tc, surface: Phòng Tài chính, is_name: true}
+  - {id: D17.5, kind: entity, type: Person, world: alpha.chau, surface: Lê Minh Châu, is_name: true}
+  - {id: D17.6, kind: entity, type: Organization, world: alpha.cntt, surface: Phòng Công nghệ thông tin, is_name: true}
+  - {id: D17.7, kind: entity, type: System, world: alpha.htcp, surface: hệ thống quản lý chi phí, is_name: true}
+  - {id: D17.8, kind: entity, type: Procedure, world: alpha.qtpd.v1, surface: Quy trình phê duyệt thanh toán, is_name: true}
+  - id: D17.9
+    kind: event
+    type: Meeting
+    roles: {chair: D17.2, attendee: [D17.3, D17.5], participant: [D17.1]}
+    quote: "Thời gian: ngày 10/03/2026. Chủ trì: bà Trần Thị Bình, Chủ tịch Ủy ban Rủi ro."
+    valid_from: "2026-03-10"
+  - id: D17.10
+    kind: relation
+    type: HOLDS_POSITION
+    from: D17.2
+    to: D17.1
+    attributes:
+      title: {value: Chủ tịch, quote: Chủ tịch}
+    quote: "bà Trần Thị Bình, Chủ tịch Ủy ban Rủi ro"
+  - {id: D17.11, kind: relation, type: MEMBER_OF, from: D17.3, to: D17.4, quote: "ông Nguyễn Văn An, Phòng Tài chính"}
+  - {id: D17.12, kind: relation, type: MEMBER_OF, from: D17.5, to: D17.6, quote: "ông Lê Minh Châu, Phòng Công nghệ thông tin"}
+  - id: D17.13
+    kind: fact
+    type: ActionItem
+    roles: {owner: D17.3, about: D17.7}
+    attributes:
+      status: {value: done, quote: đã hoàn thành}
+    quote: "Ông Nguyễn Văn An báo cáo đã hoàn thành việc cập nhật hệ thống quản lý chi phí."
+  - id: D17.14
+    kind: event
+    type: Decision
+    roles: {about: D17.8, decided_by: D17.1, made_in: D17.9}
+    attributes:
+      status: {value: deferred, quote: hoãn}
+    quote: "Ủy ban Rủi ro hoãn phê duyệt Quy trình phê duyệt thanh toán đến khi thống nhất đơn vị chủ trì."
+  - id: D17.15
+    kind: fact
+    type: ActionItem
+    roles: {owner: D17.4, about: D17.8, assigned_in: D17.9}
+    attributes:
+      due_date: {value: "2026-03-31", quote: trước ngày 31/03/2026}
+      status: {value: in_progress, quote: đang thực hiện}
+    quote: "Phòng Tài chính trình phương án thống nhất trước ngày 31/03/2026. Trạng thái: đang thực hiện."

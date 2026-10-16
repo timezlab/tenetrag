@@ -1,0 +1,36 @@
+# Batch D: Châu moves up and Dũng takes over the IT Department; the company
+# appears as both "Alpha" and "Alpha JSC".
+id: D33
+language: en
+issuer: alpha
+title: Appointment of the Chief Information Officer
+format: docx
+dates: {issued_on: "2026-01-26", effective_from: "2026-02-01"}
+blocks:
+  - {heading: "Alpha JSC — Appointment of the Chief Information Officer", level: 1}
+  - paragraph: "Effective 1 February 2026, Alpha appoints Lê Minh Châu as Chief Information Officer of Alpha JSC."
+  - paragraph: "From the same date, Phạm Quốc Dũng succeeds Lê Minh Châu as Head of the IT Department."
+items:
+  - {id: D33.1, kind: entity, type: Organization, world: alpha, surface: Alpha JSC, is_name: true}
+  - {id: D33.2, kind: entity, type: Organization, world: alpha, surface: Alpha, is_name: true}
+  - {id: D33.3, kind: entity, type: Person, world: alpha.chau, surface: Lê Minh Châu, is_name: true}
+  - {id: D33.4, kind: entity, type: Person, world: alpha.dung, surface: Phạm Quốc Dũng, is_name: true}
+  - {id: D33.5, kind: entity, type: Organization, world: alpha.cntt, surface: IT Department, is_name: true}
+  - id: D33.6
+    kind: relation
+    type: HOLDS_POSITION
+    from: D33.3
+    to: D33.1
+    attributes:
+      title: {value: Chief Information Officer, quote: Chief Information Officer}
+    quote: "Alpha appoints Lê Minh Châu as Chief Information Officer of Alpha JSC"
+    valid_from: "2026-02-01"
+  - id: D33.7
+    kind: relation
+    type: HOLDS_POSITION
+    from: D33.4
+    to: D33.5
+    attributes:
+      title: {value: Head, quote: Head}
+    quote: "Phạm Quốc Dũng succeeds Lê Minh Châu as Head of the IT Department"
+    valid_from: "2026-02-01"

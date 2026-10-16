@@ -1,0 +1,59 @@
+# Batch A: a bilingual guidance implements version 2 of D2's policy and
+# follows a public circular, named by its code and issuer only (FR-041).
+# Phòng Tài chính issues it, but its Requirement's issuer is Alpha, the scope
+# of the guidance in the source role (engine brief §3.2).
+id: D14
+language: mixed
+issuer: alpha.tc
+title: Hướng dẫn thực hiện Quy chế công tác phí
+format: docx
+dates: {issued_on: "2026-01-20", effective_from: "2026-02-01"}
+blocks:
+  - {heading: "HƯỚNG DẪN THỰC HIỆN QUY CHẾ CÔNG TÁC PHÍ / GUIDANCE ON THE TRAVEL EXPENSE POLICY", level: 1}
+  - paragraph: "Đơn vị ban hành: Phòng Tài chính / Issued by: Finance Department"
+  - paragraph: "Mã: HD-TC-01. Ban hành ngày 20/01/2026, có hiệu lực từ ngày 01/02/2026. / Code: HD-TC-01. Issued on 20 January 2026, effective from 1 February 2026."
+  - paragraph: "Hướng dẫn này thực hiện Quy chế công tác phí phiên bản 2 và căn cứ Thông tư 40/2017/TT-BTC của Bộ Tài chính."
+  - paragraph: "This guidance implements version 2 of the travel expense policy and follows Circular 40/2017/TT-BTC of the Ministry of Finance."
+  - paragraph: "Thời hạn nộp hồ sơ thanh toán công tác phí là 10 ngày làm việc sau chuyến công tác."
+  - paragraph: "The deadline for submitting expense claims is 10 working days after the trip."
+items:
+  - id: D14.1
+    kind: entity
+    type: Procedure
+    world: alpha.hd-ctp
+    surface: HƯỚNG DẪN THỰC HIỆN QUY CHẾ CÔNG TÁC PHÍ
+    is_name: true
+    attributes:
+      title: {value: Hướng dẫn thực hiện Quy chế công tác phí, quote: HƯỚNG DẪN THỰC HIỆN QUY CHẾ CÔNG TÁC PHÍ}
+      code: {value: HD-TC-01, quote: "Mã: HD-TC-01"}
+      issued_on: {value: "2026-01-20", quote: Ban hành ngày 20/01/2026}
+      effective_from: {value: "2026-02-01", quote: có hiệu lực từ ngày 01/02/2026}
+  - id: D14.2
+    kind: entity
+    type: Policy
+    world: alpha.ctp.v2
+    surface: Quy chế công tác phí phiên bản 2
+    is_name: true
+    attributes:
+      version_label: {value: "2", quote: phiên bản 2}
+  - id: D14.3
+    kind: entity
+    type: Work
+    world: btc.tt40
+    surface: Thông tư 40/2017/TT-BTC
+    is_name: true
+    attributes:
+      code: {value: 40/2017/TT-BTC, quote: 40/2017/TT-BTC}
+  - {id: D14.4, kind: entity, type: Organization, world: btc, surface: Bộ Tài chính, is_name: true}
+  - {id: D14.5, kind: entity, type: Metric, world: met.han-nop, surface: Thời hạn nộp hồ sơ thanh toán, is_name: true}
+  - {id: D14.6, kind: relation, type: IMPLEMENTS, from: D14.1, to: D14.2, quote: "Hướng dẫn này thực hiện Quy chế công tác phí phiên bản 2"}
+  - {id: D14.7, kind: relation, type: IMPLEMENTS, from: D14.1, to: D14.3, quote: "căn cứ Thông tư 40/2017/TT-BTC của Bộ Tài chính"}
+  - {id: D14.8, kind: relation, type: ISSUED_BY, from: D14.3, to: D14.4, quote: "Thông tư 40/2017/TT-BTC của Bộ Tài chính"}
+  - id: D14.9
+    kind: fact
+    type: Requirement
+    roles: {source: D14.1, metric: D14.5}
+    attributes:
+      threshold: {value: 10 ngày làm việc, quote: 10 ngày làm việc}
+    quote: "Thời hạn nộp hồ sơ thanh toán công tác phí là 10 ngày làm việc sau chuyến công tác."
+  - {id: D14.10, kind: entity, type: Organization, world: alpha.tc, surface: Phòng Tài chính, is_name: true}

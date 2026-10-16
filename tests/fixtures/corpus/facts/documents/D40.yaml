@@ -1,0 +1,87 @@
+# Batch D: a directory that names units by their acronyms.
+id: D40
+language: mixed
+issuer: alpha
+title: Danh bạ đơn vị / Unit directory
+format: xlsx
+dates: {issued_on: "2026-03-02"}
+blocks:
+  - {heading: "Danh bạ đơn vị Công ty CP Alpha / Alpha JSC unit directory", level: 1}
+  - paragraph: "Cập nhật ngày 02/03/2026 / Updated 2 March 2026."
+  - table:
+      header: ["Viết tắt / Code", "Đơn vị / Unit", "Trưởng đơn vị / Head", "Email"]
+      rows:
+        - ["P.TC", "Phòng Tài chính / Finance Department", "Lý Thị Mai", "mai.ly@alpha.example"]
+        - ["P.CNTT", "Phòng Công nghệ thông tin / IT Department", "Phạm Quốc Dũng", "dung.pham@alpha.example"]
+        - ["P.KT", "Phòng Kế toán / Accounting Department", "Đặng Văn Hùng", "hung.dang@alpha.example"]
+        - ["P.KD", "Phòng Kinh doanh / Sales Department", "Võ Thị Lan", "lan.vo@alpha.example"]
+items:
+  - {id: D40.1, kind: entity, type: Organization, world: alpha, surface: Công ty CP Alpha, is_name: true}
+  - {id: D40.2, kind: entity, type: Organization, world: alpha.tc, surface: P.TC, is_name: true}
+  - id: D40.3
+    kind: entity
+    type: Person
+    world: alpha.mai
+    surface: Lý Thị Mai
+    is_name: true
+    attributes:
+      email: {value: mai.ly@alpha.example, quote: mai.ly@alpha.example}
+  - id: D40.4
+    kind: relation
+    type: HOLDS_POSITION
+    from: D40.3
+    to: D40.2
+    attributes:
+      title: {value: Head, quote: Trưởng đơn vị / Head}
+    quote: "P.TC | Phòng Tài chính / Finance Department | Lý Thị Mai"
+  - {id: D40.5, kind: entity, type: Organization, world: alpha.cntt, surface: P.CNTT, is_name: true}
+  - id: D40.6
+    kind: entity
+    type: Person
+    world: alpha.dung
+    surface: Phạm Quốc Dũng
+    is_name: true
+    attributes:
+      email: {value: dung.pham@alpha.example, quote: dung.pham@alpha.example}
+  - id: D40.7
+    kind: relation
+    type: HOLDS_POSITION
+    from: D40.6
+    to: D40.5
+    attributes:
+      title: {value: Head, quote: Trưởng đơn vị / Head}
+    quote: "P.CNTT | Phòng Công nghệ thông tin / IT Department | Phạm Quốc Dũng"
+  - {id: D40.8, kind: entity, type: Organization, world: alpha.kt, surface: P.KT, is_name: true}
+  - id: D40.9
+    kind: entity
+    type: Person
+    world: alpha.hung
+    surface: Đặng Văn Hùng
+    is_name: true
+    attributes:
+      email: {value: hung.dang@alpha.example, quote: hung.dang@alpha.example}
+  - id: D40.10
+    kind: relation
+    type: HOLDS_POSITION
+    from: D40.9
+    to: D40.8
+    attributes:
+      title: {value: Head, quote: Trưởng đơn vị / Head}
+    quote: "P.KT | Phòng Kế toán / Accounting Department | Đặng Văn Hùng"
+  - {id: D40.11, kind: entity, type: Organization, world: alpha.kd, surface: P.KD, is_name: true}
+  - id: D40.12
+    kind: entity
+    type: Person
+    world: alpha.lan
+    surface: Võ Thị Lan
+    is_name: true
+    attributes:
+      email: {value: lan.vo@alpha.example, quote: lan.vo@alpha.example}
+  - id: D40.13
+    kind: relation
+    type: HOLDS_POSITION
+    from: D40.12
+    to: D40.11
+    attributes:
+      title: {value: Head, quote: Trưởng đơn vị / Head}
+    quote: "P.KD | Phòng Kinh doanh / Sales Department | Võ Thị Lan"

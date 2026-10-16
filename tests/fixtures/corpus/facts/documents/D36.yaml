@@ -1,0 +1,24 @@
+# Batch D: the Sales Department takes over the CRM from 01/01/2026.
+id: D36
+language: vi
+issuer: alpha
+title: Thông báo chuyển giao hệ thống CRM
+format: docx
+dates: {issued_on: "2025-12-15", effective_from: "2026-01-01"}
+blocks:
+  - {heading: "THÔNG BÁO CHUYỂN GIAO HỆ THỐNG CRM", level: 1}
+  - paragraph: "Công ty CP Alpha thông báo: kể từ ngày 01/01/2026, Phòng Kinh doanh (P.KD) là đơn vị chủ trì hệ thống CRM, thay cho Phòng CNTT."
+  - paragraph: "Phòng CNTT tiếp tục hỗ trợ kỹ thuật cho Dự án nâng cấp CRM."
+items:
+  - {id: D36.1, kind: entity, type: Organization, world: alpha, surface: Công ty CP Alpha, is_name: true}
+  - {id: D36.2, kind: entity, type: Organization, world: alpha.kd, surface: Phòng Kinh doanh, is_name: true}
+  - {id: D36.3, kind: entity, type: System, world: alpha.crm, surface: hệ thống CRM, is_name: true}
+  - {id: D36.4, kind: entity, type: Organization, world: alpha.cntt, surface: Phòng CNTT, is_name: true}
+  - {id: D36.5, kind: entity, type: Project, world: alpha.crm-up, surface: Dự án nâng cấp CRM, is_name: true}
+  - id: D36.6
+    kind: relation
+    type: OWNER_OF
+    from: D36.2
+    to: D36.3
+    quote: "kể từ ngày 01/01/2026, Phòng Kinh doanh (P.KD) là đơn vị chủ trì hệ thống CRM, thay cho Phòng CNTT"
+    valid_from: "2026-01-01"

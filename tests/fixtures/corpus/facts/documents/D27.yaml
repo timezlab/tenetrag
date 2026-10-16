@@ -1,0 +1,40 @@
+# Batch C: Gamma's first definition of turnover; D28 replaces it.
+id: D27
+language: en
+issuer: gamma
+title: HR Metrics Handbook 2025
+format: docx
+dates: {issued_on: "2025-01-15"}
+blocks:
+  - {heading: "HR Metrics Handbook 2025", level: 1}
+  - paragraph: "Issued by the Human Resources Department of Gamma Co., Ltd. on 15 January 2025."
+  - {heading: "Employee turnover rate", level: 2}
+  - paragraph: "Employee turnover rate is the number of employees who left during the year divided by the average headcount for the year."
+  - paragraph: "Formula: leavers in the year ÷ average headcount in the year."
+items:
+  - id: D27.1
+    kind: entity
+    type: Work
+    world: gamma.hrmh-2025
+    surface: HR Metrics Handbook 2025
+    is_name: true
+    attributes:
+      title: {value: HR Metrics Handbook 2025, quote: HR Metrics Handbook 2025}
+      issued_on: {value: "2025-01-15", quote: 15 January 2025}
+  - {id: D27.2, kind: entity, type: Organization, world: gamma.hr, surface: Human Resources Department, is_name: true}
+  - {id: D27.3, kind: entity, type: Organization, world: gamma, surface: "Gamma Co., Ltd.", is_name: true}
+  - {id: D27.4, kind: relation, type: ISSUED_BY, from: D27.1, to: D27.2, quote: "Issued by the Human Resources Department"}
+  - {id: D27.5, kind: relation, type: PART_OF, from: D27.2, to: D27.3, quote: "the Human Resources Department of Gamma Co., Ltd."}
+  - {id: D27.6, kind: entity, type: Metric, world: met.turnover, surface: Employee turnover rate, is_name: true}
+  - id: D27.7
+    kind: fact
+    type: Definition
+    roles: {term: D27.6, defined_by: D27.1}
+    attributes:
+      text:
+        value: "Employee turnover rate is the number of employees who left during the year divided by the average headcount for the year."
+        quote: "Employee turnover rate is the number of employees who left during the year divided by the average headcount for the year."
+      formula:
+        value: "leavers in the year ÷ average headcount in the year"
+        quote: "leavers in the year ÷ average headcount in the year"
+    quote: "Employee turnover rate is the number of employees who left during the year divided by the average headcount for the year."

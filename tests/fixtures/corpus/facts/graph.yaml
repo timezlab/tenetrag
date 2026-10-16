@@ -1,0 +1,26 @@
+# Graph results the fact table states directly (contracts/corpus.md).
+#
+# deletions: documents whose removal graph.json must replay; it lists only
+#   the version groups whose statuses change, and maps a group the document
+#   empties to [].
+# text_in: entity → document links (engine brief §2.9). Each entity has a
+#   document link, its title is the document's title, and its scope agrees
+#   with the document's issuer. Every policy, procedure and work whose own
+#   text is in the corpus is listed.
+deletions: [D2, D8, D41]
+text_in:
+  - {entity: alpha.ctp.v1, document: D1}
+  - {entity: alpha.ctp.v2, document: D2}
+  - {entity: alpha.kpi-2025, document: D4}
+  - {entity: beta.ctp.v1, document: D5}
+  - {entity: alpha.isp.v1, document: D6}
+  - {entity: alpha.isp.v2, document: D7}
+  - {entity: alpha.qtpd.v1, document: D9}
+  - {entity: beta.qtms.v1, document: D11}
+  - {entity: beta.qtms.v2, document: D12}
+  - {entity: gamma.rwp.v1, document: D13}
+  - {entity: alpha.hd-ctp, document: D14}
+  - {entity: alpha.drp.v1, document: D15}
+  - {entity: gamma.hrmh-2025, document: D27}
+  - {entity: gamma.hrmh-2026, document: D28}
+  - {entity: beta.hrmh, document: D29}

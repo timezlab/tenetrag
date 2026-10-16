@@ -1,0 +1,53 @@
+# Batch C: the 2026 handbook replaces the 2025 one (Work supersedes Work),
+# narrows the turnover definition and reports the 2025 actual.
+id: D28
+language: en
+issuer: gamma
+title: HR Metrics Handbook 2026
+format: docx
+dates: {issued_on: "2026-01-12"}
+blocks:
+  - {heading: "HR Metrics Handbook 2026", level: 1}
+  - paragraph: "Issued by the Human Resources Department of Gamma Co., Ltd. on 12 January 2026. This handbook replaces the HR Metrics Handbook 2025."
+  - {heading: "Employee turnover rate", level: 2}
+  - paragraph: "Employee turnover rate is the number of employees who left voluntarily during the year divided by the average headcount for the year."
+  - paragraph: "Formula: voluntary leavers in the year ÷ average headcount in the year."
+  - {heading: "Results for 2025", level: 2}
+  - paragraph: "The actual employee turnover rate for 2025 was 12.5%."
+items:
+  - id: D28.1
+    kind: entity
+    type: Work
+    world: gamma.hrmh-2026
+    surface: HR Metrics Handbook 2026
+    is_name: true
+    attributes:
+      title: {value: HR Metrics Handbook 2026, quote: HR Metrics Handbook 2026}
+      issued_on: {value: "2026-01-12", quote: 12 January 2026}
+  - {id: D28.2, kind: entity, type: Work, world: gamma.hrmh-2025, surface: HR Metrics Handbook 2025, is_name: true}
+  - {id: D28.3, kind: entity, type: Organization, world: gamma.hr, surface: Human Resources Department, is_name: true}
+  - {id: D28.4, kind: entity, type: Organization, world: gamma, surface: "Gamma Co., Ltd.", is_name: true}
+  - {id: D28.5, kind: relation, type: ISSUED_BY, from: D28.1, to: D28.3, quote: "Issued by the Human Resources Department"}
+  - {id: D28.6, kind: relation, type: SUPERSEDES, from: D28.1, to: D28.2, quote: "This handbook replaces the HR Metrics Handbook 2025."}
+  - {id: D28.7, kind: entity, type: Metric, world: met.turnover, surface: Employee turnover rate, is_name: true}
+  - id: D28.8
+    kind: fact
+    type: Definition
+    roles: {term: D28.7, defined_by: D28.1}
+    attributes:
+      text:
+        value: "Employee turnover rate is the number of employees who left voluntarily during the year divided by the average headcount for the year."
+        quote: "Employee turnover rate is the number of employees who left voluntarily during the year divided by the average headcount for the year."
+      formula:
+        value: "voluntary leavers in the year ÷ average headcount in the year"
+        quote: "voluntary leavers in the year ÷ average headcount in the year"
+    quote: "Employee turnover rate is the number of employees who left voluntarily during the year divided by the average headcount for the year."
+  - id: D28.9
+    kind: fact
+    type: ReportedFigure
+    roles: {subject: D28.4, metric: D28.7}
+    attributes:
+      value: {value: "12.5%", quote: "12.5%"}
+      basis: {value: actual, quote: actual}
+      period: {value: "2025", quote: for 2025}
+    quote: "The actual employee turnover rate for 2025 was 12.5%."

@@ -1,0 +1,68 @@
+# Batch B: Beta's executive board defers an expansion of Beta Mobile.
+id: D22
+language: vi
+issuer: beta
+title: Biên bản họp Ban Điều hành
+format: docx
+dates: {held_on: "2026-01-20"}
+blocks:
+  - {heading: "BIÊN BẢN HỌP BAN ĐIỀU HÀNH", level: 1}
+  - paragraph: "Công ty CP Beta. Thời gian: ngày 20/01/2026. Chủ trì: ông Vũ Đức Khánh, Tổng Giám đốc. Thành phần: bà Hoàng Thu Hà; Phòng Hành chính."
+  - {heading: "Kết luận", level: 2}
+  - list:
+      - "Ban Điều hành hoãn việc mở rộng ứng dụng Beta Mobile sang khách hàng doanh nghiệp đến quý 3/2026."
+      - "Ban Điều hành thống nhất dùng chỉ số người dùng hoạt động làm chỉ số chính của ứng dụng Beta Mobile."
+      - "Phòng Hành chính hoàn tất mua sắm thiết bị cho Beta Mobile theo Quy trình mua sắm phiên bản 2 trước ngày 28/02/2026. Trạng thái: chưa thực hiện."
+items:
+  - {id: D22.1, kind: entity, type: Organization, world: beta, surface: Công ty CP Beta, is_name: true}
+  - {id: D22.2, kind: entity, type: Organization, world: beta.bdh, surface: Ban Điều hành, is_name: true}
+  - {id: D22.3, kind: entity, type: Person, world: beta.khanh, surface: Vũ Đức Khánh, is_name: true}
+  - {id: D22.4, kind: entity, type: Person, world: beta.ha, surface: Hoàng Thu Hà, is_name: true}
+  - {id: D22.5, kind: entity, type: Organization, world: beta.hc, surface: Phòng Hành chính, is_name: true}
+  - {id: D22.6, kind: entity, type: Product, world: beta.app, surface: Beta Mobile, is_name: true}
+  - id: D22.7
+    kind: entity
+    type: Procedure
+    world: beta.qtms.v2
+    surface: Quy trình mua sắm phiên bản 2
+    is_name: true
+    attributes:
+      title: {value: Quy trình mua sắm, quote: Quy trình mua sắm}
+      version_label: {value: "2", quote: phiên bản 2}
+  - id: D22.8
+    kind: event
+    type: Meeting
+    roles: {chair: D22.3, attendee: [D22.4, D22.5], participant: [D22.2]}
+    quote: "Thời gian: ngày 20/01/2026. Chủ trì: ông Vũ Đức Khánh, Tổng Giám đốc."
+    valid_from: "2026-01-20"
+  - id: D22.9
+    kind: relation
+    type: HOLDS_POSITION
+    from: D22.3
+    to: D22.1
+    attributes:
+      title: {value: Tổng Giám đốc, quote: Tổng Giám đốc}
+    quote: "ông Vũ Đức Khánh, Tổng Giám đốc"
+  - id: D22.10
+    kind: event
+    type: Decision
+    roles: {about: D22.6, decided_by: D22.2, made_in: D22.8}
+    attributes:
+      status: {value: deferred, quote: hoãn}
+    quote: "Ban Điều hành hoãn việc mở rộng ứng dụng Beta Mobile sang khách hàng doanh nghiệp đến quý 3/2026."
+  - id: D22.11
+    kind: fact
+    type: ActionItem
+    roles: {owner: D22.5, about: [D22.6, D22.7], assigned_in: D22.8}
+    attributes:
+      due_date: {value: "2026-02-28", quote: trước ngày 28/02/2026}
+      status: {value: open, quote: chưa thực hiện}
+    quote: "Phòng Hành chính hoàn tất mua sắm thiết bị cho Beta Mobile theo Quy trình mua sắm phiên bản 2 trước ngày 28/02/2026. Trạng thái: chưa thực hiện."
+  - {id: D22.12, kind: entity, type: Metric, world: met.active-users, surface: người dùng hoạt động, is_name: true}
+  - id: D22.13
+    kind: event
+    type: Decision
+    roles: {about: D22.12, decided_by: D22.2, made_in: D22.8}
+    attributes:
+      status: {value: approved, quote: thống nhất}
+    quote: "Ban Điều hành thống nhất dùng chỉ số người dùng hoạt động làm chỉ số chính của ứng dụng Beta Mobile."
