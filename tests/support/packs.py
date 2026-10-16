@@ -10,6 +10,13 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 PACK_FIXTURES = REPO_ROOT / "tests" / "fixtures" / "packs"
 # Stays a draft until M4; tests stack it on the shipped packs (FR-019).
 FINANCE_DRAFT = REPO_ROOT / "docs" / "product" / "packs" / "finance.yaml"
+# The shipped identity case files as checked out, for tests that copy and edit them.
+SHIPPED_DIR = REPO_ROOT / "src" / "tenetrag" / "packs" / "shipped"
+FINANCE_CASES = REPO_ROOT / "tests" / "fixtures" / "identity" / "finance.cases.yaml"
+# The 60 design cases of ADR 0016, recovered for feature 002 (research R0).
+DESIGN_SNAPSHOT = (
+    REPO_ROOT / "specs" / "002-packs-and-corpus" / "research" / "identity-design-cases.json"
+)
 
 # One error line of a pack ConfigError (data-model §1). A path holds no
 # space, so the first ": " after it ends the path, whatever the message holds.
@@ -54,8 +61,8 @@ def problem_messages(exc: BaseException) -> list[str]:
 
 def _matches(exc: BaseException) -> list[re.Match[str]]:
     first, *lines = str(exc).split("\n")
-    count = re.fullmatch(r"The pack stack has (\d+) problems?:", first)
-    assert count, f"not a pack stack error: {first!r}"
+    count = re.fullmatch(r"The (?:pack stack|case file) has (\d+) problems?:", first)
+    assert count, f"not a pack stack or case file error: {first!r}"
     assert int(count[1]) == len(lines), f"{first!r} over {len(lines)} lines"
     matches = []
     for line in lines:
