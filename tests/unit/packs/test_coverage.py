@@ -126,6 +126,25 @@ entities:
     ]
 
 
+def test_coverage_names_sorted_whatever_the_set_order(tmp_path):
+    # Added in T032: with two or three names, a fault that dropped the sort
+    # passed whenever the set happened to iterate them in order.
+    turned_off = ["Work", "Product", "Place", "Person", "Organization", "Metric", "Concept"]
+    absent = [f"ABSENT_{letter}" for letter in "JIHGFEDCBA"]
+    stack = load(
+        tmp_path,
+        HEADER
+        + "entities:\n"
+        + "".join(f"  {name}: {{extract: false}}\n" for name in turned_off)
+        + questions(
+            f'{{id: user-1, text: "Which of these?", needs: [{", ".join(absent + turned_off)}]}}'
+        ),
+    )
+    assert unmet(check_coverage(stack)) == [
+        ("user-1", "user", tuple(sorted(absent)), tuple(sorted(turned_off)))
+    ]
+
+
 def test_coverage_every_kind_counts(tmp_path):
     stack = load(
         tmp_path,
@@ -182,6 +201,28 @@ def test_load_warns_once_per_unmet_question(tmp_path):
     assert "ZONED_IN" in third
     assert AUDIT_QUESTION not in first
     assert STATEMENT_QUESTION not in third
+
+
+def test_warning_advice_fits_the_cause(tmp_path):
+    # Added in T032: faults that gave the wrong advice passed the suite.
+    stack = load(
+        tmp_path,
+        HEADER
+        + questions(
+            '{id: user-1, text: "Who audited unit U?", needs: [AUDITED]}',
+            '{id: user-2, text: "Who said it?", needs: [Statement]}',
+            '{id: user-3, text: "Who audited what was said?", needs: [AUDITED, Statement]}',
+        ),
+    )
+    missing, not_extracted, both = (w.message for w in stack.warnings)
+    assert "define the missing names" in missing
+    assert "extract: true" not in missing
+    assert "set `extract: true` in a child pack" in not_extracted
+    assert "define the missing names" not in not_extracted
+    assert "define the missing names" in both
+    assert "set `extract: true` in a child pack" in both
+    for message in (missing, not_extracted, both):
+        assert message.endswith("or change its `needs`")
 
 
 def test_question_warns_at_its_own_file(tmp_path):
