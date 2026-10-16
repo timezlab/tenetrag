@@ -108,8 +108,10 @@ competency_questions:
   - {id: core-1, text: "Who held position T at organization O on date D?", needs: [HOLDS_POSITION]}
 ```
 
-This is an excerpt of [core.yaml](packs/core.yaml). The v1 packs are in
-[packs/](packs/), with their reasoning in [v1-packs.md](v1-packs.md).
+This is an excerpt of [core.yaml](../../src/tenetrag/packs/shipped/core.yaml).
+The shipped packs are in [src/tenetrag/packs/shipped/](../../src/tenetrag/packs/shipped/)
+and the `finance` draft in [packs/](packs/), with their reasoning in
+[v1-packs.md](v1-packs.md).
 
 | Field | Meaning | v1 |
 |---|---|---|

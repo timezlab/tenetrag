@@ -161,7 +161,7 @@ The script's own types differ from the packs'. R11 lists the conversion.
     | `attributes`, `roles` | add new ones; restating one identically is a no-op |
     | `from`, `to`, role types, `where` values, enum values | add values; the merged stack sorts them (R7) |
     | `identity` | add keys; a later pack's keys go in front of inherited ones |
-    | `vetoes` | add |
+    | `vetoes`, `exact_mappings` | add; the merged stack keeps the union, sorted |
     | `scope` | add `when` values; switch `inherit` from `none` to `document`; any other field it states must equal the inherited one |
     | `version_key` | append attributes |
     | `extract` | switch freely |
@@ -203,7 +203,10 @@ The script's own types differ from the packs'. R11 lists the conversion.
   - A later phase runs even when an earlier one found problems. A
     definition with a problem is set aside, and its name still counts as
     defined, so a misspelt field does not also report every reference to
-    that type.
+    that type. The one exception is a file with no content to stack (it
+    cannot be read, is not UTF-8 or YAML, is empty or not a mapping) or a
+    `pack.*` problem: the load stops after the file phase, since a stack
+    without a whole pack would also report every reference into it.
   - A failed load raises one `ConfigError` listing every problem, one
     per line: `  - {file}: {path}: {message} [{rule}]`. Messages never
     repeat a YAML line, as in M0.

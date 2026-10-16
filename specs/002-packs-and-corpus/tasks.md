@@ -294,7 +294,7 @@ broken pack that fails with that id.
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Implement `src/tenetrag/packs/stack.py`, standard
+- [X] T015 [P] [US1] Implement `src/tenetrag/packs/stack.py`, standard
   library only, following data-model §3:
   - frozen dataclasses with `slots=True`, mappings wrapped in
     `MappingProxyType`, sequences as tuples;
@@ -305,7 +305,7 @@ broken pack that fails with that id.
   - `PackStack` with every field of data-model §3 except `stamp`,
     `index_hash` and `glossary_hash`. US2 adds those three and
     `PackInfo.file_hash` together with the hashes (T026).
-- [ ] T016 [P] [US1] Implement `src/tenetrag/packs/format.py`, the
+- [X] T016 [P] [US1] Implement `src/tenetrag/packs/format.py`, the
   private pydantic models of one pack file (data-model §2, research R2):
   - `extra="forbid"`, `frozen=True` and strict types;
   - every string, key or value, normalized to NFC before validation;
@@ -317,7 +317,7 @@ broken pack that fails with that id.
     `file.reserved-name` or `file.invalid-value`, with dotted paths such
     as `entities.Vendor.vetos` and `[n]` for list items. Messages never
     use pydantic's `input`, since a mistaken file may hold anything.
-- [ ] T017 [US1] Implement `src/tenetrag/packs/stacking.py`, which applies
+- [X] T017 [US1] Implement `src/tenetrag/packs/stacking.py`, which applies
   the parsed files in linear order (data-model §4, research R3):
   - a definition new to the stack is taken whole, and a new entity, event
     or fact type needs a `description`;
@@ -334,7 +334,7 @@ broken pack that fails with that id.
     `retrieval` is replaced per key, and `mode` is resolved.
 
   Depends on T015 and T016.
-- [ ] T018 [US1] Implement `src/tenetrag/packs/checks.py` over the merged
+- [X] T018 [US1] Implement `src/tenetrag/packs/checks.py` over the merged
   stack (research R5):
   - the `ref.*` checks;
   - the identity lint, with `identity.evidence-without-corroborate` as a
@@ -345,7 +345,7 @@ broken pack that fails with that id.
   - the glossary checks.
 
   Depends on T017.
-- [ ] T019 [US1] Implement `src/tenetrag/packs/loading.py` and export
+- [X] T019 [US1] Implement `src/tenetrag/packs/loading.py` and export
   `load_pack`:
   - **References:** a shipped name reads
     `importlib.resources.files("tenetrag.packs") / "shipped" / f"{name}.yaml"`.
@@ -371,7 +371,7 @@ broken pack that fails with that id.
   Export `load_pack`, `Mode`, `PackStack`, `PackProblem` and the parts of
   T015 from `src/tenetrag/packs/__init__.py`. Depends on T005, T016, T017
   and T018.
-- [ ] T020 [US1] Ship the two packs:
+- [X] T020 [US1] Ship the two packs:
   1. Copy `docs/product/packs/core.yaml` and `enterprise-docs.yaml` to
      `src/tenetrag/packs/shipped/`, and remove the "Draft, no code loads
      it" comment lines. Give a `description` to any new entity, event or
@@ -387,11 +387,49 @@ broken pack that fails with that id.
      The `finance` draft keeps `extends: core`.
 
   T014 passes. Depends on T019.
-- [ ] T021 [US1] Run `uv run pytest tests/unit/packs -q`, quickstart §1
+- [X] T021 [US1] Run `uv run pytest tests/unit/packs -q`, quickstart §1
   with its negative check, and `make check`. Try deliberate faults in
   `stacking.py` and `checks.py`, such as dropping a sort, accepting a
   changed range, or skipping the parents-conflict test. A fault that
   survives gets a test. Record the results here, as M0 did.
+
+  Result (2026-10-16): `make check` passes with 948 unit tests.
+  - Red, before T015: `uv run pytest tests/unit/packs tests/unit/test_yaml.py -q`
+    stopped with 5 collection errors, an `ImportError` for `DuplicateKey`
+    from `tenetrag._yaml` and for `PackProblem`, `CompetencyQuestion`,
+    `PackInfo` and `Key` from `tenetrag.packs`. The rest of the suite
+    passed (686 passed, 22 deselected). Green: 271 passed.
+  - Four test packs were not valid YAML, found at green. In a flow
+    mapping (`{...}`) PyYAML ends a plain scalar at `?`, so
+    `text: Which ones?, needs: [...]` does not parse. The question texts
+    in `test_nfc` and three `test_format.py` cases are now quoted; no
+    assertion changed.
+  - Quickstart §1 gives its expected values. Its negative check fails
+    with one `stack.changed-range` line naming the file,
+    `entities.Person.attributes.email.range` and `core`.
+  - Deliberate faults, each run under `PYTHONHASHSEED` 0, 1 and 2: of 17,
+    13 were caught at once (dropping the enum, `not_entities`,
+    `corroborate`, `from`, event identity or `required` sort; accepting
+    a changed range; skipping the parents-conflict test; no
+    `identity.veto-range`; no `ref.kind-clash`; set-aside names not
+    defined; `<=` in `identity.key-not-minimal`; no case folding in the
+    text lint). Four survived and now each has a test that catches it:
+    the `hub_penalty` and attribute-map sorts
+    (`test_attributes_and_retrieval_hints_are_sorted`), the leading word
+    boundary of the text lint ("The bayou must be dredged each year."),
+    and case folding in glossary clashes
+    (`test_glossary_alias_clash_ignores_case`).
+  - The wheel holds `tenetrag/packs/shipped/core.yaml` and
+    `enterprise-docs.yaml`. Installed alone in an isolated environment,
+    `shipped_packs()` and `load_pack("enterprise-docs")` work from it.
+  - No shipped type lacked a `description` (R10), so the shipped packs
+    are the drafts without the draft comment line.
+  - Two departures from the task text. `shipped_packs()` lives in
+    `loading.py` and is exported from `__init__.py`. A file with no
+    content to stack, or a `pack.*` problem, stops the load after the
+    file phase; R4 now says so.
+  - `exact_mappings` is unioned and sorted, and `cardinality` sorted:
+    R3 and data-model §3 now say so.
 
 **Checkpoint**: packs load, stack and fail loudly with every problem.
 MVP reached.

@@ -17,7 +17,7 @@ import yaml
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
 
-from tenetrag._yaml import parse_yaml, yaml_problem
+from tenetrag._yaml import DuplicateKey, parse_yaml, yaml_problem
 from tenetrag.config.profile import Profile
 from tenetrag.protocols.errors import ConfigError
 
@@ -72,7 +72,7 @@ def _from_yaml(text: str, where: str) -> Profile:
     )
 
 
-def _checked(data: object, duplicates: list[str], where: str) -> Profile:
+def _checked(data: object, duplicates: list[DuplicateKey], where: str) -> Profile:
     if duplicates:
         listed = "\n".join(f"  - {duplicate}" for duplicate in duplicates)
         raise ConfigError(f"Duplicate keys{where}; write each key once per mapping:\n{listed}")

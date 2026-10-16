@@ -217,6 +217,21 @@ def test_set_like_lists_are_sorted():
     assert stack.entities["Policy"].version_start == ("effective_from", "issued_on")
 
 
+def test_attributes_and_retrieval_hints_are_sorted(tmp_path):
+    stack = load(
+        tmp_path,
+        HEADER
+        + "entities:\n  Person:\n    attributes: {birth_date: {range: date}}\n"
+        + "retrieval:\n  hub_penalty: [Person, Organization, Place]\n"
+        + "  context_relations: [MEMBER_OF, HOLDS_POSITION]\n",
+    )
+    names = list(stack.entities["Person"].attributes)
+    assert names == sorted(names)
+    assert names[0] == "birth_date"
+    assert stack.retrieval.hub_penalty == ("Organization", "Person", "Place")
+    assert stack.retrieval.context_relations == ("HOLDS_POSITION", "MEMBER_OF")
+
+
 def test_reordered_vetoes_give_an_equal_stack(tmp_path):
     body = (
         "entities:\n  Desk:\n    description: A named service desk.\n"

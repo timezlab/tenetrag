@@ -66,9 +66,14 @@ class DuplicateKeyLoader(yaml.SafeLoader): ...
     # Was _ProfileLoader. Records each repeated key with both lines in
     # .duplicates instead of keeping the last value. Merge keys are skipped.
 
-def parse_yaml(text: str) -> tuple[object, list[str]]: ...
-    # Was _parse. Returns the data and the duplicate-key descriptions.
-    # Raises yaml.YAMLError, including for a tag that would build an object.
+def parse_yaml(text: str) -> tuple[object, list[DuplicateKey]]: ...
+    # Was _parse. Returns the data and the duplicate keys. Raises
+    # yaml.YAMLError, including for a tag that would build an object.
+
+class DuplicateKey: path: str; key: Hashable; line: int; first_line: int
+    # Added in T019: `path` is the mapping's dotted path ("", `entities`,
+    # `qs[1]`), which file.duplicate-key reports. str() gives the text the
+    # profile loader printed before, so its message is unchanged.
 
 def yaml_problem(exc: yaml.YAMLError) -> str: ...
     # Was _yaml_problem. The problem and its line and column, never the

@@ -214,7 +214,7 @@ PackStack
   `roles` is `Mapping[str, tuple[str, ...]]`.
 - `FactType(name, description, examples, aliases, roles, attributes,
   time, required, version_key, extract, agent_visible, …)`.
-- Type maps are sorted by name.
+- Type maps are sorted by name, as are attribute and role maps.
 
 **Order.** A list whose order means nothing is sorted, so reordering it
 changes no hash and no compiled schema. A list whose order matters keeps
@@ -222,7 +222,7 @@ it:
 
 | Sorted | Kept in order |
 |---|---|
-| `from`, `to`, role types, scope `to`, `where` values, enum values, `vetoes`, `required`, `corroborate`, `document_link`, `not_entities`, `hub_penalty`, `context_relations`, a fact's `version_key`, an event identity entry's names | `identity` keys (tried in order), a key's attributes (as written, which case elements repeat), `version_start` (tried in order), `examples` and `aliases` (prompt order), competency questions (linear pack order, then file order), glossary entries (file order) |
+| `from`, `to`, role types, scope `to`, `where` values, enum values, `vetoes`, `required`, `corroborate`, `document_link`, `not_entities`, `hub_penalty`, `context_relations`, a fact's `version_key`, an event identity entry's names, `exact_mappings`, `cardinality` | `identity` keys (tried in order), a key's attributes (as written, which case elements repeat), `version_start` (tried in order), `examples` and `aliases` (prompt order), competency questions (linear pack order, then file order), glossary entries (file order) |
 
 **Element paths** in `origins` and in problems:
 `entities.Person`, `entities.Person.attributes.employee_id`,

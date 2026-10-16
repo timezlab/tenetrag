@@ -14,7 +14,7 @@ Behaviours:
 7. A definition with a file problem is set aside, and its name still counts
    as defined.
 8. The glossary is the union of the user packs' glossaries, and each entry's
-   type must exist.
+   type must exist. Two entries of one type clash on an alias in any case.
 9. The text lint matches its four pattern families as whole words, and
    leaves "customer(s)", "you" and "ignored" alone.
 10. Each warning is logged once at WARNING by the tenetrag.packs logger.
@@ -291,6 +291,17 @@ def test_glossary_type_must_exist(tmp_path):
     assert problem_lines(error) == [("pack.yaml", "glossary[0].type", "ref.unknown")]
 
 
+def test_glossary_alias_clash_ignores_case(tmp_path):
+    error = failing(
+        tmp_path,
+        HEADER
+        + "glossary:\n"
+        + "  - {name: Alpha Holdings, type: Organization, aliases: [ALPHA]}\n"
+        + "  - {name: Alpha Logistics, type: Organization, aliases: [Alpha]}\n",
+    )
+    assert problem_lines(error) == [("pack.yaml", "glossary[1].aliases[0]", "glossary.alias-clash")]
+
+
 def test_one_alias_on_two_types_is_fine(tmp_path):
     stack = load(
         tmp_path,
@@ -347,6 +358,7 @@ def test_instruction_pattern_warns(tmp_path, text):
         "A unit that retrieves records.",
         "A product named Getentity.",
         "Works at www2 and wwwhq sites.",
+        "The bayou must be dredged each year.",
     ],
 )
 def test_ordinary_text_passes(tmp_path, text):

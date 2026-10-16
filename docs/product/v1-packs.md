@@ -1,12 +1,12 @@
 # v1 default packs — schemas (2026-10-04)
 
-Status: draft for review. The pack files are drafts in [packs/](packs/):
-[core.yaml](packs/core.yaml), [enterprise-docs.yaml](packs/enterprise-docs.yaml)
-and [finance.yaml](packs/finance.yaml). The format and the design workflow
-are in [domain-packs.md](domain-packs.md), and the evidence is in
-[domain-schemas.md](../reference/domain-schemas.md). When the SDK loads
-packs (M1), the YAML files become the source of truth and this page keeps
-only the reasoning.
+Status: `core` and `enterprise-docs` ship with the SDK, in
+[core.yaml](../../src/tenetrag/packs/shipped/core.yaml) and
+[enterprise-docs.yaml](../../src/tenetrag/packs/shipped/enterprise-docs.yaml);
+those files are the source of truth and this page keeps the reasoning.
+[finance.yaml](packs/finance.yaml) is still a draft for review. The format
+and the design workflow are in [domain-packs.md](domain-packs.md), and the
+evidence is in [domain-schemas.md](../reference/domain-schemas.md).
 
 ## At a glance
 
@@ -87,7 +87,7 @@ passes (open question 2 in
 
 ## `core`
 
-[core.yaml](packs/core.yaml)
+[core.yaml](../../src/tenetrag/packs/shipped/core.yaml)
 
 - **Entities:** `Person`, `Organization`, `Place`, `Work`, `Product`,
   `Metric`, `Concept`.
@@ -129,7 +129,7 @@ Notes:
 
 ## `enterprise-docs`
 
-[enterprise-docs.yaml](packs/enterprise-docs.yaml)
+[enterprise-docs.yaml](../../src/tenetrag/packs/shipped/enterprise-docs.yaml)
 
 | Kind | Types |
 |---|---|

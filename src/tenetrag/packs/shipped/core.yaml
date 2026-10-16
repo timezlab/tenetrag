@@ -1,4 +1,4 @@
-# Draft, 2026-10-04. Design input for the core pack; no code loads it yet.
+# Shipped with tenetrag: load_pack("core").
 # Rationale: docs/product/v1-packs.md. Format: docs/product/domain-packs.md.
 pack: core
 version: 1

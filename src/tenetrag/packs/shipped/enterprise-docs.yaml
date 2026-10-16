@@ -1,4 +1,4 @@
-# Draft, 2026-10-04. Design input for the enterprise-docs pack; no code loads it yet.
+# Shipped with tenetrag: load_pack("enterprise-docs").
 # Rationale: docs/product/v1-packs.md. Format: docs/product/domain-packs.md.
 pack: enterprise-docs
 version: 1

@@ -82,7 +82,7 @@ def test_nfc(tmp_path):
         + "glossary:\n"
         + "  - {{name: {text}, type: Vendor, aliases: [{text} Co], note: {text}}}\n"
         + "competency_questions:\n"
-        + "  - {{id: user-1, text: {text}?, needs: [Vendor]}}\n"
+        + '  - {{id: user-1, text: "{text}?", needs: [Vendor]}}\n'
     )
     from_nfc = load(tmp_path / "nfc", template.format(text=composed))
     from_nfd = load(tmp_path / "nfd", template.format(text=decomposed))
@@ -191,7 +191,7 @@ NAME_CASES = {
     "question-id": (
         HEADER
         + "competency_questions:\n"
-        + "  - {id: NAME, text: Which organizations exist?, needs: [Organization]}\n",
+        + '  - {id: NAME, text: "Which organizations exist?", needs: [Organization]}\n',
         "competency_questions[0].id",
         ["user-1", "q2"],
         ["User-1", "user_1"],
@@ -287,7 +287,7 @@ def test_fact_attribute_scope_loads(tmp_path):
         ),
         (
             "competency_questions:\n"
-            "  - {id: user-1, text: Which organizations exist?, needs: [Organization], "
+            '  - {id: user-1, text: "Which organizations exist?", needs: [Organization], '
             "answer: none}\n",
             "competency_questions[0].answer",
         ),
@@ -545,7 +545,7 @@ def test_version_is_a_positive_int(tmp_path, version):
         ),
         ("events:\n  Audit:\n" + DESCRIBED, "events.Audit.time"),
         (
-            "competency_questions:\n  - {id: user-1, text: Which ones?, needs: []}\n",
+            'competency_questions:\n  - {id: user-1, text: "Which ones?", needs: []}\n',
             "competency_questions[0].needs",
         ),
         (
