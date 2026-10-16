@@ -234,6 +234,37 @@ def test_compile_empty_parts_left_out():
     assert compiled.property_count == 1 + 9 + 2
 
 
+def test_compile_roleless_types_have_no_roles_part(tmp_path):
+    # Added in T029: a fault that kept an empty roles part survived the suite.
+    child = write_pack(
+        tmp_path,
+        "milestones.yaml",
+        """\
+        pack: milestones
+        version: 1
+        extends: core
+        events:
+          Milestone:
+            description: A dated point a project reaches.
+            examples: [the launch]
+            time: point
+        facts:
+          Note:
+            description: A remark the document makes.
+            attributes:
+              text: {range: str}
+        """,
+    )
+    compiled = compile_schema(load_pack(child), ["Milestone", "Note"])
+    assert shape(compiled) == {
+        (): {"events", "facts"},
+        ("events",): SHAPE[("events",)] - {"roles", "attributes"},
+        ("facts",): SHAPE[("facts",)] - {"roles"},
+        ("facts", "attributes"): {"name", "value", "quote"},
+    }
+    assert compiled.property_count == 2 + 5 + 5 + 3
+
+
 @pytest.mark.parametrize(
     ("types", "named"),
     [
