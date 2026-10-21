@@ -1,6 +1,10 @@
 # Domain packs — design brief (2026-10-04)
 
-Status: draft. The decisions are recorded in
+Status: draft. The pack format, its checks, the identity cases and the
+shipped `core` and `enterprise-docs` packs are built in `tenetrag.packs`
+([specs/002-packs-and-corpus](../../specs/002-packs-and-corpus/spec.md));
+extraction, resolution and retrieval, which use them, are not. The
+decisions are recorded in
 [ADR 0007](../decisions/0007-define-the-graph-schema-as-layered-domain-packs.md);
 the research behind them is in
 [graph-schema-design.md](../reference/graph-schema-design.md) and, for the
@@ -118,7 +122,7 @@ and the `finance` draft in [packs/](packs/), with their reasoning in
 | Field | Meaning | v1 |
 |---|---|---|
 | `extends` | Parent pack, or a list of parents. Absent only in `core`. | required |
-| `description`, `examples`, `aliases` | What the LLM reads. Every type needs a definition and examples. | required |
+| `description`, `examples`, `aliases` | What the LLM reads. A new entity, event or fact type needs a `description`, and loading fails without one; `examples` and `aliases` are optional. A child pack may restate an inherited description word for word but not change it. | `description` required |
 | `is_a` | Single parent type, such as `Acquisition: {is_a: Event}`. The subtype copies the parent's roles and attributes, and its time unless it states its own: a conference can last for days under the point-time `Event`. It does not copy `identity` or `required`. | optional |
 | `identity` | On an entity type: keys tried in order, with `scope`, `vetoes`, `names` and the other [identity fields](#identity-fields). On an event type: entries such as `[time, about, decided_by]`; two events from different documents merge only when every role and attribute of one entry matches ([ADR 0013](../decisions/0013-resolve-events-by-identity-and-version-facts-in-the-engine.md)). An event type without it never merges across documents. | optional |
 | `version_key` | On a fact type: the roles and attributes that make two facts statements of the same thing, such as `Requirement: [issuer, metric, applies_to, condition]`. Facts with equal values form a version group, and the engine marks them `current`, `superseded` or `conflicting`. Without it, every fact of the type is current ([ADR 0013](../decisions/0013-resolve-events-by-identity-and-version-facts-in-the-engine.md)). | optional |
@@ -259,7 +263,56 @@ synthetic test documents:
 - for every key and veto, a case that goes wrong when it is removed, so
   nothing in the identity is unjustified.
 
-CI requires zero wrong merges. A user pack can add its own cases.
+CI requires zero wrong merges. A user pack can add its own cases. The
+shipped files are [core.cases.yaml](../../src/tenetrag/packs/shipped/core.cases.yaml)
+and [enterprise-docs.cases.yaml](../../src/tenetrag/packs/shipped/enterprise-docs.cases.yaml);
+the `finance` draft's cases are in
+[tests/fixtures/identity/](../../tests/fixtures/identity/finance.cases.yaml).
+The format is in
+[contracts/identity-cases.md](../../specs/002-packs-and-corpus/contracts/identity-cases.md).
+
+### Names
+
+Loading rejects a name that breaks its pattern (`file.bad-name`):
+
+| Name | Pattern | Example |
+|---|---|---|
+| pack, competency question id | `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` | `enterprise-docs`, `core-1` |
+| entity, event, fact and enum types | `^[A-Z][A-Za-z0-9]*$` | `ReportedFigure` |
+| relation types | `^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$` | `HOLDS_POSITION` |
+| attributes, roles, enum values | `^[a-z][a-z0-9]*(_[a-z0-9]+)*$` | `version_label` |
+
+Three words are reserved, because the identity and version-key grammars
+use them (`file.reserved-name`): no entity attribute is named `scope`, no
+event role or attribute `time`, and no fact role or attribute `issuer`.
+
+### Checking a pack
+
+Every check runs in code, with no model call and no store:
+
+```python
+from tenetrag.packs import check_cases, check_coverage, compile_schema, load_cases, load_pack
+
+stack = load_pack("alpha-ops.yaml")      # or a shipped name, such as "enterprise-docs"
+schema = compile_schema(stack)           # the extraction schema, at most 64 properties
+report = check_coverage(stack)           # what each competency question lacks
+problems = check_cases(load_cases("alpha-ops.cases.yaml"))
+```
+
+- `load_pack` reads the file and every pack it `extends`, and raises one
+  `ConfigError` that lists every error with its file, path and rule id.
+  Warnings, such as an unmet competency question, are on
+  `stack.warnings`.
+- `compile_schema` raises `ConfigError` when the stack needs more than
+  `max_properties` (64) and names the parts that hold the most.
+- `check_coverage(stack).passed` is true when every question's types and
+  relations are defined and extracted.
+- `check_cases` returns the problems of a case file checked against its
+  own stack: unknown types or attributes, a scope that breaks the pack,
+  and, for a shipped pack, a key or veto with no case.
+
+The full contract is in
+[contracts/packs.md](../../specs/002-packs-and-corpus/contracts/packs.md).
 
 ## How the pack is used
 
@@ -348,7 +401,8 @@ cheap. Only a frozen version runs on the full corpus.
    as the golden set. Humans write them; automatic question generation is
    weak (Bench4KE, BERTScore F1 0.57–0.60).
 3. **Coverage check**, with no LLM call: map each question to the types and
-   relations it needs and list the gaps.
+   relations it needs and list the gaps with `check_coverage`
+   ([Checking a pack](#checking-a-pack)).
 4. **Draft the missing parts.** The LLM proposes types and relations one
    question at a time, and a discovery-mode run over the sample surfaces
    types nobody listed. A person accepts or rejects each proposal. Drafts
@@ -370,8 +424,10 @@ cheap. Only a frozen version runs on the full corpus.
 
 Three default packs ship in v1. Each comes with competency questions,
 synthetic test documents with expected items, and a coverage check that
-runs in CI. Schemas and reasoning are in [v1-packs.md](v1-packs.md); the
-draft files are in [packs/](packs/).
+runs in CI. Schemas and reasoning are in [v1-packs.md](v1-packs.md).
+`core` and `enterprise-docs` ship as version 1 in
+[src/tenetrag/packs/shipped/](../../src/tenetrag/packs/shipped/); `finance`
+stays a draft in [packs/](packs/) until M4.
 
 | Pack | For | Adds |
 |---|---|---|

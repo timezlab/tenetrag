@@ -2,7 +2,9 @@
 
 > **Partly built.** M0 ([specs/001-sdk-foundation](specs/001-sdk-foundation/spec.md))
 > built `config`, `auth`, `protocols`, `llm`, `storage` and the private
-> `_retry`. The modules marked *planned* are still the intended shape.
+> `_retry`. Feature 002 ([specs/002-packs-and-corpus](specs/002-packs-and-corpus/spec.md))
+> built `packs` and the private `_yaml`. The modules marked *planned* are
+> still the intended shape.
 > Update this page in the same PR as any change to module boundaries. The
 > scope comes from the [SDK platform brief](docs/product/sdk-platform-brief.md).
 > The engine's internals are settled in the
@@ -20,10 +22,11 @@ in Lakebase (default) or Delta; elsewhere, in Neo4j (preferred) or Postgres
 
 | Module | Owns | May import |
 |---|---|---|
-| `config` | Pydantic profile model (storage, vector, LLM, prompts, domain pack name and version, language, retrievers), loaded from YAML or dict. Every field is tagged index-time or query-time ([ADR 0005](docs/decisions/0005-index-time-vs-query-time-parameters.md)). M0 built the connections, the models, the language, the named credential sources and the stage hashes. | `protocols` (errors), stdlib, pydantic, pyyaml |
-| `packs` *(planned)* | Domain packs: load YAML, stack `extends`, check conflicts, compile flat structured-output schemas (no `$ref`/`anyOf`/`oneOf`/`allOf`/`pattern`, ≤ 64 keys), coverage check against competency questions; the default packs `core`, `enterprise-docs`, `finance` as package data ([ADR 0007](docs/decisions/0007-define-the-graph-schema-as-layered-domain-packs.md)). | stdlib, pydantic, pyyaml |
+| `config` | Pydantic profile model (storage, vector, LLM, prompts, domain pack name and version, language, retrievers), loaded from YAML or dict. Every field is tagged index-time or query-time ([ADR 0005](docs/decisions/0005-index-time-vs-query-time-parameters.md)). M0 built the connections, the models, the language, the named credential sources and the stage hashes. | `protocols` (errors), `_yaml`, stdlib, pydantic, pyyaml |
+| `packs` | Domain packs ([ADR 0007](docs/decisions/0007-define-the-graph-schema-as-layered-domain-packs.md)): `load_pack` reads a pack and its `extends` chain, stacks the files in order, checks names, references and conflicts, and returns a read-only `PackStack` with four hashes and a stamp; `compile_schema` builds the flat structured-output schema (no `$ref`/`anyOf`/`oneOf`/`allOf`/`pattern`, ≤ 64 keys); `check_coverage` checks the competency questions; `load_cases` and `check_cases` read and check identity cases ([ADR 0016](docs/decisions/0016-identify-entities-by-scope-keys-and-vetoes.md)). The shipped packs `core` and `enterprise-docs`, with their case files, are package data in `packs/shipped/`; `finance` stays a draft in `docs/product/packs/`. Contracts: [packs.md](specs/002-packs-and-corpus/contracts/packs.md), [identity-cases.md](specs/002-packs-and-corpus/contracts/identity-cases.md). | `protocols` (errors), `_yaml`, stdlib, pydantic, pyyaml |
 | `auth` | `Credentials` types (PAT, OAuth M2M, OAuth U2M, OBO token, runtime); the runtime × identity × backend matrix and its preflight check ([ADR 0003](docs/decisions/0003-caller-supplied-credentials.md)). M0 built the credential types and their resolution from code or a named source; the preflight check is planned. | `config`, `protocols`; `databricks-sdk` only in `auth.databricks`, behind the `databricks` extra |
 | `protocols` | The error types in `tenetrag.protocols.errors`, re-exported from `tenetrag.protocols` and `tenetrag` ([research R14](specs/001-sdk-foundation/research.md)). `GraphStore`, `VectorStore` (vectors and chunk full-text search), `ChatModel`, `EmbeddingModel`, optional `Reranker`. Synchronous and batched; graph expansion is one `hop` per call ([ADR 0014](docs/decisions/0014-use-synchronous-protocols-with-one-hop-per-store-call.md)). Methods are defined by what the engine needs, fit both SQL and Cypher backends ([ADR 0008](docs/decisions/0008-build-databricks-and-open-branches-in-parallel.md)), and are listed in [engine brief §6](docs/product/engine-brief.md#6-protocols). M0 built the errors, `ChatModel` and `EmbeddingModel`. | stdlib only |
+| `_yaml` | Private safe YAML loader shared by `config` and `packs`: no tag that builds an object, every repeated key reported with its path, and no error text that repeats the input. | stdlib, pyyaml |
 | `_retry` | Private retry policy for model calls and Postgres units of work: attempts, time budget, full-jitter backoff, one reauth retry. Used by `llm` and `storage` only. | stdlib only |
 | `engine` *(planned)* | Chunk → extract → validate → resolve → communities → retrieve; graph-guided retrieval, the opt-in query-strategy stage ([ADR 0010](docs/decisions/0010-offer-query-strategies-as-opt-in-benchmarked-options.md)) and the optional vector/graph router; provenance; text normalization; RRF fusion, final ranking, PageRank, event resolution and supersession ordering for every backend ([ADR 0013](docs/decisions/0013-resolve-events-by-identity-and-version-facts-in-the-engine.md)). | protocols, `config`, `packs` — **nothing else** |
 | `ingest` *(planned)* | `scan(path)` → plan, `apply(plan)`; source listing (UC Volume, Workspace folder, local folder); document and chunk hashing; parser registry (`ai_parse_document` is one parser); parser and chunker adapters over permissive libraries ([ADR 0009](docs/decisions/0009-reuse-permissive-libraries-behind-adapters.md)). | `engine`, protocols, `config`, `auth`, parser and chunker libraries behind extras |
@@ -43,12 +46,17 @@ app ──► serving ──► ingest ──► engine ──► protocols ◄�
 config, auth: cross-cutting, imported by any layer except engine (which takes config only)
 config, auth import protocols for the error types; auth imports config
 packs: cross-cutting and pure (stdlib, pydantic, pyyaml); engine may import it
+config and packs are siblings: neither imports the other
 _retry: private, below llm and storage
+_yaml: private, below config and packs
 ```
 
 - `[tool.importlinter]` in `pyproject.toml` enforces these layers for the
-  built modules, and `make imports` runs it. Its layers contract is
-  exhaustive, so a new module fails it until it is placed in a layer.
+  built modules, and `make imports` runs it. Its layers contract reads,
+  top to bottom, `llm | storage`, `auth`, `config | packs`, then
+  `protocols | _retry | _yaml`. It is exhaustive, so a new module fails it
+  until it is placed in a layer. A second contract keeps `protocols`,
+  `config` and `packs` free of every optional SDK.
 
 - `engine` never imports `storage`, `llm`, `auth`, `databricks-sdk`,
   `pyspark` or any backend driver. Its unit tests run on fake stores and

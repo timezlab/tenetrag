@@ -31,23 +31,40 @@ corpus, public proxy corpora and, later, the real corpus in place.
 
 | Tier | What | Where it lives | Purpose |
 |---|---|---|---|
-| 1 | Synthetic bilingual corpus from our own generator, 30–60 documents, with planted ground truth | public repo (`tests/fixtures/`) | Unit tests, pack trials, as-of and conflict tests, delete tests, CI |
+| 1 | Synthetic bilingual corpus from our own generator, 41 documents, with planted ground truth | public repo (`tests/fixtures/corpus/`) | Unit tests, pack trials, as-of and conflict tests, delete tests, CI |
 | 2 | Public proxy corpora, closest first (tables below) | downloaded locally by a script, never committed unless the license allows it | M1 end-to-end runs, the benchmark, per-type breakdown |
 | 3 | The adopter's real corpus | the adopter's workspace only | The quality gate. The same benchmark harness runs as a job there and exports only aggregate metrics per question type |
 
-**Tier 1 generator** [inferred]. A script writes documents from a fact
-table it controls:
-- policy versions with effective dates and supersession;
-- meetings with decisions and action items;
-- conflicting definitions of the same metric from two sources;
-- figures with periods;
-- a Vietnamese–English mix.
+**Tier 1 generator.** Built in feature 002; the format is
+[contracts/corpus.md](../../specs/002-packs-and-corpus/contracts/corpus.md).
+- **Input.** A fact table we write by hand, in
+  `tests/fixtures/corpus/facts/`: the world of fictional entities, 41
+  documents (18 Vietnamese, 16 English, 7 mixed) whose sentences and
+  expected items live together, the deletion scenarios and `TEXT_IN`
+  links, and the hand-written questions. It plants:
+  - policy versions with effective dates and supersession;
+  - meetings with decisions and action items;
+  - conflicting definitions of the same metric from two sources;
+  - figures with periods;
+  - duplicate and same-named entities, in both languages;
+  - a Vietnamese–English mix.
+- **Output.** `make corpus` (`uv run python -m tests.support.corpus`)
+  writes `tests/fixtures/corpus/generated/`, which is committed:
+  - one Markdown file per document. Each document also carries a format
+    label (docx, pdf, xlsx, pptx); real files in those formats wait for
+    feature 004's parsers;
+  - `documents.jsonl`, the expected items per document;
+  - `graph.json`, the expected entities, version statuses and deletions,
+    derived by the engine brief's rules;
+  - `golden.jsonl`, one file for every question type, filtered by its
+    `qtype` tag: 104 questions, 8 of them hand-written.
+- **Checks.** Every quote must occur in its rendered document, and every
+  item must fit the shipped packs. `--check` exits 1 when the committed
+  output differs from a fresh run, and 2 on a problem in the fact table.
 
-It renders the documents to MD, DOCX, PPTX, XLSX and PDF, and writes one
-golden JSON file per question type. The golden answers come from the
-fact table, so they are exact. One known risk: LLM-written questions
-overlap the text more than human questions do. Mix in hand-written
-questions.
+The golden answers come from the fact table, so they are exact. One known
+risk: generated questions overlap the text more than human questions do,
+so every question type has at least one hand-written question.
 
 ## English proxies
 

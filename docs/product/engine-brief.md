@@ -1235,8 +1235,12 @@ Query-time parameters:
   `VectorStore` kept in `tests/`, with fake models. The contract suite
   also runs on the reference store, so it pins the expected behaviour
   before any backend exists.
-- The running example becomes a synthetic fixture with golden results for
-  Q-a, Q-b and Q-c. Deleting D2 must make r1 current again.
+- The running example is documents D1–D5 of the synthetic corpus in
+  `tests/fixtures/corpus/` (built in feature 002,
+  [test-corpora.md](../reference/test-corpora.md) tier 1). Q-a, Q-b and
+  Q-c are hand-written questions in its `golden.jsonl`, and its
+  `graph.json` holds the expected version statuses. Deleting D2 must make
+  r1 current again.
 - The synthetic corpus plants duplicate names (acronyms, both languages,
   short forms) to measure the precision of `ref` hints and of LLM
   confirmations, and the duplicates left after each stage.
@@ -1248,6 +1252,15 @@ Query-time parameters:
     must merge. The snapshot has 57; three were added on 2026-10-06 for
     the global keys and the company registration veto. CI requires zero
     wrong merges.
+  - Feature 002 wrote them as case files, with 17 more cases added since:
+    77 in all, 39 apart and 38 merge.
+    [core.cases.yaml](../../src/tenetrag/packs/shipped/core.cases.yaml)
+    (27) and
+    [enterprise-docs.cases.yaml](../../src/tenetrag/packs/shipped/enterprise-docs.cases.yaml)
+    (43) ship beside their packs; the 7 that need the `finance` draft are
+    in [tests/fixtures/identity/](../../tests/fixtures/identity/finance.cases.yaml).
+    `check_cases` checks their shape and coverage today; the resolver
+    runs them from feature 004.
   - Each shipped pack's identity cases run in CI under the same rule
     ([domain-packs.md](domain-packs.md#identity-fields)).
   - Indexing D5 must leave Beta's policy, unit and limit apart from

@@ -1,10 +1,13 @@
 # v1 default packs — schemas (2026-10-04)
 
-Status: `core` and `enterprise-docs` ship with the SDK, in
+Status: `core` and `enterprise-docs` ship with the SDK as version 1, in
 [core.yaml](../../src/tenetrag/packs/shipped/core.yaml) and
-[enterprise-docs.yaml](../../src/tenetrag/packs/shipped/enterprise-docs.yaml);
+[enterprise-docs.yaml](../../src/tenetrag/packs/shipped/enterprise-docs.yaml),
+with their identity cases beside them
+([specs/002-packs-and-corpus](../../specs/002-packs-and-corpus/spec.md));
 those files are the source of truth and this page keeps the reasoning.
-[finance.yaml](packs/finance.yaml) is still a draft for review. The format
+[finance.yaml](packs/finance.yaml) stays a draft until M4, and its cases
+are in [tests/fixtures/identity/](../../tests/fixtures/identity/finance.cases.yaml). The format
 and the design workflow are in [domain-packs.md](domain-packs.md), and the
 evidence is in [domain-schemas.md](../reference/domain-schemas.md).
 
@@ -17,12 +20,11 @@ evidence is in [domain-schemas.md](../reference/domain-schemas.md).
 | `finance` | company and market disclosures: filings, ownership, ratings, securities | 26 | 9 + core |
 | `[enterprise-docs, finance]` | both | 39 | 23 |
 
-The counts come from the draft files. A throwaway check script merged every
-stack and checked references. It confirmed that every competency question
-(CQ) maps to a defined type, and compiled the structured-output schema.
-Every stack compiled to 39 keys with no `$ref`, `anyOf`, `oneOf`, `allOf`
-or `pattern`, including a stack with a user pack on top. More types grow
-the enums and the prompt, not the key count. A user pack adds its own
+The counts come from `load_pack`, `check_coverage` and `compile_schema`
+(measured on 2026-10-21). Every competency question (CQ) of each stack
+passes the coverage check. Every stack compiles to 52 properties, under
+the limit of 64, with no `$ref`, `anyOf`, `oneOf`, `allOf` or `pattern`.
+More types grow the enums and the prompt, not the property count. A user pack adds its own
 types on top of these, so extraction for a full stack will likely run in
 passes (open question 2 in
 [domain-packs.md](domain-packs.md#open-questions)).
@@ -275,7 +277,11 @@ Each default pack ships synthetic test documents with expected items, and
 its CQs double as the golden set. It also ships identity cases: pairs
 that must merge and pairs that must stay apart, for every type with a
 scope, a key or a veto
-([identity fields](domain-packs.md#identity-fields)). Public datasets serve only as evidence of
+([identity fields](domain-packs.md#identity-fields)). There are 77 cases:
+27 for `core`, 43 for `enterprise-docs` and 7 for the `finance` draft; 60
+come from the ADR 0016 design suite and 17 were added later. The
+synthetic corpus is tier 1 of [test-corpora.md](../reference/test-corpora.md).
+Public datasets serve only as evidence of
 extractable types or as benchmark candidates, because several forbid
 redistribution or commercial use
 ([datasets](../reference/domain-schemas.md#datasets-for-tests-and-benchmarks)).

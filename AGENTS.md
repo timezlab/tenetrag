@@ -8,14 +8,20 @@ MCP server. Two deployment branches are built in parallel: Databricks
 (Lakebase by default, Delta, pgvector or AI Search) and elsewhere (Neo4j
 preferred, or Postgres) ([ADR 0008](docs/decisions/0008-build-databricks-and-open-branches-in-parallel.md)).
 
-**Status:** M0 implemented
-([specs/001-sdk-foundation](specs/001-sdk-foundation/spec.md)): the
+**Status:** M0 and feature 002 implemented. M0
+([specs/001-sdk-foundation](specs/001-sdk-foundation/spec.md)) built the
 package skeleton, the error types, the quality gates (locally and in CI),
 profile loading with stage hashes, credentials, the chat and embedding
 model clients, the Neo4j and Postgres connections, and a local Docker
-Compose stack. Known gaps are in [docs/tech-debt.md](docs/tech-debt.md).
-M1 (end to end on local Neo4j and Postgres) comes next. The design is
-settled through ADR 0019, and the constitution is at v1.1.0.
+Compose stack. Feature 002
+([specs/002-packs-and-corpus](specs/002-packs-and-corpus/spec.md)) built
+the domain packs (`core` and `enterprise-docs` shipped, `finance` a
+draft), their identity cases and the synthetic bilingual corpus. Known
+gaps are in [docs/tech-debt.md](docs/tech-debt.md). M1 (end to end on
+local Neo4j and Postgres) continues with feature 003: the store
+protocols, the reference store, the contract suite and the Postgres and
+Neo4j stores. The design is settled through ADR 0023, and the
+constitution is at v1.1.0.
 
 ## Stack
 Python · Postgres/pgvector (local, managed, Lakebase) · Neo4j · Delta via
@@ -66,6 +72,11 @@ same gates on Python 3.11 and 3.14.
 
 Local Neo4j and Postgres: `make dev-up` / `make dev-down`, or `make prod-up`
 for a long-running stack ([docs/guides/local-stack.md](docs/guides/local-stack.md)).
+
+Synthetic corpus: edit the fact table in `tests/fixtures/corpus/facts/`,
+then `make corpus` rewrites `tests/fixtures/corpus/generated/`; commit
+both. `uv run python -m tests.support.corpus --check` exits 1 when the
+committed output is stale.
 
 Import rules live in `[tool.importlinter]` in `pyproject.toml`. A new module
 under `tenetrag` fails `lint-imports` until it is placed in a layer there.
