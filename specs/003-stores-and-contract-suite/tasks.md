@@ -44,7 +44,7 @@ and sequential.
 **Purpose**: the import rules for `engine`, the empty packages, and
 the image pins in a place both Docker suites share
 
-- [ ] T001 Place `engine` in the import rules and create the empty packages
+- [X] T001 Place `engine` in the import rules and create the empty packages
   (research R1, contracts/text.md):
   - in `[tool.importlinter]` of `pyproject.toml`:
     - the top layer becomes `"engine | llm | storage"`;
@@ -70,7 +70,7 @@ the image pins in a place both Docker suites share
   - `import neo4j` breaks it too.
 
   Then run `make check`.
-- [ ] T002 [P] Move the image pins and the Docker check out of
+- [X] T002 [P] Move the image pins and the Docker check out of
   `tests/integration/conftest.py` into a new `tests/support/containers.py`
   (research R20):
   - move `NEO4J_IMAGE` and `PGVECTOR_IMAGES` unchanged, with their digest
@@ -89,6 +89,28 @@ the image pins in a place both Docker suites share
   `uv run pytest -m docker tests/integration -q` collects the same tests
   as before.
 
+  Result (2026-10-21): `make check` passes with 1168 unit tests, and
+  `make integration` passes its 19 Docker tests (neo4j 2026.09, pgvector
+  pg16 and pg17) in 120 s.
+  - T001: creating `src/tenetrag/engine/__init__.py` before placing it
+    failed the exhaustive layers contract ("The following modules are not
+    listed as layers: tenetrag.engine"). With the pyproject change,
+    `lint-imports` keeps 4 contracts. `pyspark` stays in the forbidden
+    list: `lint-imports` accepts it uninstalled and still catches the
+    import, so no departure is needed. Probes in `engine/__init__.py`,
+    each reverted:
+    - `import tenetrag.storage` broke both the layers contract and the
+      engine contract (through storage, auth and `databricks`);
+    - `import tenetrag.auth` broke only the engine contract, which is
+      why it lists `tenetrag.auth`: the layers allow the import;
+    - `import neo4j` and `import pyspark` each broke the engine contract.
+  - The import-rules paragraph of `ARCHITECTURE.md` names the new layer
+    and the third contract (the boundary rule of the Notes). T078 does
+    the module table.
+  - T002: the integration suite collects the same 19 tests before and
+    after the move, compared node id for node id. The "Upgrading an image"
+    note in `docs/guides/local-stack.md` now names
+    `tests/support/containers.py`.
 
 **Checkpoint**: the engine has a layer and a contract, and the pins are
 shared

@@ -130,7 +130,7 @@ To run one store only, name it:
 - **Restarts in production mode.** Docker restarts a store whose process
   exits, a crash included. It does not restart one you stopped yourself
   with `docker stop` or `docker kill`; `make prod-up` starts it again.
-- **Upgrading an image.** Change `tests/integration/conftest.py` and
+- **Upgrading an image.** Change `tests/support/containers.py` and
   `deploy/compose.yaml` together. `tests/unit/test_local_stack.py` fails
   until the two match.
 - **Postgres extensions.** `vector` and `pg_trgm` ship in the image, and

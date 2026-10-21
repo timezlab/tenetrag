@@ -16,7 +16,7 @@ from typing import Any
 import pytest
 import yaml
 
-from tests.integration.conftest import NEO4J_IMAGE, PGVECTOR_IMAGES
+from tests.support.containers import NEO4J_IMAGE, PGVECTOR_IMAGES
 
 ROOT = Path(__file__).parents[2]
 DEPLOY = ROOT / "deploy"

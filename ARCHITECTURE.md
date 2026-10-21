@@ -53,10 +53,11 @@ _yaml: private, below config and packs
 
 - `[tool.importlinter]` in `pyproject.toml` enforces these layers for the
   built modules, and `make imports` runs it. Its layers contract reads,
-  top to bottom, `llm | storage`, `auth`, `config | packs`, then
+  top to bottom, `engine | llm | storage`, `auth`, `config | packs`, then
   `protocols | _retry | _yaml`. It is exhaustive, so a new module fails it
   until it is placed in a layer. A second contract keeps `protocols`,
-  `config` and `packs` free of every optional SDK.
+  `config` and `packs` free of every optional SDK, and a third keeps
+  `engine` off `auth` and every model and store SDK, `pyspark` included.
 
 - `engine` never imports `storage`, `llm`, `auth`, `databricks-sdk`,
   `pyspark` or any backend driver. Its unit tests run on fake stores and

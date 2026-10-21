@@ -4,23 +4,7 @@ from pathlib import Path
 
 import pytest
 
-# Multi-arch index digests, resolved 2026-10-06 from Docker Hub. The neo4j tag
-# was re-pushed that morning, so this pins the previous build (2026-10-02, per
-# docker-library/repo-info) to respect the 24-hour rule of the dependency gate.
-NEO4J_IMAGE = (
-    "neo4j:2026.09.0-community"
-    "@sha256:0dfcadbd51e1d2e5a0cf86d054a0bb537a4bce212796d967cbd88445aaf3fbf3"
-)
-PGVECTOR_IMAGES = {
-    "pg16": (
-        "pgvector/pgvector:0.8.7-pg16"
-        "@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a"
-    ),
-    "pg17": (
-        "pgvector/pgvector:0.8.7-pg17"
-        "@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d"
-    ),
-}
+from tests.support.containers import NEO4J_IMAGE, PGVECTOR_IMAGES, require_docker
 
 _INTEGRATION_DIR = Path(__file__).parent
 
@@ -35,12 +19,7 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
 
 @pytest.fixture(scope="session", autouse=True)
 def _require_docker() -> None:
-    import docker  # dev-only, installed with testcontainers
-
-    try:
-        docker.from_env().ping()
-    except docker.errors.DockerException:
-        pytest.skip("Docker not available")
+    require_docker()
 
 
 @pytest.fixture(scope="session")

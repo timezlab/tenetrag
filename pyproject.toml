@@ -95,8 +95,8 @@ markers = [
     "live: calls real external services; opt-in through named variables",
 ]
 
-# Import rules of research R5 and ARCHITECTURE.md. The engine contract arrives
-# with tenetrag.engine in M1.
+# Import rules of research R5 and ARCHITECTURE.md. The engine sits in the top
+# layer, and its own contract keeps it off auth and every SDK (003 research R1).
 [tool.importlinter]
 root_package = "tenetrag"
 include_external_packages = true
@@ -109,7 +109,7 @@ name = "Module layers"
 type = "layers"
 containers = ["tenetrag"]
 layers = [
-    "llm | storage",
+    "engine | llm | storage",
     "auth",
     "config | packs",
     "protocols | _retry | _yaml",
@@ -128,3 +128,17 @@ type = "forbidden"
 source_modules = ["tenetrag.auth"]
 forbidden_modules = ["openai", "databricks", "neo4j", "psycopg", "psycopg_pool"]
 ignore_imports = ["tenetrag.auth.databricks -> databricks"]
+
+[[tool.importlinter.contracts]]
+name = "engine imports no auth, model or store SDK"
+type = "forbidden"
+source_modules = ["tenetrag.engine"]
+forbidden_modules = [
+    "tenetrag.auth",
+    "openai",
+    "databricks",
+    "neo4j",
+    "psycopg",
+    "psycopg_pool",
+    "pyspark",
+]
