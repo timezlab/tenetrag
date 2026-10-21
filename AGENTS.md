@@ -20,7 +20,7 @@ draft), their identity cases and the synthetic bilingual corpus. Known
 gaps are in [docs/tech-debt.md](docs/tech-debt.md). M1 (end to end on
 local Neo4j and Postgres) continues with feature 003: the store
 protocols, the reference store, the contract suite and the Postgres and
-Neo4j stores. The design is settled through ADR 0023, and the
+Neo4j stores. The design is settled through ADR 0024, and the
 constitution is at v1.1.0.
 
 ## Stack
