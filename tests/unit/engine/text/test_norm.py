@@ -1,15 +1,17 @@
-"""Text normalization for matching (contracts/text.md, research R18).
+"""The shared steps of norm, and how it picks language rules (contracts/text.md, ADR 0025).
 
 Behaviours:
-1. The tone-mark table moves the mark from the second vowel to the first in
-   the endings oa, oe and uy, in lower, upper and mixed case.
-2. An ending followed by a letter, and uy after q, are left alone.
+1. With no language named, norm runs the shared steps only, so a Vietnamese
+   tone mark stays where it is.
+2. A named language with no rules adds nothing, and the order of the
+   languages does not matter: rules run in the order of their codes.
 3. Diacritics and đ are kept, so lãi, lại and lai stay apart (SC-009).
 4. Decomposed input gives the same result as precomposed input.
 5. Whitespace collapses to one space and the ends are trimmed.
 6. Case is folded with casefold, not lower.
 7. The result is NFC, even where casefolding decomposes a letter.
-8. norm is idempotent, on the examples and on the corpus's entity names.
+8. norm is idempotent, with and without the vi rule, on the examples and on
+   the corpus's entity names.
 9. tenetrag.engine imports no store, no llm, no auth and no driver.
 """
 
@@ -23,53 +25,18 @@ import yaml
 
 from tenetrag.engine.text import norm
 
-WORLD = Path(__file__).parents[2] / "fixtures" / "corpus" / "facts" / "world.yaml"
+WORLD = Path(__file__).parents[3] / "fixtures" / "corpus" / "facts" / "world.yaml"
 
-# data-model §11, written out here so the test does not share the module's table.
-TONE_MARK_PAIRS = [
-    ("oà", "òa"),
-    ("oá", "óa"),
-    ("oả", "ỏa"),
-    ("oã", "õa"),
-    ("oạ", "ọa"),
-    ("oè", "òe"),
-    ("oé", "óe"),
-    ("oẻ", "ỏe"),
-    ("oẽ", "õe"),
-    ("oẹ", "ọe"),
-    ("uỳ", "ùy"),
-    ("uý", "úy"),
-    ("uỷ", "ủy"),
-    ("uỹ", "ũy"),
-    ("uỵ", "ụy"),
+EXAMPLES = [
+    "hoà",
+    "Hoàng",
+    "quý",
+    "lãi",
+    "lại",
+    "lai",
+    "Đà Nẵng",
+    "  Ngân\thàng\n\u00a0Phương   Đông  ",
 ]
-
-MOVED = {
-    "hoà": "hòa",
-    "Hoà": "hòa",
-    "HOÀ BÌNH": "hòa bình",
-    "thuỷ": "thủy",
-    "Thuỷ": "thủy",
-    "khoẻ": "khỏe",
-    "KHOẺ": "khỏe",
-    "uỷ ban": "ủy ban",
-    "Uỷ ban  Nhân dân": "ủy ban nhân dân",
-    "hoà,": "hòa,",
-}
-
-KEPT = {
-    "hoàng": "hoàng",
-    "Hoàng": "hoàng",
-    "quý": "quý",
-    "QUÝ": "quý",
-    "quỳ": "quỳ",
-    "khuỷu": "khuỷu",
-    "toàn": "toàn",
-    "khoảng": "khoảng",
-    "hòa": "hòa",
-}
-
-EXAMPLES = [*MOVED, *KEPT, "lãi", "lại", "lai", "Đà Nẵng", "  Ngân\thàng\n\u00a0Phương   Đông  "]
 
 
 def corpus_names() -> list[str]:
@@ -81,21 +48,23 @@ def corpus_names() -> list[str]:
     ]
 
 
-@pytest.mark.parametrize(("old", "new"), TONE_MARK_PAIRS)
-def test_tone_mark_pairs_moved(old, new):
-    assert norm(old) == new
-    assert norm("h" + old) == "h" + new
-    assert norm(("h" + old).upper()) == "h" + new
+def test_no_language_rules_by_default():
+    assert norm("hoà") == "hoà"
+    assert norm("HOÀ  Bình") == "hoà bình"
+    assert norm("Uỷ ban") == "uỷ ban"
 
 
-@pytest.mark.parametrize(("text", "expected"), MOVED.items())
-def test_tone_marks_moved(text, expected):
-    assert norm(text) == expected
+def test_language_without_rules_adds_nothing():
+    assert norm("Hoà", languages=["en"]) == norm("Hoà") == "hoà"
+    assert norm("Hoà", languages=["en", "vi"]) == norm("Hoà", languages=["vi", "en"])
+    assert norm("Hoà", languages=["en", "vi"]) == norm("Hoà", languages=["vi"]) == "hòa"
 
 
-@pytest.mark.parametrize(("text", "expected"), KEPT.items())
-def test_tone_marks_kept(text, expected):
-    assert norm(text) == expected
+def test_rules_run_in_language_order(monkeypatch):
+    # Two rules that do not commute; a set of languages has no stable order.
+    rules = {"aa": lambda s: s + "a", "bb": lambda s: s + "b"}
+    monkeypatch.setattr("tenetrag.engine.text.LANGUAGE_RULES", rules)
+    assert norm("x", languages={"bb", "aa"}) == norm("x", languages=["bb", "aa"]) == "xab"
 
 
 def test_diacritics_kept_apart():
@@ -129,12 +98,13 @@ def test_result_is_nfc():
     assert all(norm(text) == unicodedata.normalize("NFC", norm(text)) for text in EXAMPLES)
 
 
-def test_idempotent():
+@pytest.mark.parametrize("languages", [(), ("vi",)])
+def test_idempotent(languages):
     names = corpus_names()
     assert len(names) > 50
     for text in [*EXAMPLES, *names]:
-        once = norm(text)
-        assert norm(once) == once, text
+        once = norm(text, languages=languages)
+        assert norm(once, languages=languages) == once, text
 
 
 def test_engine_imports():
@@ -152,6 +122,6 @@ def test_engine_imports():
     loaded = set(result.stdout.splitlines())
     forbidden_tenetrag = {"tenetrag.storage", "tenetrag.llm", "tenetrag.auth"}
     drivers = {"openai", "httpx", "databricks", "neo4j", "psycopg", "psycopg_pool", "pyspark"}
-    assert "tenetrag.engine.text" in loaded
+    assert "tenetrag.engine.text.vi" in loaded
     assert sorted(loaded & forbidden_tenetrag) == []
     assert sorted({name.partition(".")[0] for name in loaded} & drivers) == []

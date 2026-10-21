@@ -45,6 +45,7 @@ REQUEST_CHECK_FIELDS = (
 # The whole index-time field set of M0. Changing it changes stage hashes, so
 # it changes here, visibly.
 EXPECTED_INDEX_TIME = {
+    "text_languages": Stage.CHUNK,
     "language": Stage.EXTRACT,
     "models.extraction.provider": Stage.EXTRACT,
     "models.extraction.model": Stage.EXTRACT,

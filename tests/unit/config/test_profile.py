@@ -46,6 +46,7 @@ def test_empty_mapping_gives_all_defaults():
     assert profile.models.answer is None
     assert profile.models.embedding is None
     assert profile.language == "en"
+    assert profile.text_languages == ()
     assert profile.pack == "core"
 
 
@@ -378,6 +379,24 @@ def test_language_codes_accepted(language):
 @pytest.mark.parametrize("language", ["Vietnamese", "VI", "pt-br", "e", ""])
 def test_language_codes_rejected(language):
     assert "language" in problems({"language": language})
+
+
+# Text languages (ADR 0025)
+
+
+@pytest.mark.parametrize("codes", [["vi"], ["en", "vi"], ["fil"]])
+def test_text_languages_accepted(codes):
+    assert profile_from_dict({"text_languages": codes}).text_languages == tuple(codes)
+
+
+@pytest.mark.parametrize("code", ["VI", "Vietnamese", "vi-VN", "e", ""])
+def test_text_languages_rejected(code):
+    assert "text_languages" in problems({"text_languages": [code]})
+
+
+def test_text_languages_sorted_without_repeats():
+    profile = profile_from_dict({"text_languages": ["vi", "en", "vi"]})
+    assert profile.text_languages == ("en", "vi")
 
 
 # The pack (contracts/config.md §1, data-model §7)

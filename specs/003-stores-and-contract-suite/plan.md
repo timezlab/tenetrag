@@ -118,7 +118,7 @@ Technical approach, from [research.md](research.md):
 |---|---|---|---|
 | I. No adopter data in git | Fixtures come from the synthetic corpus of 002 and from generated sets of fictional names. Error texts never carry document content, so logs of a real index carry none either (R21). `git status` is checked before each commit | ✅ | ✅ |
 | II. Fail closed on identity | `open_stores` resolves each connection's credential through M0's `open_connection`: a credential from code, or the profile's named source, and `AuthError` when it is missing. No other identity is tried. The profile names connections, never secrets | ✅ | ✅ |
-| III. Engine depends only on protocols | The protocols are standard library only. `engine/text.py` imports only the standard library. A forbidden contract keeps `engine` off `auth`, the drivers and pyspark, and the layers contract keeps it off `llm` and `storage` (R1). The reference store lives in test support, not in the engine | ✅ | ✅ |
+| III. Engine depends only on protocols | The protocols are standard library only. The `engine/text/` package imports only the standard library. A forbidden contract keeps `engine` off `auth`, the drivers and pyspark, and the layers contract keeps it off `llm` and `storage` (R1). The reference store lives in test support, not in the engine | ✅ | ✅ |
 | IV. Provenance and fidelity | Every mention, relation, event evidence, fact and attribute source row keeps its doc id, chunk id and quote span, and the suite checks that each item reaches its chunks and documents. Stores keep text as written: full text and name search fold nothing, so `lãi`, `lại` and `lai` stay apart (R6, R9, R10) | ✅ | ✅ |
 | V. Time and versions | Stores keep every version's row with its status and close date, apply the status changes the engine sends inside the document's unit, and fail the unit on an unknown item. The suite feeds statuses from `graph.json` and checks them after writes and deletes, D2's deletion included | ✅ | ✅ |
 | VI. Entity identity | The stores serve identity lookups by type, scope and declared values (`find_by_identity`, `IdentityValue` nodes on Neo4j), and never merge by name. Resolution and its zero-wrong-merge gate are feature 004 | ✅ | ✅ |
@@ -163,7 +163,9 @@ src/tenetrag/
 │   └── stores.py              # GraphStore, VectorStore, StoreSchema, WriterLease, HopSpec, WriteStep
 ├── engine/
 │   ├── __init__.py            # docstring only: the engine arrives in 004
-│   └── text.py                # norm() and the tone-mark table
+│   └── text/
+│       ├── __init__.py        # norm() and LANGUAGE_RULES (ADR 0025)
+│       └── vi.py              # the tone-mark table, the vi rule
 ├── packs/
 │   ├── __init__.py            # + store_schema
 │   └── store.py               # store_schema(stack) -> StoreSchema
@@ -194,7 +196,7 @@ src/tenetrag/
 tests/
 ├── unit/
 │   ├── protocols/             # records, StoreSchema, WriterBusyError text
-│   ├── engine/test_text.py    # norm() and the tone-mark table
+│   ├── engine/text/           # norm()'s shared steps; the vi rule
 │   ├── packs/test_store.py    # store_schema of the shipped packs
 │   ├── config/                # index section, dimension maxima
 │   └── storage/               # _trigram, _names, Neo4j error-text regression, extras

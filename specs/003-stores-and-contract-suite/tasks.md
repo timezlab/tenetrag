@@ -128,7 +128,7 @@ for name search on the reference store and on Neo4j
 - [X] T003 [P] Write `tests/unit/engine/test_text.py`, the seven tests of
   [contracts/text.md](contracts/text.md#behaviour-pinned-by-tests):
   - `test_tone_marks_moved`: the five named examples, plus all fifteen
-    pairs of [data-model §11](data-model.md#11-tone-mark-table-norm),
+    pairs of [data-model §11](data-model.md#11-tone-mark-table-norm-the-vi-rule),
     in lower and upper case;
   - `test_tone_marks_kept`;
   - `test_diacritics_kept_apart` (`lãi`, `lại`, `lai`, and `đ`);
@@ -236,6 +236,43 @@ for name search on the reference store and on Neo4j
     - `errors.py`: no UTC conversion; microseconds in the text; a naive
       `expires_at` accepted.
 
+  Follow-up (2026-10-21, [ADR 0025](../../docs/decisions/0025-normalize-text-by-the-languages-the-profile-names.md)):
+  review found the tone-mark table running on every text, a Vietnamese
+  default in an open-source SDK. The rules now go by language.
+  `make check` passes with 1285 unit tests, and `lint-imports` keeps 4
+  contracts.
+  - `src/tenetrag/engine/text.py` became the package
+    `src/tenetrag/engine/text/`:
+    - `__init__.py`: `norm(text, *, languages=())` and `LANGUAGE_RULES`;
+    - `vi.py`: the table and `move_tone_marks`.
+    Rules run after the shared steps, in the order of their codes. A
+    language with no rule adds nothing.
+  - The profile gains `text_languages`: ISO 639 codes, sorted, without
+    repeats, empty by default. It is index-time in the chunk stage.
+    M0's golden hashes were pinned again: the chunk hash changed, and
+    it equals the spec recipe with `text_languages: []`.
+  - The tests moved to `tests/unit/engine/text/`:
+    - `test_norm.py`: the shared steps and how languages are picked;
+    - `test_vi.py`: the tone marks, all with `languages=("vi",)`.
+  - Red: 86 failed, 252 passed. `norm()` had no `languages` argument,
+    `hoà` was moved with no language named, `tenetrag.engine.text.vi`
+    was not loaded, and the profile refused `text_languages` as an
+    unknown field. A test bug was fixed before any code (an ASCII
+    example in `test_nfd_equals_nfc`).
+  - `test_text_languages_rejected` passed in red for the wrong reason
+    (the unknown-field message names the field). A planted fault
+    confirmed that it catches unchecked codes once the field exists.
+  - One test was added after green, `test_rules_run_in_language_order`:
+    with a single rule, rules running in the caller's order could not
+    fail.
+  - Planted faults, each reverted, all caught: the earlier `text.py`
+    faults, now in `__init__.py` and `vi.py`; the vi rule always on;
+    rules in the caller's order; only the first rule run; codes
+    unchecked; the list not sorted; repeats kept; the extract stage in
+    place of the chunk stage.
+  - Later tasks that normalize fixture text now pass
+    `languages=("vi",)`: T015, T016, T028 and T034.
+
 **Checkpoint**: `norm()`, `WriterBusyError` and the trigrams are ready
 
 ---
@@ -328,7 +365,8 @@ including its negative check. Then run
     - chunks split at blank lines, and their offsets slice the document
       text back;
     - every quote is the chunk text at its span;
-    - every `*_norm` field equals `norm()` of its source;
+    - every `*_norm` field equals `norm(…, languages=("vi",))` of its
+      source;
   - `corpus_writes()` gives the 41 documents in corpus order;
   - `expected_statuses()` equals graph.json `versions`, and
     `corpus_delete("D2")` carries the status changes graph.json
@@ -377,7 +415,8 @@ including its negative check. Then run
     `derive.statuses`, `world_ids`) and the committed
     `tests/fixtures/corpus/generated/` files; vectors from
     `FakeEmbeddingModel(dimensions=8)`; text through
-    `tenetrag.engine.text.norm`.
+    `tenetrag.engine.text.norm` with `languages=("vi",)`, the corpus's
+    languages (ADR 0025).
 
   The T015 tests for writes.py pass. Depends on T004, T014 and T015.
 - [ ] T017 [US1] Implement `tests/support/contract/generated.py`, part 1:
@@ -571,7 +610,8 @@ including its negative check. Then run
   texts, and checks membership only, never a score:
   - `test_syllables_match_whole`: `lãi`, `lại` and `lai` each find only
     their own chunk (US4 scenario 6, SC-009);
-  - `test_tone_mark_pairs_match`: after `norm()`, `hoà` finds `hòa`;
+  - `test_tone_mark_pairs_match`: after `norm()` with `vi`, `hoà` finds
+    `hòa`;
   - `test_numbers_and_punctuation`: `2.500.000`, `vnd/ngày` and
     `phòng-ban` hit, and `500` misses;
   - `test_any_syllable`: a three-syllable query finds a chunk holding
@@ -687,7 +727,7 @@ including its negative check. `make faults` prints 27 lines, each
   - `test_find_events`: keys with `scope=ANY_SCOPE`;
   - `test_match_names_exclude_run`: an entity created by the run and an
     alias added by it are hidden (FR-020);
-  - `test_match_names_tone_marks`: the `norm()` forms of `hoà` and
+  - `test_match_names_tone_marks`: the `norm()` forms with `vi` of `hoà` and
     `hòa` match. `lãi`, `lại` and `lai` each match only their own entity
     (US2 scenario 5, SC-009);
   - `test_search_names_candidates`: every must-find name is in the
@@ -1342,7 +1382,7 @@ against `make dev-up`.
 the final validation
 
 - [ ] T078 [P] Update `ARCHITECTURE.md`:
-  - the `engine` row: only `text.py` so far, importing protocols,
+  - the `engine` row: only the `text/` package so far, importing protocols,
     config, packs and the standard library, under its forbidden
     contract;
   - the `protocols` row gains the store protocols and records;
@@ -1362,7 +1402,8 @@ the final validation
     record on both backends, and trigram `search_names` on Neo4j;
   - §6.1 and §6.2 link to `src/tenetrag/protocols/stores.py` instead of
     keeping a copy;
-  - §7: the tone-mark rule of R18.
+  - §7: the tone-mark rule of R18 (rewritten with ADR 0025; check it
+    against the code);
 - [ ] T080 [P] Update the platform and run docs:
   - `docs/product/domain-packs.md`: `PART_OF` becomes `IN_DOCUMENT` in
     the infrastructure table;

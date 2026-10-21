@@ -49,8 +49,8 @@ Three candidates were rejected because what is locked is enough:
     `tenetrag.auth`, openai, databricks, neo4j, psycopg, psycopg_pool and
     pyspark. The layers contract already keeps it off `llm` and
     `storage`.
-  - `tenetrag.engine` holds only `engine/text.py` with `norm()` in this
-    feature (R18). The rest of the engine arrives in 004.
+  - `tenetrag.engine` holds only the `engine/text/` package with
+    `norm()` and its language rules in this feature (R18). The rest of the engine arrives in 004.
   - `tenetrag.protocols` gains `records.py` (the row and read records)
     and `stores.py` (`GraphStore`, `VectorStore`, `StoreSchema`, the hop
     and lease records, `WriteStep`). Both import only the standard
@@ -824,6 +824,12 @@ Three candidates were rejected because what is locked is enough:
   rule is what makes `hoàng` safe.
 - **Alternatives:** a library such as underthesea (heavy, and the table
   is fifteen pairs).
+- **Amended (2026-10-21, [ADR 0025](../../docs/decisions/0025-normalize-text-by-the-languages-the-profile-names.md)):**
+  the table is the `vi` rule, in its own module `tenetrag.engine.text.vi`.
+  `norm(text, *, languages=())` runs it only when `languages` holds
+  `vi`; the profile's `text_languages` (empty by default) supplies the
+  languages. The shared steps run casefold before any rule, which gives
+  the same output as step order 1 to 4 above.
 
 ## R19. The reference store
 
@@ -925,7 +931,7 @@ With the code (FR-049):
   lease record on both backends; `search_names` uses trigram similarity
   on Neo4j through trigram tokens (R10). §6.1 and §6.2 then link to the
   protocol code instead of keeping a copy.
-- Engine brief §7: the tone-mark rule of R18.
+- Engine brief §7: the tone-mark rule of R18 (done with ADR 0025).
 - neo4j-platform.md: the [run] facts of R8 to R12 replace "untested" for
   the shapes this feature uses.
 - tech-debt.md: `halfvec` above 2,000 dimensions on Postgres (R11).

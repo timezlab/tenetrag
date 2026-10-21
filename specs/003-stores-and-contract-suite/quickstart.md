@@ -160,7 +160,7 @@ importing only `protocols`, `config`, `packs` and the standard library.
 tests.
 
 **Negative check:** add `from tenetrag.storage import open_stores` to
-`src/tenetrag/engine/text.py`, and `lint-imports` fails, naming the two
+`src/tenetrag/engine/text/__init__.py`, and `lint-imports` fails, naming the two
 modules. Revert it.
 
 ## Done when

@@ -49,9 +49,10 @@ USER_PACK = """\
 # index-time set (T038).
 # Changed in 002 phase 4: extract and resolve hold the pack's index hash, here
 # that of `core`, the default pack (002 contracts/config.md §2).
+# Changed in 003 phase 2: chunk holds `text_languages`, empty by default (ADR 0025).
 GOLDEN = {
     "selfhosted": {
-        Stage.CHUNK: "sha256:e72a5a7b71ba5db66ef0080ca76119a05e659d9352a883461b587ed8cc12cd47",
+        Stage.CHUNK: "sha256:b869850816f2e408fd5ed189536f1ac98506cfd7f62bc474a05fbebafcfc7a3e",
         Stage.EXTRACT: "sha256:ed4364bc17b0e5ee407c3204497d9d22a8e849e9d870a80d387207dae66cddb3",
         Stage.RESOLVE: "sha256:ab4ca86d9c3ce68184a4b46ccf48f66b5eb99e94a1b3e7429dd068ec35c99156",
         Stage.EMBED: "sha256:a4849b4634d4a777cdf6a2851265d518a9a166af28a9ba65c56f6293150c6981",
@@ -59,7 +60,7 @@ GOLDEN = {
         Stage.REPORTS: "sha256:5f774d41c2a014c20f214e9ae4160410dbf2479402f0c3241c3478fa23d76f2a",
     },
     "databricks": {
-        Stage.CHUNK: "sha256:e72a5a7b71ba5db66ef0080ca76119a05e659d9352a883461b587ed8cc12cd47",
+        Stage.CHUNK: "sha256:b869850816f2e408fd5ed189536f1ac98506cfd7f62bc474a05fbebafcfc7a3e",
         Stage.EXTRACT: "sha256:672d0d48132cec17df2301c6692631ba93f25f03e65a1695d64a93ae646b0893",
         Stage.RESOLVE: "sha256:ab4ca86d9c3ce68184a4b46ccf48f66b5eb99e94a1b3e7429dd068ec35c99156",
         Stage.EMBED: "sha256:59e8aa17e178a1f7979ba5462149f21b67588ea8540b99f2018e866a40d5c973",
@@ -103,11 +104,13 @@ def fields_json(fields: dict[str, Any]) -> str:
 
 
 def json_value(value: Any) -> str:
-    # Enough of JSON for these tests: text without quotes or backslashes, ints and null.
+    # Enough of JSON for these tests: text without quotes or backslashes, ints, lists and null.
     if value is None:
         return "null"
     if isinstance(value, str):
         return f'"{value}"'
+    if isinstance(value, list):
+        return "[" + ",".join(json_value(item) for item in value) + "]"
     return str(value)
 
 
@@ -122,8 +125,8 @@ def test_every_stage_has_a_hash():
 
 
 def test_hash_follows_the_spec_recipe():
-    result = hashes({"language": "vi"})
-    assert result[Stage.CHUNK] == spec_hash("chunk", {})
+    result = hashes({"language": "vi", "text_languages": ["vi"]})
+    assert result[Stage.CHUNK] == spec_hash("chunk", {"text_languages": ["vi"]})
     assert result[Stage.EMBED] == spec_hash("embed", {})
     assert result[Stage.EXTRACT] == spec_hash("extract", {"language": "vi", "pack": PACK_HASH})
     assert result[Stage.RESOLVE] == spec_hash("resolve", {"pack": PACK_HASH})
@@ -241,9 +244,20 @@ def test_hash_extraction_only(dotted, value):
     assert changed_stages(hashes(base), hashes(variant(base, dotted, value))) == {Stage.EXTRACT}
 
 
+def test_hash_chunk_only():
+    base = fixture_dict("selfhosted")
+    changed = variant(base, "text_languages", ["vi"])
+    assert changed_stages(hashes(base), hashes(changed)) == {Stage.CHUNK}
+    # The profile sorts the list, so the order it is written in changes nothing.
+    assert hashes(variant(base, "text_languages", ["vi", "en"])) == hashes(
+        variant(base, "text_languages", ["en", "vi"])
+    )
+
+
 @pytest.mark.parametrize(
     ("dotted", "value"),
     [
+        ("text_languages", []),
         ("models.extraction.temperature", 0.0),
         ("models.extraction.temperature", 0),
         ("models.extraction.max_output_tokens", None),

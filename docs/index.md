@@ -32,6 +32,7 @@
 - [decisions/0022-record-a-live-index-trace-outside-the-document-unit.md](decisions/0022-record-a-live-index-trace-outside-the-document-unit.md) — `TraceSink` writes each document's trace step by step outside its atomic write; latest run only; drops kept in the extraction cache; always on, no raw prompts (accepted)
 - [decisions/0023-keep-only-identity-rules-true-in-every-domain-in-core.md](decisions/0023-keep-only-identity-rules-true-in-every-domain-in-core.md) — `core` keeps only identity and time rules true in every domain: no employer scope on Person (enterprise-docs adds it), a `born_on` veto, a name guard on email hits, no identity on plain events, a subtype's own time; a child may add a whole scope (accepted)
 - [decisions/0024-hold-the-writer-lease-in-a-fenced-lease-record.md](decisions/0024-hold-the-writer-lease-in-a-fenced-lease-record.md) — one writer per index through a lease record with an end time and a fence on every backend, checked inside each write unit; replaces advisory locks on Postgres (accepted)
+- [decisions/0025-normalize-text-by-the-languages-the-profile-names.md](decisions/0025-normalize-text-by-the-languages-the-profile-names.md) — `norm` runs shared steps on all text, plus the rules of each language in the profile's `text_languages` (empty by default); the Vietnamese tone-mark table is the `vi` module; chunk stage (accepted)
 
 ## Guides
 - [guides/local-stack.md](guides/local-stack.md) — Neo4j and Postgres in Docker Compose: development and production modes, secret files, connecting the SDK, what joins later

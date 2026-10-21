@@ -1,6 +1,6 @@
 # Build the Databricks and open deployment branches in parallel, with Neo4j in v1
 
-**Status:** accepted; amended by [0024](0024-hold-the-writer-lease-in-a-fenced-lease-record.md)
+**Status:** accepted; amended by [0024](0024-hold-the-writer-lease-in-a-fenced-lease-record.md) and [0025](0025-normalize-text-by-the-languages-the-profile-names.md)
 **Date:** 2026-10-04
 **Deciders:** Liam Lee (session 2026-10-04)
 

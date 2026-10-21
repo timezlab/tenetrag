@@ -1,6 +1,6 @@
 # Contract: `tenetrag.config` (changes from M0 and 002)
 
-This feature adds the profile's index section to M0's
+This feature adds the profile's index section and `text_languages` to M0's
 [config contract](../../001-sdk-foundation/contracts/config.md), as
 changed by [002](../../002-packs-and-corpus/contracts/config.md).
 Everything not listed here stays as those state it. The shapes are in
@@ -37,6 +37,32 @@ VECTOR_MAX_DIMENSIONS: Mapping[str, int]       # {"postgres": 2000, "neo4j": 409
   pack checks need none. `open_stores` refuses it (stores.md §5).
 - `IndexSettings` and `VECTOR_MAX_DIMENSIONS` are exported from
   `tenetrag.config`.
+
+## 1b. `text_languages`
+
+```python
+LanguageCode = Annotated[str, Field(pattern=r"^[a-z]{2,3}$")]
+
+class Profile(_Settings):
+    ...
+    text_languages: Annotated[
+        tuple[LanguageCode, ...], AfterValidator(_language_set), IndexTime(Stage.CHUNK)
+    ] = ()
+```
+
+- The corpus's languages. `norm` runs the extra rules of each, at index
+  and query time alike ([text.md](text.md),
+  [ADR 0025](../../../docs/decisions/0025-normalize-text-by-the-languages-the-profile-names.md)).
+  A language with no rules adds nothing, so `en` is accepted and changes
+  nothing today.
+- Codes are ISO 639 codes with no region: `vi`, `en`, `fil`. `VI`,
+  `vi-VN` and `Vietnamese` fail with the field named.
+- Sorted and without repeats, so `[vi, en, vi]` loads as `("en", "vi")`
+  and the order written changes no hash.
+- Index-time in the chunk stage, the first stage that writes a `_norm`
+  field. Adding the field gave every profile a new chunk stage hash
+  (`text_languages: []` in the chunk fields); M0's golden hashes were
+  pinned again in 003 phase 2.
 
 ## 2. Checks at load
 
@@ -93,3 +119,17 @@ ConfigError: The profile has 2 problems:
 | `test_index_is_operational` | `field_phases()` gives `(Phase.QUERY, None)` for `index.id`, `index.graph` and `index.vectors` |
 | `test_index_moves_no_hash` | two profiles that differ only in `index` give equal stage hashes |
 | `test_extra_field_refused` | `index.writer: x` fails as an unknown field |
+
+`tests/unit/config/test_profile.py`, `test_phases.py` and
+`test_hashing.py` (§1b):
+
+| Test | Asserts |
+|---|---|
+| `test_empty_mapping_gives_all_defaults` | `text_languages == ()` |
+| `test_text_languages_accepted` | `[vi]`, `[en, vi]` and `[fil]` load |
+| `test_text_languages_rejected` | `VI`, `Vietnamese`, `vi-VN`, `e` and `""` fail, naming `text_languages` |
+| `test_text_languages_sorted_without_repeats` | `[vi, en, vi]` gives `("en", "vi")` |
+| `test_index_time_field_set_is_pinned` | `text_languages` resolves to the chunk stage |
+| `test_hash_follows_the_spec_recipe` | the chunk hash of `text_languages: [vi]` follows the data-model §8 recipe of M0 |
+| `test_hash_chunk_only` | changing `text_languages` changes only the chunk hash; `[vi, en]` and `[en, vi]` hash alike |
+| `test_hash_default_equals_omitted` | `text_languages: []` hashes as when it is left out |

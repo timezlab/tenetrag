@@ -587,10 +587,14 @@ Neo4j database, delete from one, and read from the other.
 
 - **FR-047**: The engine's text module MUST provide the normalization of
   [engine brief §7](../../docs/product/engine-brief.md#7-text-and-language):
-  NFC, then the tone-mark placement table (`hoà` → `hòa`), then casefold
-  and NFC again, then whitespace collapse, keeping diacritics and `đ`.
-  It is pure standard-library code. The fixtures use it now, feature 004
-  uses it in the pipeline, and no store calls it.
+  NFC, casefold and NFC again, then the rules of each language named,
+  then whitespace collapse, keeping diacritics and `đ`. Each language
+  with extra rules has its own module; `vi` holds the tone-mark
+  placement table (`hoà` → `hòa`). The languages come from the profile's
+  `text_languages`, empty by default
+  ([ADR 0025](../../docs/decisions/0025-normalize-text-by-the-languages-the-profile-names.md)). It is pure standard-library code. The fixtures use
+  it now with `vi`, feature 004 uses it in the pipeline, and no store
+  calls it.
 
 **Architecture and docs**
 

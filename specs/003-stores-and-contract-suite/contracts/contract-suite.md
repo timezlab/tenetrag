@@ -85,7 +85,7 @@ VECTOR_SPEC: VectorSpec                 # model "fake-embed", 8 dimensions, each
 | relations, facts, events, roles, evidence | the relation and statement items, with their quotes and dates |
 | `text_in` | graph.json `text_in` |
 | ids | the SHA-256 recipes of [engine brief §1](../../../docs/product/engine-brief.md#ids-and-hashes), with world ids standing for resolved identities |
-| normalized text | `tenetrag.engine.text.norm` |
+| normalized text | `tenetrag.engine.text.norm` with `languages=("vi",)`, the corpus's languages (ADR 0025) |
 | vectors | `FakeEmbeddingModel(dimensions=8)` over chunk texts, entity labels and one question per chunk |
 
 `tests/support/contract/generated.py` builds the data the corpus lacks,

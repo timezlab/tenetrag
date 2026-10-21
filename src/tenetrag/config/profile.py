@@ -256,6 +256,11 @@ def _pack_reference(value: str) -> str:
 PackReference = Annotated[str, AfterValidator(_pack_reference)]
 
 
+def _language_set(codes: tuple[str, ...]) -> tuple[str, ...]:
+    # Sorted and without repeats, so the order a profile lists them in changes no hash.
+    return tuple(sorted(set(codes)))
+
+
 # The profile
 
 
@@ -265,6 +270,13 @@ class Profile(_Settings):
     language: Annotated[
         str, Field(pattern=r"^[a-z]{2,3}(-[A-Z]{2})?$"), IndexTime(Stage.EXTRACT)
     ] = "en"
+    # The corpus's languages. Normalization runs the extra rules of each, at
+    # index and query time alike; a language with no rules adds nothing (ADR 0025).
+    text_languages: Annotated[
+        tuple[Annotated[str, Field(pattern=r"^[a-z]{2,3}$")], ...],
+        AfterValidator(_language_set),
+        IndexTime(Stage.CHUNK),
+    ] = ()
     # Operational: the pack's content enters the stage hashes through
     # `stage_hashes(profile, pack_hash=...)`, so a moved file changes none.
     pack: Annotated[PackReference, Operational()] = "core"

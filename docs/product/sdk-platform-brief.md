@@ -127,7 +127,8 @@ Design principles:
    identity. [ADR 0003](../decisions/0003-caller-supplied-credentials.md).
 5. Source text is never translated; figures stay verbatim with time and
    source. Text is normalized only where no meaning is lost (Unicode NFC,
-   Vietnamese tone-mark placement); diacritics are kept, so matching tells
+   plus the rules of each language the profile names, such as Vietnamese
+   tone-mark placement); diacritics are kept, so matching tells
    `lãi`, `lại` and `lai` apart. The extraction model normalizes numbers
    and units into typed values, and code checks them against the quote;
    entities get a canonical name in a configurable graph language plus

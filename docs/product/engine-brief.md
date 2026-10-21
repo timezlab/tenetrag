@@ -219,7 +219,7 @@ no read-your-writes.
   ([ADR 0009](../decisions/0009-reuse-permissive-libraries-behind-adapters.md))
   and return text plus structure: pages, headings, tables.
 - The engine stores the NFC form of the parsed text, and offsets refer to
-  it. Tone-mark placement and casefolding apply only to the `_norm`
+  it. Casefolding and the language rules apply only to the `_norm`
   columns (§7).
 - Each chunk gets a language tag (`vi`, `en` or `mixed`) from a heuristic
   on Vietnamese letters. No dependency.
@@ -1125,11 +1125,18 @@ asserts candidate sets, never scores
 
 ## 7. Text and language
 
-- **`norm(text)`:** NFC, then the tone-mark placement table (`hoà` →
-  `hòa`), then casefold, then whitespace collapse. Diacritics and `đ` are
-  kept, so `lãi`, `lại` and `lai` stay distinct. It fills `name_norm`,
-  `alias_norm` and `text_norm`, and normalizes query n-grams. The original
-  text is never overwritten.
+- **`norm(text, languages=...)`:** NFC, casefold, NFC again, then the
+  rules of each language the profile's `text_languages` names, then
+  whitespace collapse
+  ([ADR 0025](../decisions/0025-normalize-text-by-the-languages-the-profile-names.md)).
+  Each language with extra rules has its own module: `vi` moves the tone
+  mark of a final `oa`, `oe` or `uy` (`hoà` → `hòa`). The list is empty
+  by default, so a profile with no languages gets the shared steps only.
+  The same list applies to every text at index and query time, whatever
+  the text's own language tag. Diacritics and `đ` are kept, so `lãi`,
+  `lại` and `lai` stay distinct. It fills `name_norm`, `alias_norm` and
+  `text_norm`, and normalizes query n-grams. The original text is never
+  overwritten.
 - **Full text** indexes `text_norm` with no stemming and no stop words.
   The tokens are syllables, not words. The golden set measures whether a
   segmenter would help
@@ -1185,6 +1192,7 @@ Index-time parameters
 
 | Parameter | Default | Stage |
 |---|---|---|
+| `text_languages` (language rules of `norm`, §7) | none | chunk |
 | `chunking.target_tokens`, `max_tokens`, `overlap` | 500, 800, 0 | chunk |
 | `embedding.context_header` | on | embed |
 | `document_card.llm` | on | extract |
@@ -1273,7 +1281,7 @@ Query-time parameters:
   - orphan cleanup after edit and delete;
   - status changes applied in the same unit as the write;
   - `hop` caps per entity;
-  - exact alias match after tone-mark normalization;
+  - exact alias match after normalization with the `vi` rule;
   - `exclude_run` hides the current run's rows from name and vector
     lookups;
   - `find_by_identity` with a scope and with `ANY_SCOPE`;

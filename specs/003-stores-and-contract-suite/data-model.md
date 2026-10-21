@@ -466,6 +466,9 @@ IndexSettings(id: IndexId, graph: ConnectionName, vectors: ConnectionName | None
 Profile(…, index: Annotated[IndexSettings | None, Operational()] = None)
 IndexId = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]{0,39}$")]
 VECTOR_MAX_DIMENSIONS: Mapping[str, int] = {"postgres": 2000, "neo4j": 4096}
+Profile(…, text_languages: Annotated[tuple[LanguageCode, ...], IndexTime(Stage.CHUNK)] = ())
+LanguageCode = Annotated[str, Field(pattern=r"^[a-z]{2,3}$")]
+    # sorted, without repeats; the languages whose rules norm() runs (ADR 0025, §11)
 ```
 
 Checks at load (FR-039), each a `ConfigError` through M0's load errors:
@@ -531,10 +534,13 @@ ContractCase(id, source: "adr-0008" | "brief-10" | "spec", text, tests: tuple[st
 | `collections` | spec (FR-025) | a model or dimension change fails, naming both values |
 | `runs-and-states` | spec (FR-016, FR-017) | run records and document states |
 
-## 11. Tone-mark table (`norm()`)
+## 11. Tone-mark table (`norm()`, the `vi` rule)
 
-Applied after NFC, only when the vowel pair ends the syllable (no
-letter follows) and, for `uy`, the `u` does not follow `q`:
+The rule of `tenetrag.engine.text.vi`, run only when the languages
+passed to `norm()` include `vi`
+([ADR 0025](../../docs/decisions/0025-normalize-text-by-the-languages-the-profile-names.md)).
+Applied after NFC and casefolding, only when the vowel pair ends the
+syllable (no letter follows) and, for `uy`, the `u` does not follow `q`:
 
 | Old placement | New placement |
 |---|---|
