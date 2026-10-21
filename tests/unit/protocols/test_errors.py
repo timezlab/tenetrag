@@ -38,4 +38,4 @@ def test_writer_busy_error_needs_an_aware_end_time():
 
 def test_writer_busy_error_takes_keywords_only():
     with pytest.raises(TypeError):
-        WriterBusyError("indexer:host-a", datetime(2026, 10, 21, tzinfo=UTC))  # type: ignore[misc]  # the positional call is the test
+        WriterBusyError("indexer:host-a", datetime(2026, 10, 21, tzinfo=UTC))  # type: ignore[call-arg]  # the positional call is the test

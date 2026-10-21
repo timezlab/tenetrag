@@ -291,7 +291,7 @@ including its negative check. Then run
 
 ### Tests for User Story 1
 
-- [ ] T009 [P] [US1] Write `tests/unit/protocols/test_records.py`, the
+- [X] T009 [P] [US1] Write `tests/unit/protocols/test_records.py`, the
   record tests of [contracts/protocols.md](contracts/protocols.md#behaviour-pinned-by-tests):
   - `test_records_frozen`: for every record of data-model §2–§4 and
     §7.5, setting a field raises; each record is slotted and keyword-only;
@@ -304,7 +304,7 @@ including its negative check. Then run
   - `test_document_link_key_one_side`.
 
   Red: `ImportError` for the record names from `tenetrag.protocols`.
-- [ ] T010 [P] [US1] Write `tests/unit/protocols/test_stores.py`:
+- [X] T010 [P] [US1] Write `tests/unit/protocols/test_stores.py`:
   - `test_protocols_stdlib_only`: in a subprocess, `import
     tenetrag.protocols` adds no module outside the standard library and
     `tenetrag` to `sys.modules` (FR-001, SC-012);
@@ -320,13 +320,13 @@ including its negative check. Then run
     `src/tenetrag/packs/format.py`.
 
   Red: `ImportError` for `GraphStore` and the rest.
-- [ ] T011 [P] [US1] Write `tests/unit/packs/test_store.py` with
+- [X] T011 [P] [US1] Write `tests/unit/packs/test_store.py` with
   `test_store_schema_shipped`. `core`, `enterprise-docs` and the `finance`
   draft each build a schema. In `core`, `PART_OF` is a relation and
   `Event` an event type, and a type with `extract: false` is included.
 
   Red: `ImportError` for `store_schema` from `tenetrag.packs`.
-- [ ] T012 [US1] Implement `src/tenetrag/protocols/records.py`
+- [X] T012 [US1] Implement `src/tenetrag/protocols/records.py`
   ([data-model §2–§4 and §7.5](data-model.md#2-write-records), research
   R2):
   - frozen, slotted, keyword-only dataclasses;
@@ -335,7 +335,7 @@ including its negative check. Then run
 
   T009 passes, except the `WriterLease` case of
   `test_naive_datetime_refused`, which T013 turns green. Depends on T009.
-- [ ] T013 [US1] Implement `src/tenetrag/protocols/stores.py`
+- [X] T013 [US1] Implement `src/tenetrag/protocols/stores.py`
   (contracts/protocols.md §2–§4, data-model §5):
   - `GraphStore` and `VectorStore` as `typing.Protocol` classes marked
     `@runtime_checkable`, since quickstart §1 checks them with
@@ -349,12 +349,12 @@ including its negative check. Then run
     `StepHook`, all exported.
 
   T009 and T010 pass. Depends on T010 and T012.
-- [ ] T014 [US1] Implement `src/tenetrag/packs/store.py` with
+- [X] T014 [US1] Implement `src/tenetrag/packs/store.py` with
   `store_schema(stack) -> StoreSchema`, and export it from
   `tenetrag.packs`. It covers every entity, event, fact and relation type
   of the stack, `extract: false` included. A name that `StoreSchema`
   refuses raises `ConfigError`. T011 passes. Depends on T011 and T013.
-- [ ] T015 [P] [US1] Write `tests/unit/test_support_contract.py`, part 1.
+- [X] T015 [P] [US1] Write `tests/unit/test_support_contract.py`, part 1.
   It pins the fixture helpers of
   [contract-suite.md §2](contracts/contract-suite.md#2-fixture-data),
   in the way `tests/unit/test_support_packs.py` pins `tests/support/packs.py`:
@@ -399,7 +399,7 @@ including its negative check. Then run
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Implement `tests/support/contract/writes.py`
+- [X] T016 [US1] Implement `tests/support/contract/writes.py`
   (contract-suite.md §2, §4; research R20):
   - `corpus_writes`, `corpus_vectors`, `corpus_delete`,
     `expected_statuses`, `edited_write`, `expected_counts`, `SCHEMA` and
@@ -419,11 +419,11 @@ including its negative check. Then run
     languages (ADR 0025).
 
   The T015 tests for writes.py pass. Depends on T004, T014 and T015.
-- [ ] T017 [US1] Implement `tests/support/contract/generated.py`, part 1:
+- [X] T017 [US1] Implement `tests/support/contract/generated.py`, part 1:
   `two_source_writes`, `pack_status_writes`, `tone_mark_writes` and
   `recall_fixture`, all with fictional names and deterministic output.
   The T015 tests for generated.py pass. Depends on T016.
-- [ ] T018 [US1] Create the reference store skeleton in
+- [X] T018 [US1] Create the reference store skeleton in
   `tests/support/reference/` (research R19):
   - `database.py`: `ReferenceDatabase`, with one `threading.RLock`,
     per-index tables and an injectable clock that defaults to
@@ -439,7 +439,7 @@ including its negative check. Then run
 
   `test_reference_satisfies_protocols` passes, and `make types` accepts
   the annotated assignments. Depends on T013 and T015.
-- [ ] T019 [US1] Create the `stores` fixture
+- [X] T019 [US1] Create the `stores` fixture
   ([contract-suite.md §1](contracts/contract-suite.md#1-the-stores-fixture)):
   - `tests/support/contract/backends.py`:
     - `ContractStores` with the fields and methods of §1:
@@ -461,7 +461,7 @@ including its negative check. Then run
 
   `uv run pytest tests/contract --collect-only -q` collects nothing yet
   and raises no error. Depends on T016 and T018.
-- [ ] T020 [P] [US1] Write `tests/contract/test_writes.py`, for the cases
+- [X] T020 [P] [US1] Write `tests/contract/test_writes.py`, for the cases
   `counts-after-write-and-replay`, `pack-attributes-apart` and
   `one-of-two-sources`:
   - `test_counts_after_write`: D1, D2 and D5, then all 41, each against
@@ -488,7 +488,7 @@ including its negative check. Then run
   `NotImplementedError` from `ensure_schema`, naming T029. A collection
   error does not count as red, so each new file in T020–T028 is also run
   with `--collect-only`.
-- [ ] T021 [P] [US1] Write `tests/contract/test_deletes.py`, for the cases
+- [X] T021 [P] [US1] Write `tests/contract/test_deletes.py`, for the cases
   `end-state-after-delete`, `orphan-cleanup`,
   `sources-deleted-with-document` and `text-in-added-and-removed`:
   - `test_delete_all_leaves_nothing`: write D1, D2 and D5, delete all
@@ -509,7 +509,7 @@ including its negative check. Then run
     status changes still apply.
 
   Red as T020.
-- [ ] T022 [P] [US1] Write `tests/contract/test_statuses.py`, for the
+- [X] T022 [P] [US1] Write `tests/contract/test_statuses.py`, for the
   cases `supersession-flags` and `status-changes-in-unit`:
   - `test_statuses_match_graph_json`: all 41 written, then statuses and
     `closed_at` equal `expected_statuses()`;
@@ -523,7 +523,7 @@ including its negative check. Then run
     empty list and an unknown one is absent.
 
   Red as T020.
-- [ ] T023 [P] [US1] Write `tests/contract/test_provenance.py`, for the
+- [X] T023 [P] [US1] Write `tests/contract/test_provenance.py`, for the
   case `provenance-reachability`:
   - `test_every_item_reaches_its_chunks_and_documents`: for every item of
     D1, D2 and D5, `get_items` leads through its evidence to
@@ -536,7 +536,7 @@ including its negative check. Then run
     result (contracts/protocols.md §2).
 
   Red as T020.
-- [ ] T024 [P] [US1] Write `tests/contract/test_lease.py`, for the case
+- [X] T024 [P] [US1] Write `tests/contract/test_lease.py`, for the case
   `writer-lease` ([stores.md §2](contracts/stores.md#2-writer-lease)):
   - `test_second_writer_busy`: `WriterBusyError` names the holder and
     the end time;
@@ -557,7 +557,7 @@ including its negative check. Then run
   - quickstart §1's negative check, run as a test.
 
   Red as T020.
-- [ ] T025 [P] [US1] Write `tests/contract/test_runs_and_caches.py`, for
+- [X] T025 [P] [US1] Write `tests/contract/test_runs_and_caches.py`, for
   the cases `runs-and-states` and `cache-round-trip`:
   - `test_runs_round_trip`: `begin_run`, `finish_run` and
     `get_runs(limit)`. A limit of 0 or 1,001 raises, and an unknown run
@@ -569,7 +569,7 @@ including its negative check. Then run
     over a model verdict for the same pair.
 
   Red as T020.
-- [ ] T026 [P] [US1] Write `tests/contract/test_schema_and_layout.py`, the
+- [X] T026 [P] [US1] Write `tests/contract/test_schema_and_layout.py`, the
   store-neutral part of the case `schema-and-layout` (FR-035, FR-036,
   [data-model §9](data-model.md#9-layout-version-and-setup-states)):
   - `test_ensure_schema_idempotent`: a second call changes no
@@ -583,7 +583,7 @@ including its negative check. Then run
     `StorageError` saying to call `ensure_schema`.
 
   Red as T020.
-- [ ] T027 [P] [US1] Write `tests/contract/test_vectors.py`, for the cases
+- [X] T027 [P] [US1] Write `tests/contract/test_vectors.py`, for the cases
   `recall-floor`, `collections` and `exclude-run` (vectors):
   - `test_recall_floor`: the recall fixture under a fresh index id and
     a 64-dimension spec gives recall at 10 of at least 0.9 (SC-010). The
@@ -604,7 +604,7 @@ including its negative check. Then run
     `test_get_vectors_round_trip` (within 1e-6).
 
   Red as T020.
-- [ ] T028 [P] [US1] Write `tests/contract/test_text_search.py`, for the
+- [X] T028 [P] [US1] Write `tests/contract/test_text_search.py`, for the
   case `tone-mark-matching` (full text, [research R6](research.md#r6-postgres-full-text)).
   It runs on the `tone_mark_writes()` chunks plus chunks holding the R6
   texts, and checks membership only, never a score:
@@ -620,7 +620,7 @@ including its negative check. Then run
     plain words, and `'` or `...` gives no rows.
 
   Red as T020.
-- [ ] T029 [US1] Implement the reference store's database, setup and
+- [X] T029 [US1] Implement the reference store's database, setup and
   bookkeeping in `tests/support/reference/`:
   - `ensure_schema`: the merged schema and `LAYOUT_VERSION = 1`
     recorded per index, with the layout check of data-model §9 on each
@@ -634,7 +634,7 @@ including its negative check. Then run
   `test_lease.py` and `test_runs_and_caches.py` pass on both reference
   parameters. So do the tests of `test_schema_and_layout.py` that need no
   document write. Depends on T019–T026.
-- [ ] T030 [US1] Implement the reference store's write units and reads
+- [X] T030 [US1] Implement the reference store's write units and reads
   ([stores.md §3](contracts/stores.md#3-write-units)):
   - `write_documents` and `delete_documents` copy the index's tables,
     apply the five steps (four for a delete) to the copy, call
@@ -653,7 +653,7 @@ including its negative check. Then run
   `test_provenance.py` and `test_schema_and_layout.py` pass on both
   reference parameters, except the vector parts that T031 completes.
   Depends on T029.
-- [ ] T031 [US1] Implement `ReferenceVectorStore`:
+- [X] T031 [US1] Implement `ReferenceVectorStore`:
   - `ensure_collections`, with the model and dimension check and the
     4096 maximum;
   - `upsert`, `delete`, `delete_documents` and `get_vectors`;
@@ -665,7 +665,7 @@ including its negative check. Then run
   The graph store's paired writes call this class's write code.
   `test_vectors.py`, `test_text_search.py` and the vector parts of
   T020–T021 pass. Depends on T030.
-- [ ] T032 [US1] Run `uv run pytest tests/contract -m "not docker" -q`,
+- [X] T032 [US1] Run `uv run pytest tests/contract -m "not docker" -q`,
   `tests/unit/protocols`, `tests/unit/packs/test_store.py` and
   `tests/unit/test_support_contract.py`. Run quickstart §1 with its
   negative check, and `make check`. Check SC-012 in two scratch
@@ -690,6 +690,78 @@ including its negative check. Then run
   A fault that survives gets a test. Record the red runs of T009–T011,
   T015 and T020–T028, the results and the suite's duration here, as M0
   did.
+
+  Result (2026-10-21): `make check` passes with 1486 tests, 201 of them
+  new: 91 unit tests, and the contract suite's 55 tests run on
+  `reference` and `reference-split`. `uv run pytest tests/contract -m
+  "not docker" -q` passes its 110 runs in 8 s, with no Docker and no
+  network.
+  - Red:
+    - T009–T011: the three files failed to collect, each on a missing
+      production name (`cannot import name 'ANY_SCOPE' from
+      'tenetrag.protocols'`, the same for `RELATION_NAME`, and
+      `cannot import name 'store_schema' from 'tenetrag.packs'`), 3
+      errors in 0.29 s;
+    - T015: `No module named 'tests.support.contract.generated'`;
+    - T020–T028: every test collected, then errored in the fixture on
+      `NotImplementedError: the reference graph store gets this in T029`
+      (108 errors in 0.72 s).
+  - Quickstart §1 prints `(True, True)` and `['D1', 'D2', 'D5']`. In the
+    negative check, the second store raises `StorageError` ("call
+    acquire_writer before writing"), then `WriterBusyError` naming
+    `quickstart` and the end time to the second.
+  - SC-012:
+    - in a `uv venv` with `uv pip install .`, importing
+      `tenetrag.protocols` loads no third-party module (the base
+      dependencies are installed, and none is imported);
+    - in a venv synced with `uv sync --locked`, psycopg is absent and the
+      contract suite passes. The task's `--no-extras` is not a uv flag;
+      uv installs no extra unless asked. No support import had to move.
+  - Planted faults, each run against the whole suite:
+    - six were caught by the tests written for them: unsorted
+      `get_items` by `test_reads_by_id`; a dropped `closed_at` by
+      `test_statuses_match_graph_json`; folded diacritics by
+      `test_diacritics_not_folded`; AND-ed syllables by
+      `test_any_syllable_matches`; a fence bumped for the same owner by
+      `test_same_owner_reacquires`; and a release that raises by
+      `test_release_lets_next_acquire`;
+    - a swap before the last step's hook survived, since no test set a
+      step hook. `tests/contract/test_kill_points.py` now holds
+      `test_failure_in_last_step_writes_nothing`, which catches it. T037
+      adds the other steps to that file.
+  - A test-helper bug found in green: `snapshot()` read
+    `document_states()` for the whole index, against its docstring, so
+    `test_schema_additive` failed once D901 was written. It now keeps
+    the states of the writes' documents. `test_replay_changes_no_count`,
+    its only other caller, rewrites the same documents and loses nothing.
+  - Departures:
+    - `LIMIT_MAX` (1,000) lives in `tenetrag.protocols.stores`. `k`,
+      `limit` and `ttl_s` out of range raise `ValueError`. The reference
+      store's ttl maximum (86,400 s) is its own constant, since the
+      protocols define none;
+    - a same-owner `acquire_writer` keeps its fence, even after its
+      lease expired, as long as no other owner took it;
+    - before `ensure_collections`, the reference vector store raises
+      `StorageError` naming the collection;
+    - an orphan's identity blocks go by either id, `entity_id` or
+      `candidate_id`;
+    - `text_in` rows ride on the linked document's write. Version keys
+      are the readable group names of `graph.json`, and fixture scope
+      paths join names with U+203A, spelled by code point;
+    - `pack_status_writes` uses an `ActionItem` and a `Decision` (D903);
+    - fixture helpers beyond contract-suite.md: `writer_owner`,
+      `edited_write`, `expected_counts`, `count_rows`, `snapshot`,
+      `delete_all`, `store_id`, `entity_id`, `corpus_table`,
+      `question_id` and `corpus_delete(written=)`, and on
+      `ContractStores`, `layout_module`, `row_counts`, `text_in_links`
+      and `vector_ids`. Each backend implements the `Server` protocol,
+      as `ReferenceServer` does;
+    - mypy now checks `tests.contract`, `tests.support.contract`,
+      `tests.support.reference` and the protocol shape tests. Untyped
+      test functions are allowed under `tests.contract` and `tests.unit`.
+  - Known gap until T039: an orphan's identity values are checked only
+    through the entity being gone, since `find_by_identity` comes with
+    T039.
 
 **Checkpoint**: the protocols exist, the reference store holds the
 corpus, and the write-side suite runs offline. MVP reached.

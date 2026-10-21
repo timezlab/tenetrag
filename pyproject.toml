@@ -78,9 +78,32 @@ ban-relative-imports = "all"
 
 [tool.mypy]
 strict = true
-packages = ["tenetrag"]
+# The contract suite, its support code and the tests that pin protocol shapes
+# are checked too, so `graph: GraphStore = ReferenceGraphStore(...)` is a real
+# structural check (003 T015, T018).
+packages = [
+    "tenetrag",
+    "tests.contract",
+    "tests.support.contract",
+    "tests.support.reference",
+    "tests.unit.protocols",
+]
+modules = ["tests.unit.packs.test_store", "tests.unit.test_support_contract"]
 mypy_path = "src"
 plugins = ["pydantic.mypy"]
+
+# Test functions carry no annotations (ruff ANN is off for tests); their
+# bodies are still checked.
+[[tool.mypy.overrides]]
+module = ["tests.contract.*", "tests.unit.*"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+# Support modules of earlier features, imported by the contract support, are
+# used for their types but not checked here.
+[[tool.mypy.overrides]]
+module = ["tests.support.corpus.*", "tests.support.packs"]
+follow_imports = "silent"
 
 [tool.pydantic-mypy]
 init_forbid_extra = true

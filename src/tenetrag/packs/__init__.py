@@ -38,6 +38,7 @@ from tenetrag.packs.stack import (
     ShippedPack,
     Stamp,
 )
+from tenetrag.packs.store import store_schema
 
 __all__ = [
     "Attribute",
@@ -72,4 +73,5 @@ __all__ = [
     "load_pack",
     "shipped_cases",
     "shipped_packs",
+    "store_schema",
 ]
