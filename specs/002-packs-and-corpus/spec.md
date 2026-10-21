@@ -5,7 +5,7 @@ this feature through `.specify/feature.json`
 
 **Created**: 2026-10-11
 
-**Status**: Draft
+**Status**: Implemented (2026-10-21). The requirement map is under T054 in [tasks.md](tasks.md), and the one gap, CI being off, is in [docs/tech-debt.md](../../docs/tech-debt.md)
 
 **Input**: User description: "002 — Domain packs and the synthetic test corpus (M1, part 1 of 5). Scope: the pure `tenetrag.packs` module (load pack YAML, stack `extends`, check conflicts, compile flat structured-output schemas within the provider limits, check coverage against competency questions, give a pack hash that feeds the stage hashes); ship the `core` and `enterprise-docs` packs as package data from the drafts in docs/product/packs/; a synthetic bilingual (Vietnamese and English) corpus of 30–60 documents with a deterministic generator and planted answers, including the running example (Alpha D1–D5, Beta) and its golden questions; the identity cases of ADR 0016 as fixture data. Out of scope: the engine, stores, retrieval, the finance pack (M4). Work on main with no feature branch (solo dev; Spec Kit uses feature.json). No adopter data: the corpus is synthetic."
 

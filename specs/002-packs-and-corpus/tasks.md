@@ -1051,13 +1051,13 @@ story works
 **Purpose**: docs that change with the code (FR-043), and the final
 validation
 
-- [ ] T049 [P] Update `ARCHITECTURE.md`:
+- [X] T049 [P] Update `ARCHITECTURE.md`:
   - the `packs` row is built: its modules, what it imports, and the
     shipped packs and cases as package data;
   - a row for `_yaml`, the private bottom-layer helper of `config` and
     `packs`;
   - the layers contract now reads `config | packs`.
-- [ ] T050 [P] Update `docs/product/domain-packs.md` and
+- [X] T050 [P] Update `docs/product/domain-packs.md` and
   `docs/product/v1-packs.md` (research R13):
   - new entity, event and fact types need a description, and examples
     are optional;
@@ -1067,7 +1067,7 @@ validation
   - links to the shipped case files;
   - in v1-packs.md, `core` and `enterprise-docs` ship as version 1, and
     `finance` stays a draft until M4.
-- [ ] T051 [P] Update `docs/reference/test-corpora.md` and
+- [X] T051 [P] Update `docs/reference/test-corpora.md` and
   `docs/product/engine-brief.md` §10:
   - test-corpora.md: tier 1 lives in `tests/fixtures/corpus/`, built
     from the fact table by `make corpus`, with one golden JSONL file
@@ -1075,16 +1075,121 @@ validation
     (research R13);
   - engine brief §10: where the identity cases (77: 60 design, 17 added)
     and the running example live.
-- [ ] T052 [P] Update `AGENTS.md`: the status line (002 implemented, 003
+- [X] T052 [P] Update `AGENTS.md`: the status line (002 implemented, 003
   next) and a `make corpus` line in Commands. Keep it under 150 lines.
-- [ ] T053 Run [quickstart.md](quickstart.md) end to end, §1 to §7,
+
+  Result (2026-10-21) for T049–T052:
+  - `ARCHITECTURE.md`: the `packs` row is built, with its public
+    functions, the shipped packs and cases as package data and the
+    `finance` draft left in `docs/product/packs/`; a new `_yaml` row;
+    `config` may import `_yaml`; the layers contract is spelled out.
+  - domain-packs.md: the status names what is built; `description` is
+    required on a new type and `examples` optional; new "Names" and
+    "Checking a pack" sections. The example in "Checking a pack" was run
+    on the `finance` draft: 52 properties, 15 of 15 questions, no case
+    problem. The links to the shipped case files are in "Identity cases".
+  - v1-packs.md: `core` and `enterprise-docs` ship as version 1, and
+    `finance` stays a draft until M4. **Departure:** the old line "every
+    stack compiled to 39 keys" came from the throwaway script of
+    2026-10-04. `compile_schema` gives 52 properties for every stack, so
+    the line now gives 52, measured on 2026-10-21. The type and question
+    counts were re-measured and still hold. "Test material" gives the
+    case counts.
+  - test-corpora.md: tier 1 is built, with its input, output, checks and
+    figures (41 documents, 104 questions, 8 of them hand-written).
+  - engine brief §10: the running example is D1–D5 of the corpus, and
+    the 77 cases (39 apart, 38 merge) are in the three case files.
+  - `AGENTS.md`: the status line, and a corpus line under Commands.
+    **Departure:** the status line also moves "settled through ADR 0019"
+    to ADR 0023, since ADRs 0020–0023 exist. 102 lines.
+- [X] T053 Run [quickstart.md](quickstart.md) end to end, §1 to §7,
   including the wheel check of §6 in a scratch virtual environment and
   §7's negative check. Record SC-006, SC-010, SC-011 and the unit suite
   duration under "Results" in `quickstart.md`, in the form of M0's.
-- [ ] T054 Set the status in `specs/002-packs-and-corpus/spec.md` to
+
+  Result (2026-10-21): every section passes as written, and every
+  negative check fails in the way the guide states. The figures are under
+  [Results](quickstart.md#results-2026-10-21-t053):
+  - SC-006: 0.063–0.070 s;
+  - SC-010: 0.64 s per run, the same bytes on 3.11.14 and 3.14.8;
+  - SC-011: passed in a venv with no extras;
+  - the unit suite: 1168 passed in 24.7 s.
+
+  **Departures:**
+  - Scratch files went to the session scratch directory, not `/tmp`.
+  - CI has been off since 2026-10-15, so a second local environment on
+    Python 3.14.8, synced from the lock, stood in for the CI matrix.
+  - §6 resolves the wheel's dependencies from PyPI, which picked
+    pydantic 2.14.1 and pydantic-core 2.50.1 over the locked 2.13.5 and
+    2.46.5. Both were published on 2026-10-11 and have no OSV advisory.
+    The check was repeated with the lock as constraints, with the same
+    result.
+- [X] T054 Set the status in `specs/002-packs-and-corpus/spec.md` to
   "Implemented". Confirm that every FR and SC maps to a passing test or a
   recorded check, and add the map here in the form of M0's T066. List any
   gap in the spec's Assumptions or in `docs/tech-debt.md`.
+
+  Result (2026-10-21): every FR and SC maps to a passing test or a
+  recorded check. One gap: CI is off, so the CI parts of FR-033, SC-010
+  and SC-011 ran locally. It is in `docs/tech-debt.md`. Test names drop
+  the `test_` prefix; the file is under `tests/unit/packs/` unless named.
+
+  | Req | Passing test or recorded check |
+  |---|---|
+  | FR-001 | `config/test_profile.py`: `pack_default`, `pack_name_or_path`, `pack_name_or_path_rejected`, `pack_name_pattern_matches_packs`; `config/test_loading.py`: `pack_path_relative_to_profile` |
+  | FR-002 | `test_format.py`: `yaml_tag_refused`, `unknown_field_fails`, `invalid_value_fails_at_its_path`, `duplicate_key_names_both_lines`, `every_field_loads` |
+  | FR-003 | `cycle_named`, `shared_ancestor_once`, `extends_resolves_against_its_file` |
+  | FR-004 | `user_pack_additions`, `child_identity_keys_come_first`, `child_adds_a_scope_to_an_unscoped_type`, `child_enum_value_sorted_into_place`, `restated_values_merge` |
+  | FR-005 | `broken_pack` over the `stack.*` rules; `conflict_names_both_packs`; quickstart §1 negative check |
+  | FR-006 | `parents_identical_merge`, `parents_conflict`, `glossaries_are_united` |
+  | FR-007 | `broken_pack` over the `ref.*` rules; `unknown_reference_fails`, `bad_reference_in_a_list_names_its_index` |
+  | FR-008 | `broken_pack` over the `identity.*` rules; `evidence_without_corroborate_warns` |
+  | FR-009 | `instruction_text_by_mode`, `instruction_pattern_warns`, `every_model_visible_text_is_linted` |
+  | FR-010 | `problems_reported_together`, `error_lists_every_error_in_order`, `problem_fields` |
+  | FR-011 | `nfc`, `hash_ignores_layout`, `case_text_read_as_nfc` |
+  | FR-012 | `glossary_type_must_exist`, `glossary_alias_clash_ignores_case`, `one_alias_on_two_types_is_fine`. Shipped packs carry no glossary (`shipped_load_clean`, pinned by `shipped_pins`), and a user pack cannot take a shipped name (`pack.shadows-shipped`) |
+  | FR-013 | `stack_read_only`, `enterprise_docs_merged`, `defaults_filled_in`, `is_a_copies_roles_attributes_and_time`, `every_field_placed` |
+  | FR-014 | `shipped_listed`, `shipped_load_clean`; quickstart §6 |
+  | FR-015 | `no_draft_copies`; T050's links; `docs/product/packs/` holds only `finance.yaml` |
+  | FR-016 | `shipped_pins` |
+  | FR-017 | `shipped_load_clean`, `shipped_have_questions`, `coverage_shipped` |
+  | FR-018 | `shipped_listed` |
+  | FR-019 | `finance_draft_stacks` (on `core` and on `enterprise-docs`) |
+  | FR-020 | `compiled_fits_providers`, `many_types_fit`, `compile_limit`, `compile_at_the_limit`, `every_property_required_and_no_other` |
+  | FR-021 | `compile_subset`, `extract_false_left_out`, `compile_rejects_bad_subset` |
+  | FR-022 | `compile_deterministic`, `compile_golden` |
+  | FR-023 | `hash_ignores_layout`, `hash_description_change`, `hash_set_order`, `hash_identity_order`, `hash_golden` |
+  | FR-024 | `stamp_names_the_top_pack` |
+  | FR-025 | `hash_retrieval_only`, `hash_glossary_only`; `config/test_hashing.py`: `hash_pack_extract_and_resolve_only`, `hash_needs_pack_hash` |
+  | FR-026 | `coverage_missing_relation`, `coverage_not_extracted`, `load_warns_unmet_question`, `load_warns_once_per_unmet_question` |
+  | FR-027 | `coverage_checks_user_questions`; quickstart §3 |
+  | FR-028 | `case_shape`, `case_file_shape`, `valid_inline_case_passes` |
+  | FR-029 | `outcome_fits_expect`, `outcome_problems` |
+  | FR-030 | `design_cases_match_snapshot`, `case_counts` |
+  | FR-031 | `coverage_shipped`, `missing_veto_case`, `coverage_names_each_gap` |
+  | FR-032 | `cases_consistent`, `unknown_attribute`, `element_resolves_in_stack`, `every_case_rule_has_a_case_file` |
+  | FR-033 | `document_mix`, `regenerates_same_bytes`; `--check` exits 0 on 3.11.14 and 3.14.8 (T053). **Gap:** Linux only, with CI off |
+  | FR-034 | `corpus_plants` |
+  | FR-035 | `running_example`, `running_example_statuses`, `golden_running_example` |
+  | FR-036 | `items_fit_stack`, `quotes_verbatim` |
+  | FR-037 | `running_example_statuses`, `closed_at_next_start`, `fact_issuer_is_source_scope`, `deletions_replay`, `no_equal_content_in_a_group` |
+  | FR-038 | `golden_fields`, `golden_coverage`, `golden_as_of_dates`, `golden_single_and_historical`, `golden_names_tell_apart` |
+  | FR-039 | `missing_quote_fails`, `unfit_item_fails`; quickstart §5 negative check |
+  | FR-040 | `regenerates_same_bytes`; `--check` exits 1 on a difference |
+  | FR-041 | `fictional_only` in `test_corpus.py` and `test_cases.py` |
+  | FR-042 | `make imports` (three contracts); `test_base_import.py`; quickstart §7 negative check; `error_lists_every_error_in_order` |
+  | FR-043 | T049–T052 |
+  | SC-001 | `shipped_load_clean`, `coverage_shipped`; quickstart §1 and §3 |
+  | SC-002 | `compiled_fits_providers`, `finance_draft_stacks`, `many_types_fit` |
+  | SC-003 | `every_rule_has_a_broken_pack` |
+  | SC-004 | `hash_ignores_layout`, `hash_description_change`, `hash_retrieval_only`, `hash_glossary_only` |
+  | SC-005 | `user_pack_additions`, `coverage_checks_user_questions`; quickstart §1 and §3 |
+  | SC-006 | quickstart §2: 0.063–0.070 s, under 1 s |
+  | SC-007 | `case_counts` (77), `coverage_shipped`, `cases_consistent` |
+  | SC-008 | `document_mix` (41 documents), `quotes_verbatim`, `items_fit_stack` |
+  | SC-009 | `golden_coverage` |
+  | SC-010 | `regenerates_same_bytes`; quickstart §5: 0.64 s, the same bytes on 3.11.14 and 3.14.8. **Gap:** run locally, not in CI |
+  | SC-011 | quickstart §6, with locked and with latest dependencies; `make check` on 3.11.14 and 3.14.8. **Gap:** run locally, not in CI |
 
 ---
 

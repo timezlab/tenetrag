@@ -45,3 +45,19 @@ item. Remove an entry in the change that fixes it.
 - **Trigger to fix:** M2, when Lakebase tokens expire under load, or
   when a user reports a misleading "unavailable".
 - **Created:** 2026-10-07
+
+## CI is off, so feature 002's gates ran only locally
+
+- **Where:** `.github/workflows/ci.yml`, disabled in GitHub on
+  2026-10-15; `specs/002-packs-and-corpus/quickstart.md` §5 to §7.
+- **Symptom:** FR-033, SC-010 and SC-011 of feature 002 ask for the same
+  corpus bytes and green gates on every Python version in CI. They were
+  checked on one Linux machine instead, on Python 3.11.14 and 3.14.8
+  (quickstart Results, 2026-10-21). No run since `d430b78` has gone
+  through CI.
+- **Why deferred:** the author turned CI off for a while. The local
+  `make check` is the gate meanwhile.
+- **Trigger to fix:** when CI is turned back on
+  (`gh workflow enable 377042827`). Check that the first run is green on
+  3.11 and 3.14, then remove this entry.
+- **Created:** 2026-10-21

@@ -186,7 +186,21 @@ sibling modules. Revert it.
   engine brief's testing section and the `AGENTS.md` status reflect what
   landed (FR-043), and `docs/product/packs/` holds only `finance.yaml`.
 
-## Results
+## Results (2026-10-21, T053)
 
-To be filled in by the last task of [tasks.md](tasks.md), in the form of
-the [M0 results](../001-sdk-foundation/quickstart.md#results-2026-10-07-t065).
+Run on Linux x86_64 with 88 CPUs and uv 0.12.23, in the working checkout
+of `main` at `d430b78` plus the uncommitted Phase 8 doc edits. Scratch
+files went to a scratch directory instead of `/tmp`. GitHub Actions CI
+has been off since 2026-10-15, so a second local environment on Python
+3.14, synced from the lock, stands in for the CI matrix.
+
+| Check | Result |
+|---|---|
+| Load and check (§1, SC-001, SC-003, SC-005) | Both shipped packs load with `warnings == ()`, and the Person keys and Organization unit categories are as listed. The user pack adds `Vendor`, `SUPPLIES` and `vendor_desk` with no code change. `-k "broken_pack or every_rule"`: 41 passed. Negative check: one `stack.changed-range` problem naming `core`, the user pack's file and `entities.Person.attributes.email.range`. |
+| Compile, stamp and hash (§2, SC-002, SC-004, SC-006) | The largest stack compiles to 52 properties, and `check_schema` for `databricks-claude-sonnet-5` raises nothing. Load and compile take 0.063–0.070 s over five runs (SC-006: under 1 s). `-k "hash or compile"`: 50 passed. Negative check: `max_properties=40` raises `ConfigError` with 52 and the parts by size, `entity (10)` first. |
+| Coverage (§3) | `enterprise-docs`: `(True, 14)`. User pack: passed, 15 questions. Negative check: a `coverage.unmet` warning, and the report lists `AUDITED` missing for `alpha-ops-2`. |
+| Identity cases (§4, SC-007) | `test_cases.py`: 88 passed. 77 cases: 60 design cases with their ids (30 apart, 30 merge) and 17 added; 27 in `core`, 43 in `enterprise-docs`, 7 for `finance`. `check_cases` returns `()` for the shipped files and the `finance` file. `test_design_cases_match_snapshot` and `test_missing_veto_case` pass. |
+| Corpus (§5, SC-008, SC-009, SC-010) | `make corpus` takes 0.64 s on 3.11 (SC-010: under 30 s), and `--check` 0.98 s on 3.14. `git status` shows no change, and `--check` exits 0 on 3.11.14 and on 3.14.8, so both versions write the committed bytes. `test_corpus.py`: 22 passed. Negative check: one changed digit in D2's paragraph makes `make corpus` exit 2, naming `items[D2.6].quote` and `items[D2.6].attributes.threshold.quote`. |
+| Fresh install (§6, SC-011) | The wheel lists the four shipped files. A venv with no extras prints both packs, `52` and `()`, and no `openai`, `databricks`, `neo4j` or `psycopg` module is loaded. Run twice: with the locked versions as constraints (pydantic 2.13.5), and unconstrained, which resolved pydantic 2.14.1 and pydantic-core 2.50.1 (published 2026-10-11, no OSV advisory). |
+| Gates (§7) | `make check` on 3.11.14: every gate passes, 1168 passed and 22 deselected; the unit suite takes 24.7 s and the whole run 27.2 s. On 3.14.8: 1168 passed in 25.1 s. `lint-imports`: 3 contracts kept. Negative check: `Module layers BROKEN`, `tenetrag.packs is not allowed to import tenetrag.config`, at `tenetrag.packs.stack` line 19. |
+| Docs (FR-043) | ARCHITECTURE.md, domain-packs.md, v1-packs.md, test-corpora.md, engine brief §10 and the `AGENTS.md` status are updated (T049–T052). `docs/product/packs/` holds only `finance.yaml`. |
