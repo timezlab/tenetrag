@@ -19,6 +19,7 @@ from tenetrag.protocols.errors import (
     TenetRAGError,
     UnsupportedRequestError,
     UnsupportedServerError,
+    WriterBusyError,
 )
 from tenetrag.protocols.models import (
     ChatModel,
@@ -54,4 +55,5 @@ __all__ = [
     "UnsupportedRequestError",
     "UnsupportedServerError",
     "Usage",
+    "WriterBusyError",
 ]

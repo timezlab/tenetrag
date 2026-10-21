@@ -125,7 +125,7 @@ for name search on the reference store and on Neo4j
 
 **⚠️ CRITICAL**: no story work begins until this phase is complete
 
-- [ ] T003 [P] Write `tests/unit/engine/test_text.py`, the seven tests of
+- [X] T003 [P] Write `tests/unit/engine/test_text.py`, the seven tests of
   [contracts/text.md](contracts/text.md#behaviour-pinned-by-tests):
   - `test_tone_marks_moved`: the five named examples, plus all fifteen
     pairs of [data-model §11](data-model.md#11-tone-mark-table-norm),
@@ -143,7 +143,7 @@ for name search on the reference store and on Neo4j
     module.
 
   Red: `ModuleNotFoundError: No module named 'tenetrag.engine.text'`.
-- [ ] T004 Implement `src/tenetrag/engine/text.py`, standard library only
+- [X] T004 Implement `src/tenetrag/engine/text.py`, standard library only
   (research R18):
   - `norm(text: str) -> str`: NFC, then the tone-mark table, then
     `casefold()`, then NFC again, then whitespace collapse;
@@ -151,7 +151,7 @@ for name search on the reference store and on Neo4j
     no letter follows the vowel pair, and never to a `uy` after `q`.
 
   T003 passes. Depends on T001 and T003.
-- [ ] T005 [P] Write `tests/unit/protocols/test_errors.py` with
+- [X] T005 [P] Write `tests/unit/protocols/test_errors.py` with
   `test_writer_busy_error` (contracts/protocols.md §1):
   - it is a `StorageError`;
   - its keyword-only `owner` and `expires_at` (an aware `datetime`) are
@@ -161,11 +161,11 @@ for name search on the reference store and on Neo4j
   - a naive `expires_at` raises `ValueError`.
 
   Red: `ImportError` for `WriterBusyError` from `tenetrag.protocols`.
-- [ ] T006 Add `WriterBusyError(StorageError)` to
+- [X] T006 Add `WriterBusyError(StorageError)` to
   `src/tenetrag/protocols/errors.py` and export it from
   `tenetrag.protocols`. T005 passes, and `tests/unit/test_errors.py`
   passes unchanged. Depends on T005.
-- [ ] T007 [P] Write `tests/unit/storage/test_trigram.py`
+- [X] T007 [P] Write `tests/unit/storage/test_trigram.py`
   ([contracts/stores.md §4.3](contracts/stores.md#43-shared-modules)):
   - `test_trigrams_match_pg_trgm`: `similarity` equals pg_trgm's value
     to four places for each of the eight pairs of research R10
@@ -178,7 +178,7 @@ for name search on the reference store and on Neo4j
     no word is empty.
 
   Red: `ModuleNotFoundError` for `tenetrag.storage._trigram`.
-- [ ] T008 Implement `src/tenetrag/storage/_trigram.py`, standard library
+- [X] T008 Implement `src/tenetrag/storage/_trigram.py`, standard library
   only:
   - `trigrams(text)`: words are runs of `[^\W_]`, and each is padded as
     `"  " + word + " "`;
@@ -188,6 +188,53 @@ for name search on the reference store and on Neo4j
 
   T007 passes. `uv run lint-imports` still passes, since the module
   imports nothing from `tenetrag`. Depends on T007.
+
+  Result (2026-10-21): `make check` passes with 1248 unit tests (80 new:
+  64 in `test_text.py`, 11 in `test_trigram.py`, 3 in
+  `protocols/test_errors.py`, and 2 new cases in M0's `test_errors.py`).
+  `lint-imports` keeps 4 contracts.
+  - Red: the three new files failed to collect, each on its missing
+    module or name (`No module named 'tenetrag.engine.text'`,
+    `cannot import name 'WriterBusyError' from 'tenetrag.protocols'`,
+    `No module named 'tenetrag.storage._trigram'`).
+  - T003 departures: ten tests instead of seven. The fifteen pairs have
+    their own `test_tone_mark_pairs_moved` (lower, upper and mixed case,
+    alone and after a consonant). Two tests were added after green,
+    because a planted fault survived without them:
+    - `test_casefolded` (`Straße` and `STRASSE`): `lower()` in place of
+      `casefold()` survived;
+    - `test_result_is_nfc` (`ǰ`, which casefolding decomposes): dropping
+      the second NFC survived.
+  - T004 departure: `norm` casefolds before the table, so the table holds
+    lower case only. The output is the contract's, because casefolding
+    keeps each mark on its letter, and data-model §11 maps upper case the
+    same way before casefolding. The docstring says so.
+  - T005: two more tests, one for the naive `expires_at` and one for the
+    keyword-only arguments. The first green failed on the message text
+    ("wait" in lower case), and the fix was in the message, not the test.
+  - T006 departure: M0's `tests/unit/test_errors.py` does not pass
+    unchanged. Its `test_no_unlisted_error_classes` needs every error
+    class in `PARENTS`, so `WriterBusyError` was added there first (red:
+    3 failed, 39 passed). Its `test_reexported_from_protocols_and_package`
+    needs the class in `tenetrag` as well, so it is exported from both
+    `tenetrag.protocols` and `tenetrag`.
+  - T007: two more tests:
+    - `test_trigrams_padded_per_word`: the padding, `_` splitting words,
+      and lower-casing;
+    - `test_no_word_no_trigrams`.
+  - T008: `trigrams` lower-cases the text as pg_trgm does, which the task
+    text left out. `test_trigrams_padded_per_word` pins it.
+  - Planted faults, each reverted, all caught:
+    - `text.py`: `uy` after `q` moved; an ending followed by a letter
+      moved; one table pair wrong; no whitespace collapse;
+      `import tenetrag.storage` in the module (caught by
+      `test_engine_imports`, and `lint-imports` breaks the layers and
+      engine contracts);
+    - `_trigram.py`: no lower-casing; one-space padding; `\w+` for words;
+      the overlap over the larger set instead of the union; unsorted
+      tokens;
+    - `errors.py`: no UTC conversion; microseconds in the text; a naive
+      `expires_at` accepted.
 
 **Checkpoint**: `norm()`, `WriterBusyError` and the trigrams are ready
 

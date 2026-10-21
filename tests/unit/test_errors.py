@@ -18,6 +18,7 @@ PARENTS = {
     "StoreUnavailableError": "StorageError",
     "UnsupportedServerError": "StorageError",
     "QueryError": "StorageError",
+    "WriterBusyError": "StorageError",
     "LLMError": "TenetRAGError",
     "ModelUnavailableError": "LLMError",
     "StructuredOutputError": "LLMError",

@@ -19,6 +19,7 @@ from tenetrag.protocols.errors import (
     TenetRAGError,
     UnsupportedRequestError,
     UnsupportedServerError,
+    WriterBusyError,
 )
 
 __version__ = "0.1.0.dev0"
@@ -42,5 +43,6 @@ __all__ = [
     "TenetRAGError",
     "UnsupportedRequestError",
     "UnsupportedServerError",
+    "WriterBusyError",
     "__version__",
 ]

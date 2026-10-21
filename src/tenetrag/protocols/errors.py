@@ -7,6 +7,8 @@ A third-party exception is re-raised as one of these with ``raise ... from exc``
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 
 class TenetRAGError(Exception):
     """Base class of every error the SDK raises."""
@@ -61,6 +63,21 @@ class UnsupportedServerError(StorageError):
 
 class QueryError(StorageError):
     """A unit of work failed in a way that retrying will not fix."""
+
+
+class WriterBusyError(StorageError):
+    """Another writer holds the index's lease, or took it over from this store (ADR 0024)."""
+
+    def __init__(self, *, owner: str, expires_at: datetime) -> None:
+        if expires_at.utcoffset() is None:
+            raise ValueError("WriterBusyError needs an aware expires_at, such as datetime.now(UTC)")
+        self.owner = owner
+        self.expires_at = expires_at
+        end = expires_at.astimezone(UTC).isoformat(timespec="seconds")
+        super().__init__(
+            f"The index's writer lease is held by '{owner}' until {end}; "
+            "wait until then, or release the lease from that writer, and try again."
+        )
 
 
 class LLMError(TenetRAGError):
